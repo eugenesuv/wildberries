@@ -1,69 +1,103 @@
 -- +goose Up
 -- +goose StatementBegin
-create schema if not exists app;
+CREATE SCHEMA IF NOT EXISTS "public";
 
-create table app.promotion (
-    id serial primary key,
-    date_from timestamptz not null,
-    date_to timestamptz not null,
-    created_at timestamptz not null,
-    updated_at timestamptz not null
+CREATE TABLE "public"."horoscope" (
+    "id" bigint NOT NULL,
+    "promotion_id" bigint NOT NULL,
+    "zodiac_id" bigint NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "text" text NOT NULL,
+    "category_id" bigint NOT NULL,
+    CONSTRAINT "pk_horoscope_id" PRIMARY KEY ("id")
 );
 
-create table app.zodiac (
-    id serial primary key,
-    name text not null
+CREATE TABLE "public"."promotion" (
+    "id" bigint NOT NULL,
+    "status" text NOT NULL,
+    "start_time" timestamp NOT NULL,
+    "end_time" timestamp NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "pk_promotion_id" PRIMARY KEY ("id")
 );
 
-create table app.horoscope (
-    id serial primary key,
-    promotion_id int references app.promotion(id) not null,
-    zodiac_id int references app.zodiac(id) not null,
-    created_at timestamptz not null,
-    text text not null,
-    category_id int not null
+CREATE TABLE "public"."auction" (
+    "id" bigint NOT NULL,
+    "status" text NOT NULL,
+    "start_time" timestamp NOT NULL,
+    "end_time" timestamp NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    "deleted_at" timestamp,
+    "horoscope_id" bigint NOT NULL,
+    CONSTRAINT "pk_auction_id" PRIMARY KEY ("id")
 );
 
-create table app.product (
-    id serial primary key,
-    nm_id bigint not null,
-    category_id int not null,
-    category_name text not null,
-    name text not null,
-    image text,
-    price bigint not null constraint price_check check ( price > 0 ),
-    created_at timestamptz not null,
-    updated_at timestamptz not null,
-    deleted_at timestamptz
+CREATE TABLE "public"."horoscope_product" (
+    "product_id" bigint NOT NULL,
+    "horoscope_id" bigint NOT NULL
 );
 
-create table app.horoscope_product(
-    horoscope_id int references app.horoscope(id) not null ,
-    product_id int references app.product(id) not null
+CREATE TABLE "public"."product" (
+    "id" bigint NOT NULL,
+    "seller_id" bigint NOT NULL,
+    "nm_id" bigint NOT NULL,
+    "category_id" bigint NOT NULL,
+    "category_name" text NOT NULL,
+    "name" text NOT NULL,
+    "image" text,
+    "price" bigint NOT NULL,
+    "discount" integer NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    "deleted_at" timestamp,
+    CONSTRAINT "pk_product_id" PRIMARY KEY ("id")
 );
 
-create table app.auction (
-    id serial primary key,
-    date_from timestamptz not null,
-    date_to timestamptz not null,
-    created_at timestamptz not null,
-    updated_at timestamptz not null,
-    deleted_at timestamptz,
-    horoscope_id int references app.horoscope(id) not null,
-    position int not null
+CREATE TABLE "public"."bet" (
+    "id" bigint NOT NULL,
+    "product_id" bigint NOT NULL,
+    "auction_id" bigint NOT NULL,
+    "bet" bigint NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "deleted_at" timestamp,
+    CONSTRAINT "pk_bet_id" PRIMARY KEY ("id")
 );
 
-create table app.bet (
-    id serial primary key,
-    auction_id int references app.auction(id) not null,
-    product_id int references app.product(id) not null,
-    bet bigint not null constraint bet_check check ( bet > 0 ),
-    created_at timestamptz not null,
-    deleted_at timestamptz
+CREATE TABLE "public"."zodiac" (
+    "id" bigint NOT NULL,
+    "name" text NOT NULL,
+    CONSTRAINT "pk_zodiac_id" PRIMARY KEY ("id")
 );
+
+ALTER TABLE "public"."auction" ADD CONSTRAINT "fk_auction_horoscope_id_horoscope_id" FOREIGN KEY("horoscope_id") REFERENCES "public"."horoscope"("id");
+ALTER TABLE "public"."bet" ADD CONSTRAINT "fk_bet_auction_id_auction_id" FOREIGN KEY("auction_id") REFERENCES "public"."auction"("id");
+ALTER TABLE "public"."bet" ADD CONSTRAINT "fk_bet_product_id_product_id" FOREIGN KEY("product_id") REFERENCES "public"."product"("id");
+ALTER TABLE "public"."horoscope_product" ADD CONSTRAINT "fk_horoscope_product_horoscope_id_horoscope_id" FOREIGN KEY("horoscope_id") REFERENCES "public"."horoscope"("id");
+ALTER TABLE "public"."horoscope_product" ADD CONSTRAINT "fk_horoscope_product_product_id_product_id" FOREIGN KEY("product_id") REFERENCES "public"."product"("id");
+ALTER TABLE "public"."horoscope" ADD CONSTRAINT "fk_horoscope_promotion_id_promotion_id" FOREIGN KEY("promotion_id") REFERENCES "public"."promotion"("id");
+ALTER TABLE "public"."horoscope" ADD CONSTRAINT "fk_horoscope_zodiac_id_zodiac_id" FOREIGN KEY("zodiac_id") REFERENCES "public"."zodiac"("id");
+
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+ALTER TABLE "public"."bet" DROP CONSTRAINT "fk_bet_product_id_product_id";
+ALTER TABLE "public"."bet" DROP CONSTRAINT "fk_bet_auction_id_auction_id";
+ALTER TABLE "public"."auction" DROP CONSTRAINT "fk_auction_horoscope_id_horoscope_id";
+ALTER TABLE "public"."horoscope_product" DROP CONSTRAINT "fk_horoscope_product_product_id_product_id";
+ALTER TABLE "public"."horoscope_product" DROP CONSTRAINT "fk_horoscope_product_horoscope_id_horoscope_id";
+ALTER TABLE "public"."horoscope" DROP CONSTRAINT "fk_horoscope_zodiac_id_zodiac_id";
+ALTER TABLE "public"."horoscope" DROP CONSTRAINT "fk_horoscope_promotion_id_promotion_id";
+
+DROP TABLE IF EXISTS "public"."bet";
+DROP TABLE IF EXISTS "public"."auction";
+DROP TABLE IF EXISTS "public"."product";
+DROP TABLE IF EXISTS "public"."horoscope_product";
+DROP TABLE IF EXISTS "public"."horoscope";
+DROP TABLE IF EXISTS "public"."promotion";
+DROP TABLE IF EXISTS "public"."zodiac";
+
+DROP SCHEMA IF EXISTS "public";
 -- +goose StatementEnd
