@@ -1,8 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "seller.proto",
-    "version": "version not set"
+    "title": "Seller сервис",
+    "description": "Сервис селлера для работы с акциями",
+    "version": "1.0.0"
   },
   "tags": [
     {
@@ -14,6 +15,10 @@
     {
       "name": "SellerBetsService"
     }
+  ],
+  "host": "localhost:7004",
+  "schemes": [
+    "http"
   ],
   "consumes": [
     "application/json"

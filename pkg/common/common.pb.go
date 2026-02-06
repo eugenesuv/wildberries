@@ -7,6 +7,7 @@
 package common
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -399,7 +400,7 @@ var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\x12wildberries.common\"\x87\x01\n" +
+	"\fcommon.proto\x12\x12wildberries.common\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x87\x01\n" +
 	"\aSegment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -432,7 +433,8 @@ const file_common_proto_rawDesc = "" +
 	"\fPricingModel\x12\x1d\n" +
 	"\x19PRICING_MODEL_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aAUCTION\x10\x01\x12\t\n" +
-	"\x05FIXED\x10\x02B\x1fZ\x1dwildberries/pkg/common;commonb\x06proto3"
+	"\x05FIXED\x10\x02B\xbf\x01\x92A\x9c\x01\x12c\n" +
+	"\x13Common модели\x12EОбщие модели данных для всех сервисов2\x051.0.0\x1a\x0elocalhost:7000*\x01\x012\x10application/json:\x10application/jsonZ\x1dwildberries/pkg/common;commonb\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once

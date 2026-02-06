@@ -1,9 +1,14 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "common.proto",
-    "version": "version not set"
+    "title": "Common модели",
+    "description": "Общие модели данных для всех сервисов",
+    "version": "1.0.0"
   },
+  "host": "localhost:7000",
+  "schemes": [
+    "http"
+  ],
   "consumes": [
     "application/json"
   ],

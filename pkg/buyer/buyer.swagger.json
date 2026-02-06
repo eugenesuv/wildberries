@@ -1,8 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "buyer.proto",
-    "version": "version not set"
+    "title": "Buyer сервис",
+    "description": "Сервис покупателя для работы с акциями",
+    "version": "1.0.0"
   },
   "tags": [
     {
@@ -11,6 +12,10 @@
     {
       "name": "IdentificationService"
     }
+  ],
+  "host": "localhost:7001",
+  "schemes": [
+    "http"
   ],
   "consumes": [
     "application/json"

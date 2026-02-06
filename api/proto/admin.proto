@@ -12,9 +12,9 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Сервис управления заказами для ПВЗ";
+    title: "Админская панель";
     version: "1.0.0";
-    description: "Сервис выполняет функции для выдачи, добавления, возврата и просмотра заказов";
+    description: "Админская панель";
   };
   host: "localhost:7002";
   schemes: HTTP;

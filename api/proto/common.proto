@@ -4,6 +4,20 @@ package wildberries.common;
 
 option go_package = "wildberries/pkg/common;common";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Common модели";
+    version: "1.0.0";
+    description: "Общие модели данных для всех сервисов";
+  };
+  host: "localhost:7000";
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
 // Segment — сегмент акции (знак зодиака, факультет и т.д.)
 message Segment {
   int64 id = 1;

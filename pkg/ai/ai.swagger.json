@@ -1,13 +1,18 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "ai.proto",
-    "version": "version not set"
+    "title": "AI сервис",
+    "description": "Сервис генерации тем, сегментов, вопросов и дерева ответов",
+    "version": "1.0.0"
   },
   "tags": [
     {
       "name": "AIService"
     }
+  ],
+  "host": "localhost:7003",
+  "schemes": [
+    "http"
   ],
   "consumes": [
     "application/json"

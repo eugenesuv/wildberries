@@ -9,6 +9,18 @@ import "google/api/annotations.proto";
 import "validate/validate.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "AI сервис";
+    version: "1.0.0";
+    description: "Сервис генерации тем, сегментов, вопросов и дерева ответов";
+  };
+  host: "localhost:7003";
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
 // --- POST /ai/themes ---
 message GenerateThemesRequest {}
 
