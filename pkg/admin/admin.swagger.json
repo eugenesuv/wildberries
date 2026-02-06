@@ -62,8 +62,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "title": "POST /admin/moderation/{applicationId}/approve"
+              "$ref": "#/definitions/ModerationServiceApproveBody"
             }
           }
         ],
@@ -104,13 +103,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "reason": {
-                  "type": "string"
-                }
-              },
-              "title": "POST /admin/moderation/{applicationId}/reject"
+              "$ref": "#/definitions/ModerationServiceRejectBody"
             }
           }
         ],
@@ -247,49 +240,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "theme": {
-                  "type": "string"
-                },
-                "dateFrom": {
-                  "type": "string"
-                },
-                "dateTo": {
-                  "type": "string"
-                },
-                "identificationMode": {
-                  "type": "string"
-                },
-                "pricingModel": {
-                  "type": "string"
-                },
-                "slotCount": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "minDiscount": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "maxDiscount": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "stopFactors": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              },
-              "title": "PATCH /admin/promotions/{id}"
+              "$ref": "#/definitions/PromotionAdminServiceUpdatePromotionBody"
             }
           }
         ],
@@ -330,17 +281,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "prices": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "$ref": "#/definitions/adminFixedPriceEntry"
-                  }
-                }
-              },
-              "title": "PUT /admin/promotions/{id}/fixed-prices"
+              "$ref": "#/definitions/PromotionAdminServiceSetFixedPricesBody"
             }
           }
         ],
@@ -421,17 +362,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "nodes": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "$ref": "#/definitions/adminAnswerTreeNode"
-                  }
-                }
-              },
-              "title": "POST /admin/promotions/{id}/poll/answer-tree"
+              "$ref": "#/definitions/PollAdminServiceSetAnswerTreeBody"
             }
           }
         ],
@@ -472,14 +403,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "title": "\"questions\" | \"answer_tree\""
-                }
-              },
-              "title": "--- Poll Admin ---\nPOST /admin/promotions/{id}/poll/generate"
+              "$ref": "#/definitions/PollAdminServiceGeneratePollBody"
             }
           }
         ],
@@ -520,17 +444,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "questions": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "$ref": "#/definitions/adminSetQuestionInput"
-                  }
-                }
-              },
-              "title": "POST /admin/promotions/{id}/poll/questions"
+              "$ref": "#/definitions/PollAdminServiceSetPollQuestionsBody"
             }
           }
         ],
@@ -571,20 +485,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "categoryName": {
-                  "type": "string"
-                },
-                "orderIndex": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "title": "POST /admin/promotions/{id}/segments"
+              "$ref": "#/definitions/SegmentAdminServiceCreateSegmentBody"
             }
           }
         ],
@@ -625,17 +526,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "useTheme": {
-                  "type": "boolean"
-                },
-                "limit": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "title": "--- Segment Admin ---\nPOST /admin/promotions/{id}/segments/generate"
+              "$ref": "#/definitions/SegmentAdminServiceGenerateSegmentsBody"
             }
           }
         ],
@@ -676,8 +567,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "title": "POST /admin/promotions/{id}/segments/shuffle-categories"
+              "$ref": "#/definitions/SegmentAdminServiceShuffleSegmentCategoriesBody"
             }
           }
         ],
@@ -763,20 +653,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "categoryName": {
-                  "type": "string"
-                },
-                "orderIndex": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "title": "PATCH /admin/promotions/{id}/segments/{segmentId}"
+              "$ref": "#/definitions/SegmentAdminServiceUpdateSegmentBody"
             }
           }
         ],
@@ -817,14 +694,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "string",
-                  "title": "NOT_READY | READY_TO_START | RUNNING | PAUSED | COMPLETED"
-                }
-              },
-              "title": "PUT /admin/promotions/{id}/status"
+              "$ref": "#/definitions/PromotionAdminServiceChangeStatusBody"
             }
           }
         ],
@@ -869,6 +739,172 @@
     }
   },
   "definitions": {
+    "ModerationServiceApproveBody": {
+      "type": "object",
+      "title": "POST /admin/moderation/{applicationId}/approve"
+    },
+    "ModerationServiceRejectBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "title": "POST /admin/moderation/{applicationId}/reject"
+    },
+    "PollAdminServiceGeneratePollBody": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "\"questions\" | \"answer_tree\""
+        }
+      },
+      "title": "--- Poll Admin ---\nPOST /admin/promotions/{id}/poll/generate"
+    },
+    "PollAdminServiceSetAnswerTreeBody": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminAnswerTreeNode"
+          }
+        }
+      },
+      "title": "POST /admin/promotions/{id}/poll/answer-tree"
+    },
+    "PollAdminServiceSetPollQuestionsBody": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSetQuestionInput"
+          }
+        }
+      },
+      "title": "POST /admin/promotions/{id}/poll/questions"
+    },
+    "PromotionAdminServiceChangeStatusBody": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "title": "NOT_READY | READY_TO_START | RUNNING | PAUSED | COMPLETED"
+        }
+      },
+      "title": "PUT /admin/promotions/{id}/status"
+    },
+    "PromotionAdminServiceSetFixedPricesBody": {
+      "type": "object",
+      "properties": {
+        "prices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminFixedPriceEntry"
+          }
+        }
+      },
+      "title": "PUT /admin/promotions/{id}/fixed-prices"
+    },
+    "PromotionAdminServiceUpdatePromotionBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "identificationMode": {
+          "$ref": "#/definitions/wildberriesAdminIdentificationMode"
+        },
+        "pricingModel": {
+          "$ref": "#/definitions/wildberriesAdminPricingModel"
+        },
+        "slotCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minDiscount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxDiscount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "PATCH /admin/promotions/{id}"
+    },
+    "SegmentAdminServiceCreateSegmentBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "POST /admin/promotions/{id}/segments"
+    },
+    "SegmentAdminServiceGenerateSegmentsBody": {
+      "type": "object",
+      "properties": {
+        "useTheme": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "--- Segment Admin ---\nPOST /admin/promotions/{id}/segments/generate"
+    },
+    "SegmentAdminServiceShuffleSegmentCategoriesBody": {
+      "type": "object",
+      "title": "POST /admin/promotions/{id}/segments/shuffle-categories"
+    },
+    "SegmentAdminServiceUpdateSegmentBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "PATCH /admin/promotions/{id}/segments/{segmentId}"
+    },
     "adminAnswerTreeNode": {
       "type": "object",
       "properties": {
@@ -913,24 +949,24 @@
           "type": "string"
         },
         "identificationMode": {
-          "type": "string",
+          "$ref": "#/definitions/adminIdentificationMode",
           "title": "questions | user_profile"
         },
         "pricingModel": {
-          "type": "string",
+          "$ref": "#/definitions/adminPricingModel",
           "title": "auction | fixed"
         },
         "slotCount": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string",
+          "format": "int64"
         },
         "minDiscount": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string",
+          "format": "int64"
         },
         "maxDiscount": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string",
+          "format": "int64"
         },
         "stopFactors": {
           "type": "array",
@@ -1057,10 +1093,10 @@
           "type": "string"
         },
         "identificationMode": {
-          "type": "string"
+          "$ref": "#/definitions/adminIdentificationMode"
         },
         "pricingModel": {
-          "type": "string"
+          "$ref": "#/definitions/adminPricingModel"
         },
         "slotCount": {
           "type": "integer",
@@ -1099,6 +1135,15 @@
           "$ref": "#/definitions/adminPromotionPoll"
         }
       }
+    },
+    "adminIdentificationMode": {
+      "type": "string",
+      "enum": [
+        "MODE_UNKNOWN",
+        "MODE_QUESTIONS",
+        "MODE_USER_PROFILE"
+      ],
+      "default": "MODE_UNKNOWN"
     },
     "adminModerationApplication": {
       "type": "object",
@@ -1174,6 +1219,15 @@
           }
         }
       }
+    },
+    "adminPricingModel": {
+      "type": "string",
+      "enum": [
+        "MODEL_UNKNOWN",
+        "MODEL_AUCTION",
+        "MODEL_FIXED"
+      ],
+      "default": "MODEL_UNKNOWN"
     },
     "adminPromotionPoll": {
       "type": "object",

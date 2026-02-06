@@ -10,6 +10,7 @@ package buyer
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -24,204 +25,173 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_BuyerPromotionService_GetCurrentPromotion_0(ctx context.Context, marshaler runtime.Marshaler, client BuyerPromotionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCurrentPromotionRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetCurrentPromotionRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetCurrentPromotion(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_BuyerPromotionService_GetCurrentPromotion_0(ctx context.Context, marshaler runtime.Marshaler, server BuyerPromotionServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCurrentPromotionRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetCurrentPromotionRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.GetCurrentPromotion(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_BuyerPromotionService_GetSegmentProducts_0 = &utilities.DoubleArray{Encoding: map[string]int{"promotion_id": 0, "promotionId": 1, "segment_id": 2, "segmentId": 3}, Base: []int{1, 1, 2, 3, 4, 0, 0, 0, 0}, Check: []int{0, 1, 1, 1, 1, 2, 3, 4, 5}}
-)
+var filter_BuyerPromotionService_GetSegmentProducts_0 = &utilities.DoubleArray{Encoding: map[string]int{"promotion_id": 0, "segment_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_BuyerPromotionService_GetSegmentProducts_0(ctx context.Context, marshaler runtime.Marshaler, client BuyerPromotionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSegmentProductsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetSegmentProductsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["promotion_id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["promotion_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "promotion_id")
 	}
-
 	protoReq.PromotionId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "promotion_id", err)
 	}
-
 	val, ok = pathParams["segment_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "segment_id")
 	}
-
 	protoReq.SegmentId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "segment_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BuyerPromotionService_GetSegmentProducts_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetSegmentProducts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_BuyerPromotionService_GetSegmentProducts_0(ctx context.Context, marshaler runtime.Marshaler, server BuyerPromotionServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSegmentProductsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetSegmentProductsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["promotion_id"]
+	val, ok := pathParams["promotion_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "promotion_id")
 	}
-
 	protoReq.PromotionId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "promotion_id", err)
 	}
-
 	val, ok = pathParams["segment_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "segment_id")
 	}
-
 	protoReq.SegmentId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "segment_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BuyerPromotionService_GetSegmentProducts_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetSegmentProducts(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentificationService_StartIdentification_0(ctx context.Context, marshaler runtime.Marshaler, client IdentificationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartIdentificationRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq StartIdentificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.StartIdentification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentificationService_StartIdentification_0(ctx context.Context, marshaler runtime.Marshaler, server IdentificationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq StartIdentificationRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq StartIdentificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.StartIdentification(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentificationService_Answer_0(ctx context.Context, marshaler runtime.Marshaler, client IdentificationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AnswerRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AnswerRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Answer(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentificationService_Answer_0(ctx context.Context, marshaler runtime.Marshaler, server IdentificationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AnswerRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AnswerRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.Answer(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterBuyerPromotionServiceHandlerServer registers the http handlers for service BuyerPromotionService to "mux".
 // UnaryRPC     :call BuyerPromotionServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBuyerPromotionServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterBuyerPromotionServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BuyerPromotionServiceServer) error {
-
-	mux.Handle("GET", pattern_BuyerPromotionService_GetCurrentPromotion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BuyerPromotionService_GetCurrentPromotion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetCurrentPromotion", runtime.WithHTTPPathPattern("/promotions/current"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetCurrentPromotion", runtime.WithHTTPPathPattern("/promotions/current"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -233,20 +203,15 @@ func RegisterBuyerPromotionServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_BuyerPromotionService_GetCurrentPromotion_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_BuyerPromotionService_GetSegmentProducts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BuyerPromotionService_GetSegmentProducts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetSegmentProducts", runtime.WithHTTPPathPattern("/promotions/{promotion_id}/segments/{segment_id}/products"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetSegmentProducts", runtime.WithHTTPPathPattern("/promotions/{promotion_id}/segments/{segment_id}/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -258,9 +223,7 @@ func RegisterBuyerPromotionServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_BuyerPromotionService_GetSegmentProducts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -270,17 +233,15 @@ func RegisterBuyerPromotionServiceHandlerServer(ctx context.Context, mux *runtim
 // UnaryRPC     :call IdentificationServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterIdentificationServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterIdentificationServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server IdentificationServiceServer) error {
-
-	mux.Handle("POST", pattern_IdentificationService_StartIdentification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentificationService_StartIdentification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/StartIdentification", runtime.WithHTTPPathPattern("/identification/start"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/StartIdentification", runtime.WithHTTPPathPattern("/identification/start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -292,20 +253,15 @@ func RegisterIdentificationServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentificationService_StartIdentification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentificationService_Answer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentificationService_Answer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/Answer", runtime.WithHTTPPathPattern("/identification/answer"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/Answer", runtime.WithHTTPPathPattern("/identification/answer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -317,9 +273,7 @@ func RegisterIdentificationServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentificationService_Answer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -328,25 +282,24 @@ func RegisterIdentificationServiceHandlerServer(ctx context.Context, mux *runtim
 // RegisterBuyerPromotionServiceHandlerFromEndpoint is same as RegisterBuyerPromotionServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterBuyerPromotionServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterBuyerPromotionServiceHandler(ctx, mux, conn)
 }
 
@@ -360,16 +313,13 @@ func RegisterBuyerPromotionServiceHandler(ctx context.Context, mux *runtime.Serv
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "BuyerPromotionServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "BuyerPromotionServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "BuyerPromotionServiceClient" to call the correct interceptors.
+// "BuyerPromotionServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterBuyerPromotionServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BuyerPromotionServiceClient) error {
-
-	mux.Handle("GET", pattern_BuyerPromotionService_GetCurrentPromotion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BuyerPromotionService_GetCurrentPromotion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetCurrentPromotion", runtime.WithHTTPPathPattern("/promotions/current"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetCurrentPromotion", runtime.WithHTTPPathPattern("/promotions/current"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -380,18 +330,13 @@ func RegisterBuyerPromotionServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_BuyerPromotionService_GetCurrentPromotion_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_BuyerPromotionService_GetSegmentProducts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BuyerPromotionService_GetSegmentProducts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetSegmentProducts", runtime.WithHTTPPathPattern("/promotions/{promotion_id}/segments/{segment_id}/products"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.BuyerPromotionService/GetSegmentProducts", runtime.WithHTTPPathPattern("/promotions/{promotion_id}/segments/{segment_id}/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -402,48 +347,42 @@ func RegisterBuyerPromotionServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_BuyerPromotionService_GetSegmentProducts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_BuyerPromotionService_GetCurrentPromotion_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"promotions", "current"}, ""))
-
-	pattern_BuyerPromotionService_GetSegmentProducts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"promotions", "promotion_id", "segments", "segment_id", "products"}, ""))
+	pattern_BuyerPromotionService_GetSegmentProducts_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"promotions", "promotion_id", "segments", "segment_id", "products"}, ""))
 )
 
 var (
 	forward_BuyerPromotionService_GetCurrentPromotion_0 = runtime.ForwardResponseMessage
-
-	forward_BuyerPromotionService_GetSegmentProducts_0 = runtime.ForwardResponseMessage
+	forward_BuyerPromotionService_GetSegmentProducts_0  = runtime.ForwardResponseMessage
 )
 
 // RegisterIdentificationServiceHandlerFromEndpoint is same as RegisterIdentificationServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterIdentificationServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterIdentificationServiceHandler(ctx, mux, conn)
 }
 
@@ -457,16 +396,13 @@ func RegisterIdentificationServiceHandler(ctx context.Context, mux *runtime.Serv
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "IdentificationServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "IdentificationServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "IdentificationServiceClient" to call the correct interceptors.
+// "IdentificationServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterIdentificationServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client IdentificationServiceClient) error {
-
-	mux.Handle("POST", pattern_IdentificationService_StartIdentification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentificationService_StartIdentification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/StartIdentification", runtime.WithHTTPPathPattern("/identification/start"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/StartIdentification", runtime.WithHTTPPathPattern("/identification/start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -477,18 +413,13 @@ func RegisterIdentificationServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentificationService_StartIdentification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentificationService_Answer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentificationService_Answer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/Answer", runtime.WithHTTPPathPattern("/identification/answer"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.buyer.IdentificationService/Answer", runtime.WithHTTPPathPattern("/identification/answer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -499,22 +430,17 @@ func RegisterIdentificationServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentificationService_Answer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_IdentificationService_StartIdentification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"identification", "start"}, ""))
-
-	pattern_IdentificationService_Answer_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"identification", "answer"}, ""))
+	pattern_IdentificationService_Answer_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"identification", "answer"}, ""))
 )
 
 var (
 	forward_IdentificationService_StartIdentification_0 = runtime.ForwardResponseMessage
-
-	forward_IdentificationService_Answer_0 = runtime.ForwardResponseMessage
+	forward_IdentificationService_Answer_0              = runtime.ForwardResponseMessage
 )

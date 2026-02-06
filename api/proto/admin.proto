@@ -30,11 +30,11 @@ message CreatePromotionRequest {
   string theme = 3;
   string date_from = 4;  // RFC3339
   string date_to = 5;
-  string identification_mode = 6;  // questions | user_profile
-  string pricing_model = 7;        // auction | fixed
-  int32 slot_count = 8;
-  int32 min_discount = 9;
-  int32 max_discount = 10;
+  wildberries.common.IdentificationMode identification_mode = 6;  // questions | user_profile
+  wildberries.common.PricingModel pricing_model = 7;        // auction | fixed
+  int64 slot_count = 8;
+  int64 min_discount = 9;
+  int64 max_discount = 10;
   repeated string stop_factors = 11;
 }
 
@@ -56,8 +56,8 @@ message GetPromotionResponse {
   string status = 5;
   string date_from = 6;
   string date_to = 7;
-  string identification_mode = 8;
-  string pricing_model = 9;
+  wildberries.common.IdentificationMode identification_mode = 8;
+  wildberries.common.PricingModel pricing_model = 9;
   int32 slot_count = 10;
   int32 min_discount = 11;
   int32 max_discount = 12;
@@ -106,8 +106,8 @@ message UpdatePromotionRequest {
   optional string theme = 4;
   optional string date_from = 5;
   optional string date_to = 6;
-  optional string identification_mode = 7;
-  optional string pricing_model = 8;
+  optional wildberries.common.IdentificationMode identification_mode = 7;
+  optional wildberries.common.PricingModel pricing_model = 8;
   optional int32 slot_count = 9;
   optional int32 min_discount = 10;
   optional int32 max_discount = 11;

@@ -10,15 +10,10 @@ docker-down: docker-compose.yml
 
 
 migrations-up:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/seller_promotions?sslmode=disable" up
 
 migrations-down:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down
-
-migrations-new:
-	goose create -dir ./migrations rename sql
-
-
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/seller_promotions?sslmode=disable" down
 
 
 bin-deps: .vendor-proto
@@ -70,9 +65,9 @@ generate:
  		cd vendor.protogen/grpc-ecosystem && \
 		git sparse-checkout set --no-cone protoc-gen-openapiv2/options && \
 		git checkout
-		mkdir -p vendor.protogen/protoc-gen-openapiv2
-		mv vendor.protogen/grpc-ecosystem/protoc-gen-openapiv2/options vendor.protogen/protoc-gen-openapiv2
-		rm -rf vendor.protogen/grpc-ecosystem
+	mkdir -p vendor.protogen/protoc-gen-openapiv2/options
+	cp -r vendor.protogen/grpc-ecosystem/protoc-gen-openapiv2/options/* vendor.protogen/protoc-gen-openapiv2/options/
+	rm -rf vendor.protogen/grpc-ecosystem
 
 .vendor-proto/google/protobuf:
 	git clone -b main --single-branch -n --depth=1 --filter=tree:0 \
@@ -80,9 +75,9 @@ generate:
 		cd vendor.protogen/protobuf &&\
 		git sparse-checkout set --no-cone src/google/protobuf &&\
 		git checkout
-		mkdir -p vendor.protogen/google
-		mv vendor.protogen/protobuf/src/google/protobuf vendor.protogen/google
-		rm -rf vendor.protogen/protobuf
+	mkdir -p vendor.protogen/google/protobuf
+	cp -r vendor.protogen/protobuf/src/google/protobuf/* vendor.protogen/google/protobuf/
+	rm -rf vendor.protogen/protobuf
 
 .vendor-proto/google/api:
 	git clone -b master --single-branch -n --depth=1 --filter=tree:0 \
@@ -90,9 +85,9 @@ generate:
  		cd vendor.protogen/googleapis && \
 		git sparse-checkout set --no-cone google/api && \
 		git checkout
-		mkdir -p  vendor.protogen/google
-		mv vendor.protogen/googleapis/google/api vendor.protogen/google
-		rm -rf vendor.protogen/googleapis
+	mkdir -p vendor.protogen/google/api
+	cp -r vendor.protogen/googleapis/google/api/* vendor.protogen/google/api/
+	rm -rf vendor.protogen/googleapis
 
 .vendor-proto/validate:
 	git clone -b main --single-branch --depth=2 --filter=tree:0 \
@@ -100,6 +95,6 @@ generate:
 		cd vendor.protogen/tmp && \
 		git sparse-checkout set --no-cone validate &&\
 		git checkout
-		mkdir -p vendor.protogen/validate
-		mv vendor.protogen/tmp/validate vendor.protogen/
-		rm -rf vendor.protogen/tmp
+	mkdir -p vendor.protogen/validate
+	cp -r vendor.protogen/tmp/validate/* vendor.protogen/validate/
+	rm -rf vendor.protogen/tmp

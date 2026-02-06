@@ -15,7 +15,6 @@ func NewAuctionPostgres(pool *pgxpool.Pool) *AuctionPostgres {
 }
 
 func (r *AuctionPostgres) GetBySlotID(ctx context.Context, slotID int64) (auctionID int64, minPrice, bidStep int64, err error) {
-	_ = slotID
 	return 0, 0, 0, nil
 }
 

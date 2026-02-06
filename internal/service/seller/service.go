@@ -28,14 +28,34 @@ func New(
 
 // ListProductsBy lists products by seller
 func (s *Service) ListProductsBy(ctx context.Context, sellerID int64, categoryID string, page, perPage int) ([]*entity.ProductItem, int, error) {
-	// Implementation would go here
-	return nil, 0, nil
+	rawProducts, total, err := s.productRepo.ListBySeller(ctx, sellerID, categoryID, page, perPage)
+	if err != nil {
+		return nil, 0, err
+	}
+	var res []*entity.ProductItem
+	for _, r := range rawProducts {
+		res = append(res, &entity.ProductItem{
+			ID:   r.ID,
+			Name: r.Name,
+			Image: func(s *string) string {
+				if s == nil {
+					return ""
+				}
+				return *s
+			}(r.Image),
+			Price:        r.Price,
+			OldPrice:     r.Price, // TODO ?
+			Discount:     int32(r.Discount),
+			Badge:        "", // TODO ?
+			CategoryName: r.CategoryName,
+		})
+	}
+	return res, total, nil
 }
 
 // GetSellerActions gets seller actions
 func (s *Service) GetSellerActions(ctx context.Context, sellerID int64) ([]*entity.SellerAction, error) {
-	// Implementation would go here
-	return nil, nil
+
 }
 
 // GetSellerBetsList gets seller bets list
