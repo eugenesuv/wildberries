@@ -24,22 +24,35 @@ func New(buyerService *buyer.Service) *Service {
 
 // GetCurrentPromotion gets the current promotion
 func (s *Service) GetCurrentPromotion(ctx context.Context, req *desc.GetCurrentPromotionRequest) (*desc.GetCurrentPromotionResponse, error) {
-	// Call service
 	promotion, err := s.buyerService.GetCurrentPromotion(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert entity to response
-	return &desc.GetCurrentPromotionResponse{
+	if promotion == nil {
+		return &desc.GetCurrentPromotionResponse{}, nil
+	}
+	segments, _ := s.buyerService.GetCurrentPromotionSegments(ctx, promotion.ID)
+	resp := &desc.GetCurrentPromotionResponse{
 		Id:          promotion.ID,
 		Name:        promotion.Name,
 		Description: promotion.Description,
 		Theme:       promotion.Theme,
-		Status:      string(promotion.Status),
+		Status:      promotion.Status.String(),
 		DateFrom:    promotion.DateFrom,
 		DateTo:      promotion.DateTo,
-	}, nil
+	}
+	if len(segments) > 0 {
+		resp.Segments = make([]*commonpb.Segment, len(segments))
+		for i, seg := range segments {
+			resp.Segments[i] = &commonpb.Segment{
+				Id:           seg.ID,
+				Name:         seg.Name,
+				CategoryName: seg.CategoryName,
+				OrderIndex:   seg.OrderIndex,
+			}
+		}
+	}
+	return resp, nil
 }
 
 // GetSegmentProducts gets products for a segment

@@ -3,7 +3,6 @@ package seller
 import (
 	"context"
 
-	"wildberries/internal/entity"
 	"wildberries/internal/service/seller"
 	desc "wildberries/pkg/seller"
 )
@@ -36,7 +35,7 @@ func (s *Service) ListProductsBy(ctx context.Context, req *desc.ListProductsByRe
 	for i, item := range items {
 		responseItems[i] = &desc.ProductListItem{
 			Id:           item.ID,
-			NmId:         item.ID, // Assuming NM ID is same as ID for now
+			NmId:         item.NmID,
 			CategoryName: item.CategoryName,
 			Name:         item.Name,
 			Image:        item.Image,
@@ -108,25 +107,12 @@ func (s *Service) GetSellerBetsList(ctx context.Context, req *desc.GetSellerBets
 	}, nil
 }
 
-// MakeBet makes a bet
+// MakeBet makes a bet (auction: amount; fixed: product_id)
 func (s *Service) MakeBet(ctx context.Context, req *desc.MakeBetRequest) (*desc.MakeBetResponse, error) {
-	// Convert request product to entity
-	var product *entity.ProductForSlot
-	if req.Product != nil {
-		product = &entity.ProductForSlot{
-			Name:     req.Product.Name,
-			Price:    req.Product.Price,
-			Discount: req.Product.Discount,
-			Image:    req.Product.Image,
-		}
-	}
-
-	// Call service
-	success, message, err := s.sellerService.MakeBet(ctx, req.SellerId, req.SlotId, req.Amount, product)
+	success, message, err := s.sellerService.MakeBet(ctx, req.SellerId, req.SlotId, req.Amount, req.ProductId)
 	if err != nil {
 		return nil, err
 	}
-
 	return &desc.MakeBetResponse{
 		Success: success,
 		Message: message,

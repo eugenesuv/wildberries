@@ -4,38 +4,38 @@ import "context"
 
 // PromotionRow — строка promotion из БД
 type PromotionRow struct {
-	ID                  int64
-	Name                string
-	Description         string
-	Theme               string
-	DateFrom             string
-	DateTo               string
-	Status               string
-	IdentificationMode   string
-	PricingModel         string
-	SlotCount            int
-	MinDiscount          *int
-	MaxDiscount          *int
-	MinPrice             *int64
-	BidStep              *int64
-	StopFactors          []byte // jsonb
-	FixedPrices         []byte // jsonb
-	CreatedAt, UpdatedAt string
-	DeletedAt            *string
+	ID                 int64
+	Name               string
+	Description        string
+	Theme              string
+	DateFrom           string
+	DateTo             string
+	Status             string
+	IdentificationMode string
+	PricingModel       string
+	SlotCount          int
+	Discount           int
+	MinPrice           *int64
+	BidStep            *int64
+	StopFactors        []byte // jsonb
+	FixedPrices        []byte // jsonb
+	CreatedAt          string
+	UpdatedAt          string
+	DeletedAt          *string
 }
 
 // SegmentRow — строка segment
 type SegmentRow struct {
-	ID          int64
-	PromotionID int64
-	Name        string
-	CategoryID  *int64
+	ID           int64
+	PromotionID  int64
+	Name         string
+	CategoryID   *int64
 	CategoryName *string
-	Color       *string
-	OrderIndex  int
-	Text        *string
-	CreatedAt   string
-	UpdatedAt   string
+	Color        *string
+	OrderIndex   int
+	Text         *string
+	CreatedAt    string
+	UpdatedAt    string
 }
 
 // SlotRow — строка slot
@@ -113,15 +113,17 @@ type SegmentRepository interface {
 // SlotRepository — операции с slot
 type SlotRepository interface {
 	BySegmentID(ctx context.Context, segmentID int64, onlyOccupied bool) ([]*SlotRow, error)
+	ByPromotionID(ctx context.Context, promotionID int64) ([]*SlotRow, error)
 	BySellerID(ctx context.Context, sellerID int64, promotionID *int64) ([]*SlotRow, error)
 	GetByID(ctx context.Context, id int64) (*SlotRow, error)
 	Create(ctx context.Context, row *SlotRow) (int64, error)
 	Update(ctx context.Context, row *SlotRow) error
-	SetProduct(ctx context.Context, slotID int64, sellerID, productID int64, status string) error
+	SetProduct(ctx context.Context, slotID int64, sellerID *int64, productID int64, status string) error
 }
 
 // ProductRepository — операции с product
 type ProductRepository interface {
+	GetByID(ctx context.Context, id int64) (*ProductRow, error)
 	GetByIDs(ctx context.Context, ids []int64, filters ProductFilters) ([]*ProductRow, error)
 	ListBySeller(ctx context.Context, sellerID int64, categoryID string, page, perPage int) ([]*ProductRow, int, error)
 }
@@ -157,12 +159,12 @@ type PollOptionRow struct {
 }
 
 type PollAnswerTreeRow struct {
-	ID          int64
-	PromotionID int64
-	NodeID      string
+	ID           int64
+	PromotionID  int64
+	NodeID       string
 	ParentNodeID *string
-	Label       string
-	Value       string
+	Label        string
+	Value        string
 }
 
 // PollRepository — вопросы, опции, дерево ответов опроса
@@ -186,13 +188,14 @@ type PollAnswerTreeInput struct {
 	Value        string
 }
 
-// AuctionRepository — для аукционов и ставок
+// AuctionRepository — один аукцион на акцию
 type AuctionRepository interface {
-	GetBySlotID(ctx context.Context, slotID int64) (auctionID int64, minPrice, bidStep int64, err error)
-	Create(ctx context.Context, slotID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
+	GetByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error)
+	Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
 }
 
 type BetRepository interface {
-	Create(ctx context.Context, auctionID, productID int64, bet int64) (int64, error)
-	TopByAuction(ctx context.Context, auctionID int64) (productID int64, bet int64, err error)
+	Create(ctx context.Context, auctionID, slotID, sellerID, productID int64, bet int64) (int64, error)
+	TopBySlot(ctx context.Context, slotID int64) (sellerID, productID int64, bet int64, err error)
+	DeleteBySlotAndSeller(ctx context.Context, slotID, sellerID int64) error
 }

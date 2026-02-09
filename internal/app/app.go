@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -61,10 +62,11 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		slotRepo,
 		productRepo,
 		moderationRepo,
+		auctionRepo,
 	)
 
-	buyerService := buyer.New(productRepo)
-	sellerService := seller.New(productRepo, betRepo, auctionRepo)
+	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo)
+	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, promotionRepo, moderationRepo)
 	aiService := ai.New()
 
 	// Create API services
@@ -92,7 +94,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 	// Connect to gRPC server
 	grpcConn, err := grpc.DialContext(ctx,
-		"localhost:"+string(rune(a.cfg.GRPCPort)),
+		fmt.Sprintf("localhost:%d", a.cfg.GRPCPort),
 		grpc.WithInsecure(),
 		grpc.FailOnNonTempDialError(true),
 	)

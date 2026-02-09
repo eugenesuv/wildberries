@@ -91,15 +91,8 @@ message GetSellerBetsListResponse {
 message MakeBetRequest {
   int64 seller_id = 1;
   int64 slot_id = 2;
-  int64 amount = 3;  // для аукциона — сумма ставки
-  ProductForSlot product = 4;  // для фиксированной цены
-}
-
-message ProductForSlot {
-  string name = 1;
-  int64 price = 2;
-  int32 discount = 3;
-  string image = 4;
+  int64 amount = 3;   // для аукциона — сумма ставки
+  int64 product_id = 4;  // для фиксированной цены и аукциона — привязка к товару каталога селлера
 }
 
 message MakeBetResponse {

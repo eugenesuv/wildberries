@@ -1,9 +1,7 @@
 package entity
 
-// ProductForSlot represents a product for slot
+// ProductForSlot is used when attaching a seller's product to a slot (fixed price or auction bid).
+// Only product_id is required; name, price, image, discount come from the product catalog.
 type ProductForSlot struct {
-	Name     string `json:"name"`
-	Price    int64  `json:"price"`
-	Discount int32  `json:"discount"`
-	Image    string `json:"image"`
+	ProductID int64 `json:"product_id"`
 }

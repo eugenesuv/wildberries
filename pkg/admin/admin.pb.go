@@ -38,9 +38,8 @@ type CreatePromotionRequest struct {
 	IdentificationMode string                 `protobuf:"bytes,6,opt,name=identification_mode,json=identificationMode,proto3" json:"identification_mode,omitempty"` // questions | user_profile
 	PricingModel       string                 `protobuf:"bytes,7,opt,name=pricing_model,json=pricingModel,proto3" json:"pricing_model,omitempty"`                   // auction | fixed
 	SlotCount          int32                  `protobuf:"varint,8,opt,name=slot_count,json=slotCount,proto3" json:"slot_count,omitempty"`
-	MinDiscount        int32                  `protobuf:"varint,9,opt,name=min_discount,json=minDiscount,proto3" json:"min_discount,omitempty"`
-	MaxDiscount        int32                  `protobuf:"varint,10,opt,name=max_discount,json=maxDiscount,proto3" json:"max_discount,omitempty"`
-	StopFactors        []string               `protobuf:"bytes,11,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
+	Discount           int32                  `protobuf:"varint,9,opt,name=discount,proto3" json:"discount,omitempty"`
+	StopFactors        []string               `protobuf:"bytes,10,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -131,16 +130,9 @@ func (x *CreatePromotionRequest) GetSlotCount() int32 {
 	return 0
 }
 
-func (x *CreatePromotionRequest) GetMinDiscount() int32 {
+func (x *CreatePromotionRequest) GetDiscount() int32 {
 	if x != nil {
-		return x.MinDiscount
-	}
-	return 0
-}
-
-func (x *CreatePromotionRequest) GetMaxDiscount() int32 {
-	if x != nil {
-		return x.MaxDiscount
+		return x.Discount
 	}
 	return 0
 }
@@ -261,12 +253,11 @@ type GetPromotionResponse struct {
 	IdentificationMode string                 `protobuf:"bytes,8,opt,name=identification_mode,json=identificationMode,proto3" json:"identification_mode,omitempty"`
 	PricingModel       string                 `protobuf:"bytes,9,opt,name=pricing_model,json=pricingModel,proto3" json:"pricing_model,omitempty"`
 	SlotCount          int32                  `protobuf:"varint,10,opt,name=slot_count,json=slotCount,proto3" json:"slot_count,omitempty"`
-	MinDiscount        int32                  `protobuf:"varint,11,opt,name=min_discount,json=minDiscount,proto3" json:"min_discount,omitempty"`
-	MaxDiscount        int32                  `protobuf:"varint,12,opt,name=max_discount,json=maxDiscount,proto3" json:"max_discount,omitempty"`
-	StopFactors        []string               `protobuf:"bytes,13,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
-	Segments           []*SegmentWithOrder    `protobuf:"bytes,14,rep,name=segments,proto3" json:"segments,omitempty"`
-	FixedPrices        map[int32]int64        `protobuf:"bytes,15,rep,name=fixed_prices,json=fixedPrices,proto3" json:"fixed_prices,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // position -> price
-	Poll               *PromotionPoll         `protobuf:"bytes,16,opt,name=poll,proto3" json:"poll,omitempty"`
+	Discount           int32                  `protobuf:"varint,11,opt,name=discount,proto3" json:"discount,omitempty"`
+	StopFactors        []string               `protobuf:"bytes,12,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
+	Segments           []*SegmentWithOrder    `protobuf:"bytes,13,rep,name=segments,proto3" json:"segments,omitempty"`
+	FixedPrices        map[int32]int64        `protobuf:"bytes,14,rep,name=fixed_prices,json=fixedPrices,proto3" json:"fixed_prices,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // position -> price
+	Poll               *PromotionPoll         `protobuf:"bytes,15,opt,name=poll,proto3" json:"poll,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -371,16 +362,9 @@ func (x *GetPromotionResponse) GetSlotCount() int32 {
 	return 0
 }
 
-func (x *GetPromotionResponse) GetMinDiscount() int32 {
+func (x *GetPromotionResponse) GetDiscount() int32 {
 	if x != nil {
-		return x.MinDiscount
-	}
-	return 0
-}
-
-func (x *GetPromotionResponse) GetMaxDiscount() int32 {
-	if x != nil {
-		return x.MaxDiscount
+		return x.Discount
 	}
 	return 0
 }
@@ -733,9 +717,8 @@ type UpdatePromotionRequest struct {
 	IdentificationMode *string                `protobuf:"bytes,7,opt,name=identification_mode,json=identificationMode,proto3,oneof" json:"identification_mode,omitempty"`
 	PricingModel       *string                `protobuf:"bytes,8,opt,name=pricing_model,json=pricingModel,proto3,oneof" json:"pricing_model,omitempty"`
 	SlotCount          *int32                 `protobuf:"varint,9,opt,name=slot_count,json=slotCount,proto3,oneof" json:"slot_count,omitempty"`
-	MinDiscount        *int32                 `protobuf:"varint,10,opt,name=min_discount,json=minDiscount,proto3,oneof" json:"min_discount,omitempty"`
-	MaxDiscount        *int32                 `protobuf:"varint,11,opt,name=max_discount,json=maxDiscount,proto3,oneof" json:"max_discount,omitempty"`
-	StopFactors        []string               `protobuf:"bytes,12,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
+	Discount           *int32                 `protobuf:"varint,10,opt,name=discount,proto3,oneof" json:"discount,omitempty"`
+	StopFactors        []string               `protobuf:"bytes,11,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -833,16 +816,9 @@ func (x *UpdatePromotionRequest) GetSlotCount() int32 {
 	return 0
 }
 
-func (x *UpdatePromotionRequest) GetMinDiscount() int32 {
-	if x != nil && x.MinDiscount != nil {
-		return *x.MinDiscount
-	}
-	return 0
-}
-
-func (x *UpdatePromotionRequest) GetMaxDiscount() int32 {
-	if x != nil && x.MaxDiscount != nil {
-		return *x.MaxDiscount
+func (x *UpdatePromotionRequest) GetDiscount() int32 {
+	if x != nil && x.Discount != nil {
+		return *x.Discount
 	}
 	return 0
 }

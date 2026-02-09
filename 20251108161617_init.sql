@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE SCHEMA IF NOT EXISTS "public";
 
--- promotion: расширенная модель генератора акций
+-- promotion: discount from admin (single field); min_price/bid_step for auction model
 CREATE TABLE "public"."promotion" (
     "id" bigserial PRIMARY KEY,
     "name" text NOT NULL,
@@ -14,8 +14,7 @@ CREATE TABLE "public"."promotion" (
     "identification_mode" text NOT NULL CHECK ("identification_mode" IN ('questions', 'user_profile')),
     "pricing_model" text NOT NULL CHECK ("pricing_model" IN ('auction', 'fixed')),
     "slot_count" int NOT NULL DEFAULT 10,
-    "min_discount" int,
-    "max_discount" int,
+    "discount" int NOT NULL DEFAULT 0,
     "min_price" bigint,
     "bid_step" bigint,
     "stop_factors" jsonb,
@@ -28,13 +27,11 @@ CREATE TABLE "public"."promotion" (
 CREATE INDEX idx_promotion_status ON "public"."promotion" ("status");
 CREATE INDEX idx_promotion_dates ON "public"."promotion" ("date_from", "date_to");
 
--- справочник знаков зодиака (тема zodiac)
 CREATE TABLE "public"."zodiac" (
     "id" bigserial PRIMARY KEY,
     "name" text NOT NULL
 );
 
--- product: каталог товаров, seller_id — внешний ID из другой системы
 CREATE TABLE "public"."product" (
     "id" bigserial PRIMARY KEY,
     "seller_id" bigint NOT NULL,
@@ -52,7 +49,6 @@ CREATE TABLE "public"."product" (
 
 CREATE INDEX idx_product_seller ON "public"."product" ("seller_id");
 
--- horoscope: для темы zodiac (совместимость)
 CREATE TABLE "public"."horoscope" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -68,7 +64,6 @@ CREATE TABLE "public"."horoscope_product" (
     PRIMARY KEY ("horoscope_id", "product_id")
 );
 
--- segment: сегменты акции (знак зодиака, факультет и т.д.)
 CREATE TABLE "public"."segment" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -84,7 +79,6 @@ CREATE TABLE "public"."segment" (
 
 CREATE INDEX idx_segment_promotion ON "public"."segment" ("promotion_id");
 
--- poll_question: вопросы опроса идентификации
 CREATE TABLE "public"."poll_question" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -96,7 +90,6 @@ CREATE TABLE "public"."poll_question" (
 
 CREATE INDEX idx_poll_question_promotion ON "public"."poll_question" ("promotion_id");
 
--- poll_option: варианты ответов
 CREATE TABLE "public"."poll_option" (
     "id" bigserial PRIMARY KEY,
     "question_id" bigint NOT NULL REFERENCES "public"."poll_question" ("id"),
@@ -109,7 +102,6 @@ CREATE TABLE "public"."poll_option" (
 
 CREATE INDEX idx_poll_option_question ON "public"."poll_option" ("question_id");
 
--- poll_answer_tree: дерево маршрутизации ответов → сегмент
 CREATE TABLE "public"."poll_answer_tree" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -122,7 +114,22 @@ CREATE TABLE "public"."poll_answer_tree" (
 
 CREATE INDEX idx_poll_answer_tree_promotion ON "public"."poll_answer_tree" ("promotion_id");
 
--- slot: слоты под товары (по сегментам); auction_id FK добавляется после создания auction
+-- auction: one per promotion (global auction for the promotion)
+CREATE TABLE "public"."auction" (
+    "id" bigserial PRIMARY KEY,
+    "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
+    "date_from" timestamptz NOT NULL,
+    "date_to" timestamptz NOT NULL,
+    "min_price" bigint NOT NULL,
+    "bid_step" bigint NOT NULL,
+    "created_at" timestamptz NOT NULL DEFAULT now(),
+    "updated_at" timestamptz NOT NULL DEFAULT now(),
+    "deleted_at" timestamptz
+);
+
+CREATE UNIQUE INDEX idx_auction_promotion ON "public"."auction" ("promotion_id");
+
+-- slot: auction_id references the promotion's single auction
 CREATE TABLE "public"."slot" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -130,7 +137,7 @@ CREATE TABLE "public"."slot" (
     "position" int NOT NULL,
     "pricing_type" text NOT NULL CHECK ("pricing_type" IN ('auction', 'fixed')),
     "price" bigint,
-    "auction_id" bigint,
+    "auction_id" bigint REFERENCES "public"."auction" ("id") ON DELETE SET NULL,
     "status" text NOT NULL CHECK ("status" IN ('available', 'occupied', 'pending', 'moderation', 'rejected')),
     "seller_id" bigint,
     "product_id" bigint REFERENCES "public"."product" ("id"),
@@ -142,27 +149,12 @@ CREATE INDEX idx_slot_segment ON "public"."slot" ("segment_id");
 CREATE INDEX idx_slot_status ON "public"."slot" ("status");
 CREATE INDEX idx_slot_seller ON "public"."slot" ("seller_id");
 
--- auction: создаётся при переходе в READY_TO_START для каждого аукционного слота
-CREATE TABLE "public"."auction" (
-    "id" bigserial PRIMARY KEY,
-    "slot_id" bigint NOT NULL REFERENCES "public"."slot" ("id"),
-    "date_from" timestamptz NOT NULL,
-    "date_to" timestamptz NOT NULL,
-    "min_price" bigint NOT NULL,
-    "bid_step" bigint NOT NULL,
-    "created_at" timestamptz NOT NULL DEFAULT now(),
-    "updated_at" timestamptz NOT NULL DEFAULT now(),
-    "deleted_at" timestamptz
-);
-
-CREATE UNIQUE INDEX idx_auction_slot ON "public"."auction" ("slot_id");
-
-ALTER TABLE "public"."slot" ADD CONSTRAINT fk_slot_auction FOREIGN KEY ("auction_id") REFERENCES "public"."auction" ("id") ON DELETE SET NULL;
-
--- bet: ставки по аукциону
+-- bet: bid for a specific slot in the promotion's auction
 CREATE TABLE "public"."bet" (
     "id" bigserial PRIMARY KEY,
     "auction_id" bigint NOT NULL REFERENCES "public"."auction" ("id"),
+    "slot_id" bigint NOT NULL REFERENCES "public"."slot" ("id"),
+    "seller_id" bigint NOT NULL,
     "product_id" bigint NOT NULL REFERENCES "public"."product" ("id"),
     "bet" bigint NOT NULL CONSTRAINT bet_check CHECK ("bet" > 0),
     "created_at" timestamptz NOT NULL DEFAULT now(),
@@ -170,8 +162,8 @@ CREATE TABLE "public"."bet" (
 );
 
 CREATE INDEX idx_bet_auction ON "public"."bet" ("auction_id");
+CREATE INDEX idx_bet_slot ON "public"."bet" ("slot_id");
 
--- moderation: заявки селлеров на фиксированные слоты
 CREATE TABLE "public"."moderation" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
@@ -197,9 +189,8 @@ CREATE INDEX idx_moderation_status ON "public"."moderation" ("status");
 -- +goose StatementBegin
 DROP TABLE IF EXISTS "public"."moderation";
 DROP TABLE IF EXISTS "public"."bet";
-ALTER TABLE "public"."slot" DROP CONSTRAINT IF EXISTS fk_slot_auction;
-DROP TABLE IF EXISTS "public"."auction";
 DROP TABLE IF EXISTS "public"."slot";
+DROP TABLE IF EXISTS "public"."auction";
 DROP TABLE IF EXISTS "public"."poll_answer_tree";
 DROP TABLE IF EXISTS "public"."poll_option";
 DROP TABLE IF EXISTS "public"."poll_question";

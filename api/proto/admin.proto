@@ -33,9 +33,8 @@ message CreatePromotionRequest {
   string identification_mode = 6;  // questions | user_profile
   string pricing_model = 7;        // auction | fixed
   int32 slot_count = 8;
-  int32 min_discount = 9;
-  int32 max_discount = 10;
-  repeated string stop_factors = 11;
+  int32 discount = 9;  // WB discount (admin setting) for WB-curated slots
+  repeated string stop_factors = 10;
 }
 
 message CreatePromotionResponse {
@@ -59,12 +58,11 @@ message GetPromotionResponse {
   string identification_mode = 8;
   string pricing_model = 9;
   int32 slot_count = 10;
-  int32 min_discount = 11;
-  int32 max_discount = 12;
-  repeated string stop_factors = 13;
-  repeated SegmentWithOrder segments = 14;
-  map<int32, int64> fixed_prices = 15;  // position -> price
-  PromotionPoll poll = 16;
+  int32 discount = 11;
+  repeated string stop_factors = 12;
+  repeated SegmentWithOrder segments = 13;
+  map<int32, int64> fixed_prices = 14;  // position -> price
+  PromotionPoll poll = 15;
 }
 
 message SegmentWithOrder {
@@ -109,9 +107,8 @@ message UpdatePromotionRequest {
   optional string identification_mode = 7;
   optional string pricing_model = 8;
   optional int32 slot_count = 9;
-  optional int32 min_discount = 10;
-  optional int32 max_discount = 11;
-  repeated string stop_factors = 12;
+  optional int32 discount = 10;
+  repeated string stop_factors = 11;
 }
 
 message UpdatePromotionResponse {}

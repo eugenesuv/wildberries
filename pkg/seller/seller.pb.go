@@ -645,8 +645,8 @@ type MakeBetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SellerId      int64                  `protobuf:"varint,1,opt,name=seller_id,json=sellerId,proto3" json:"seller_id,omitempty"`
 	SlotId        int64                  `protobuf:"varint,2,opt,name=slot_id,json=slotId,proto3" json:"slot_id,omitempty"`
-	Amount        int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`  // для аукциона — сумма ставки
-	Product       *ProductForSlot        `protobuf:"bytes,4,opt,name=product,proto3" json:"product,omitempty"` // для фиксированной цены
+	Amount        int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	ProductId     int64                  `protobuf:"varint,4,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -702,13 +702,14 @@ func (x *MakeBetRequest) GetAmount() int64 {
 	return 0
 }
 
-func (x *MakeBetRequest) GetProduct() *ProductForSlot {
+func (x *MakeBetRequest) GetProductId() int64 {
 	if x != nil {
-		return x.Product
+		return x.ProductId
 	}
-	return nil
+	return 0
 }
 
+// ProductForSlot deprecated: use product_id in MakeBetRequest
 type ProductForSlot struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
