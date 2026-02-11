@@ -1,105 +1,179 @@
-OUT_PATH:=$(CURDIR)/pkg
-LOCAL_BIN:=$(CURDIR)/bin
+# =====================
+# OS detection
+# =====================
+ifeq ($(OS),Windows_NT)
 
-docker-up: docker-compose.yml
-	docker-compose up -d
+define MKDIR
+powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(1)' | Out-Null"
+endef
 
-docker-down: docker-compose.yml
-	docker-compose down
+define RM
+powershell -NoProfile -Command "if (Test-Path '$(1)') { Remove-Item -Recurse -Force '$(1)' }"
+endef
+
+EXE := .exe
+
+else
+
+define MKDIR
+mkdir -p $(1)
+endef
+
+define RM
+rm -rf $(1)
+endef
+
+EXE :=
+
+endif
 
 
+# =====================
+# Paths
+# =====================
+ROOT := $(CURDIR)
+OUT_PATH := $(ROOT)/pkg
+LOCAL_BIN := $(ROOT)/bin
+VENDOR := $(ROOT)/vendor.protogen
 
+PROTOC := protoc
+PROTOC_GEN_GO := $(LOCAL_BIN)/protoc-gen-go$(EXE)
+PROTOC_GEN_GRPC := $(LOCAL_BIN)/protoc-gen-go-grpc$(EXE)
+PROTOC_GEN_GATEWAY := $(LOCAL_BIN)/protoc-gen-grpc-gateway$(EXE)
+PROTOC_GEN_OPENAPI := $(LOCAL_BIN)/protoc-gen-openapiv2$(EXE)
+
+# =====================
+# Docker
+# =====================
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
+
+# =====================
+# Migrations
+# =====================
 migrations-up:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 
 migrations-down:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
 
 migrations-new:
 	goose create -dir ./migrations rename sql
 
-
-
-
-bin-deps: .vendor-proto
+# =====================
+# Binary deps (idempotent)
+# =====================
+bin-deps:
+	@$(call MKDIR,$(LOCAL_BIN))
+ifeq ($(OS),Windows_NT)
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install google.golang.org/protobuf/cmd/protoc-gen-go@latest"
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest"
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest"
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest"
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install github.com/envoyproxy/protoc-gen-validate@latest"
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install github.com/pressly/goose/v3/cmd/goose@latest"
+else
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@latest
+endif
 
-generate:
-	rm -rf $(OUT_PATH)
-	mkdir -p ${OUT_PATH} ${OUT_PATH}/admin ${OUT_PATH}/ai ${OUT_PATH}/buyer ${OUT_PATH}/common ${OUT_PATH}/seller
-	protoc --proto_path=api/proto --proto_path=vendor.protogen \
-		--plugin=protoc-gen-go=$(LOCAL_BIN)/protoc-gen-go --go_out=${OUT_PATH}/admin --go_opt=paths=source_relative \
-		--plugin=protoc-gen-go-grpc=$(LOCAL_BIN)/protoc-gen-go-grpc --go-grpc_out=${OUT_PATH}/admin --go-grpc_opt=paths=source_relative \
-		--plugin=protoc-gen-grpc-gateway=$(LOCAL_BIN)/protoc-gen-grpc-gateway --grpc-gateway_out ${OUT_PATH}/admin --grpc-gateway_opt paths=source_relative \
-		--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 --openapiv2_out=${OUT_PATH}/admin \
-		./api/proto/admin.proto
-	protoc --proto_path=api/proto --proto_path=vendor.protogen \
-		--plugin=protoc-gen-go=$(LOCAL_BIN)/protoc-gen-go --go_out=${OUT_PATH}/buyer --go_opt=paths=source_relative \
-		--plugin=protoc-gen-go-grpc=$(LOCAL_BIN)/protoc-gen-go-grpc --go-grpc_out=${OUT_PATH}/buyer --go-grpc_opt=paths=source_relative \
-		--plugin=protoc-gen-grpc-gateway=$(LOCAL_BIN)/protoc-gen-grpc-gateway --grpc-gateway_out ${OUT_PATH}/buyer --grpc-gateway_opt paths=source_relative \
-		--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 --openapiv2_out=${OUT_PATH}/buyer \
-		./api/proto/buyer.proto
-	protoc --proto_path=api/proto --proto_path=vendor.protogen \
-		--plugin=protoc-gen-go=$(LOCAL_BIN)/protoc-gen-go --go_out=${OUT_PATH}/seller --go_opt=paths=source_relative \
-		--plugin=protoc-gen-go-grpc=$(LOCAL_BIN)/protoc-gen-go-grpc --go-grpc_out=${OUT_PATH}/seller --go-grpc_opt=paths=source_relative \
-		--plugin=protoc-gen-grpc-gateway=$(LOCAL_BIN)/protoc-gen-grpc-gateway --grpc-gateway_out ${OUT_PATH}/seller --grpc-gateway_opt paths=source_relative \
-		--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 --openapiv2_out=${OUT_PATH}/seller \
-		./api/proto/seller.proto
-	protoc --proto_path=api/proto --proto_path=vendor.protogen \
-		--plugin=protoc-gen-go=$(LOCAL_BIN)/protoc-gen-go --go_out=${OUT_PATH}/ai --go_opt=paths=source_relative \
-		--plugin=protoc-gen-go-grpc=$(LOCAL_BIN)/protoc-gen-go-grpc --go-grpc_out=${OUT_PATH}/ai --go-grpc_opt=paths=source_relative \
-		--plugin=protoc-gen-grpc-gateway=$(LOCAL_BIN)/protoc-gen-grpc-gateway --grpc-gateway_out ${OUT_PATH}/ai --grpc-gateway_opt paths=source_relative \
-		--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 --openapiv2_out=${OUT_PATH}/ai \
-		./api/proto/ai.proto
-	protoc --proto_path=api/proto --proto_path=vendor.protogen \
-    		--plugin=protoc-gen-go=$(LOCAL_BIN)/protoc-gen-go --go_out=${OUT_PATH}/common --go_opt=paths=source_relative \
-    		--plugin=protoc-gen-go-grpc=$(LOCAL_BIN)/protoc-gen-go-grpc --go-grpc_out=${OUT_PATH}/common --go-grpc_opt=paths=source_relative \
-    		--plugin=protoc-gen-grpc-gateway=$(LOCAL_BIN)/protoc-gen-grpc-gateway --grpc-gateway_out ${OUT_PATH}/common --grpc-gateway_opt paths=source_relative \
-    		--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 --openapiv2_out=${OUT_PATH}/common \
-    		./api/proto/common.proto
 
-.vendor-proto: .vendor-proto/google/protobuf .vendor-proto/google/api .vendor-proto/protoc-gen-openapiv2/options .vendor-proto/validate
 
-.vendor-proto/protoc-gen-openapiv2/options:
-	git clone -b main --single-branch -n --depth=1 --filter=tree:0 \
- 		https://github.com/grpc-ecosystem/grpc-gateway vendor.protogen/grpc-ecosystem && \
- 		cd vendor.protogen/grpc-ecosystem && \
-		git sparse-checkout set --no-cone protoc-gen-openapiv2/options && \
-		git checkout
-		mkdir -p vendor.protogen/protoc-gen-openapiv2
-		mv vendor.protogen/grpc-ecosystem/protoc-gen-openapiv2/options vendor.protogen/protoc-gen-openapiv2
-		rm -rf vendor.protogen/grpc-ecosystem
+# =====================
+# Generate
+# =====================
+generate: bin-deps vendor-proto
+	@$(call RM,$(OUT_PATH))
+	@$(call MKDIR,$(OUT_PATH))
+	@$(call MKDIR,$(OUT_PATH)/admin)
+	@$(call MKDIR,$(OUT_PATH)/buyer)
+	@$(call MKDIR,$(OUT_PATH)/seller)
+	@$(call MKDIR,$(OUT_PATH)/ai)
+	@$(call MKDIR,$(OUT_PATH)/common)
 
-.vendor-proto/google/protobuf:
-	git clone -b main --single-branch -n --depth=1 --filter=tree:0 \
-		https://github.com/protocolbuffers/protobuf vendor.protogen/protobuf &&\
-		cd vendor.protogen/protobuf &&\
-		git sparse-checkout set --no-cone src/google/protobuf &&\
-		git checkout
-		mkdir -p vendor.protogen/google
-		mv vendor.protogen/protobuf/src/google/protobuf vendor.protogen/google
-		rm -rf vendor.protogen/protobuf
+	$(call gen,admin)
+	$(call gen,buyer)
+	$(call gen,seller)
+	$(call gen,ai)
+	$(call gen,common)
 
-.vendor-proto/google/api:
-	git clone -b master --single-branch -n --depth=1 --filter=tree:0 \
- 		https://github.com/googleapis/googleapis vendor.protogen/googleapis && \
- 		cd vendor.protogen/googleapis && \
-		git sparse-checkout set --no-cone google/api && \
-		git checkout
-		mkdir -p  vendor.protogen/google
-		mv vendor.protogen/googleapis/google/api vendor.protogen/google
-		rm -rf vendor.protogen/googleapis
+define gen
+	$(PROTOC) \
+		--proto_path=api/proto \
+		--proto_path=$(VENDOR) \
+		--plugin=protoc-gen-go=$(PROTOC_GEN_GO) \
+		--go_out=$(OUT_PATH)/$1 --go_opt=paths=source_relative \
+		--plugin=protoc-gen-go-grpc=$(PROTOC_GEN_GRPC) \
+		--go-grpc_out=$(OUT_PATH)/$1 --go-grpc_opt=paths=source_relative \
+		--plugin=protoc-gen-grpc-gateway=$(PROTOC_GEN_GATEWAY) \
+		--grpc-gateway_out=$(OUT_PATH)/$1 --grpc-gateway_opt=paths=source_relative \
+		--plugin=protoc-gen-openapiv2=$(PROTOC_GEN_OPENAPI) \
+		--openapiv2_out=$(OUT_PATH)/$1 \
+		api/proto/$1.proto
+endef
 
-.vendor-proto/validate:
-	git clone -b main --single-branch --depth=2 --filter=tree:0 \
-		https://github.com/bufbuild/protoc-gen-validate vendor.protogen/tmp && \
-		cd vendor.protogen/tmp && \
-		git sparse-checkout set --no-cone validate &&\
-		git checkout
-		mkdir -p vendor.protogen/validate
-		mv vendor.protogen/tmp/validate vendor.protogen/
-		rm -rf vendor.protogen/tmp
+# =====================
+# Vendor proto (idempotent)
+# =====================
+vendor-proto:
+ifeq ($(OS),Windows_NT)
+	@if not exist "$(VENDOR)\google\protobuf" ( \
+		git clone --depth=1 https://github.com/protocolbuffers/protobuf tmp-protobuf && \
+		powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(VENDOR)\google' | Out-Null" && \
+		move tmp-protobuf\src\google\protobuf $(VENDOR)\google\ && \
+		rmdir /S /Q tmp-protobuf \
+	)
+
+	@if not exist "$(VENDOR)\google\api" ( \
+		git clone --depth=1 https://github.com/googleapis/googleapis tmp-googleapis && \
+		powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(VENDOR)\google' | Out-Null" && \
+		move tmp-googleapis\google\api $(VENDOR)\google\ && \
+		rmdir /S /Q tmp-googleapis \
+	)
+
+	@if not exist "$(VENDOR)\protoc-gen-openapiv2" ( \
+		git clone --depth=1 https://github.com/grpc-ecosystem/grpc-gateway tmp-gw && \
+		powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path '$(VENDOR)\protoc-gen-openapiv2' | Out-Null" && \
+		move tmp-gw\protoc-gen-openapiv2\options $(VENDOR)\protoc-gen-openapiv2\ && \
+		rmdir /S /Q tmp-gw \
+	)
+
+	@if not exist "$(VENDOR)\validate" ( \
+		git clone --depth=1 https://github.com/bufbuild/protoc-gen-validate tmp-validate && \
+		move tmp-validate\validate $(VENDOR)\ && \
+		rmdir /S /Q tmp-validate \
+	)
+else
+	@if [ ! -d "$(VENDOR)/google/protobuf" ]; then \
+		git clone --depth=1 https://github.com/protocolbuffers/protobuf tmp-protobuf && \
+		mkdir -p $(VENDOR)/google && \
+		mv tmp-protobuf/src/google/protobuf $(VENDOR)/google/ && \
+		rm -rf tmp-protobuf ; \
+	fi
+
+	@if [ ! -d "$(VENDOR)/google/api" ]; then \
+		git clone --depth=1 https://github.com/googleapis/googleapis tmp-googleapis && \
+		mkdir -p $(VENDOR)/google && \
+		mv tmp-googleapis/google/api $(VENDOR)/google/ && \
+		rm -rf tmp-googleapis ; \
+	fi
+
+	@if [ ! -d "$(VENDOR)/protoc-gen-openapiv2" ]; then \
+		git clone --depth=1 https://github.com/grpc-ecosystem/grpc-gateway tmp-gw && \
+		mkdir -p $(VENDOR)/protoc-gen-openapiv2 && \
+		mv tmp-gw/protoc-gen-openapiv2/options $(VENDOR)/protoc-gen-openapiv2/ && \
+		rm -rf tmp-gw ; \
+	fi
+
+	@if [ ! -d "$(VENDOR)/validate" ]; then \
+		git clone --depth=1 https://github.com/bufbuild/protoc-gen-validate tmp-validate && \
+		mv tmp-validate/validate $(VENDOR)/ && \
+		rm -rf tmp-validate ; \
+	fi
+endif

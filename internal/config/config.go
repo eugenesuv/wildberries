@@ -25,8 +25,8 @@ func Load() *Config {
 		}
 	}
 	dsn := os.Getenv("DATABASE_DSN")
-	if dsn == "" {
-		dsn = "postgres://localhost:5432/wildberries?sslmode=disable"
+	if dsn == "" { // TODO
+		dsn = "postgres://postgres:postgres@db:5432/seller_promotions?sslmode=disable"
 	}
 	return &Config{
 		HTTPPort: httpPort,

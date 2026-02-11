@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -95,7 +96,7 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 	// Connect to gRPC server
 	grpcConn, err := grpc.DialContext(ctx,
 		fmt.Sprintf("localhost:%d", a.cfg.GRPCPort),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.FailOnNonTempDialError(true),
 	)
 	if err != nil {

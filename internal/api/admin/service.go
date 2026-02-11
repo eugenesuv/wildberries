@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"wildberries/internal/entity"
 	"wildberries/internal/service/promotion"
@@ -27,6 +28,7 @@ func New(promotionService *promotion.Service) *Service {
 
 // CreatePromotion creates a new promotion
 func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotionRequest) (*desc.CreatePromotionResponse, error) {
+	log.Println("create promotion")
 	promo := &entity.Promotion{
 		Name:               req.Name,
 		Description:        req.Description,

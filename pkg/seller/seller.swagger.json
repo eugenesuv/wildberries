@@ -16,7 +16,7 @@
       "name": "SellerBetsService"
     }
   ],
-  "host": "localhost:7004",
+  "host": "localhost:8080",
   "schemes": [
     "http"
   ],
@@ -324,9 +324,10 @@
           "format": "int64",
           "title": "для аукциона — сумма ставки"
         },
-        "product": {
-          "$ref": "#/definitions/sellerProductForSlot",
-          "title": "для фиксированной цены"
+        "productId": {
+          "type": "string",
+          "format": "int64",
+          "title": "для фиксированной цены и аукциона — привязка к товару каталога селлера"
         }
       },
       "title": "--- POST /seller/bets/make ---"
@@ -338,25 +339,6 @@
           "type": "boolean"
         },
         "message": {
-          "type": "string"
-        }
-      }
-    },
-    "sellerProductForSlot": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "price": {
-          "type": "string",
-          "format": "int64"
-        },
-        "discount": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "image": {
           "type": "string"
         }
       }

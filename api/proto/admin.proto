@@ -4,10 +4,10 @@ package wildberries.admin;
 
 option go_package = "wildberries/pkg/admin;admin";
 
-import "google/protobuf/timestamp.proto";
+//import "google/protobuf/timestamp.proto";
 import "common.proto";
 import "google/api/annotations.proto";
-import "validate/validate.proto";
+//import "validate/validate.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -16,7 +16,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     version: "1.0.0";
     description: "Админская панель";
   };
-  host: "localhost:7002";
+  host: "localhost:8080";
   schemes: HTTP;
   consumes: "application/json";
   produces: "application/json";

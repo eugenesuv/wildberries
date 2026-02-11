@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/rs/cors"
 	"wildberries/internal/app"
 	"wildberries/internal/config"
 )
@@ -38,10 +39,11 @@ func main() {
 
 	// Start HTTP server with gRPC gateway
 	go func() {
+		corsHandler := cors.AllowAll().Handler(application)
 		log.Printf("HTTP server listening on port %d", cfg.HTTPPort)
 		server := &http.Server{
 			Addr:         ":" + strconv.Itoa(cfg.HTTPPort),
-			Handler:      application,
+			Handler:      corsHandler,
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
 		}

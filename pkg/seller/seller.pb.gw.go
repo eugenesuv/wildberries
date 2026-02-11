@@ -10,6 +10,7 @@ package seller
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -24,204 +25,188 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
-
 var (
-	filter_SellerProductService_ListProductsBy_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
 )
 
-func request_SellerProductService_ListProductsBy_0(ctx context.Context, marshaler runtime.Marshaler, client SellerProductServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListProductsByRequest
-	var metadata runtime.ServerMetadata
+var filter_SellerProductService_ListProductsBy_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
+func request_SellerProductService_ListProductsBy_0(ctx context.Context, marshaler runtime.Marshaler, client SellerProductServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListProductsByRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerProductService_ListProductsBy_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListProductsBy(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SellerProductService_ListProductsBy_0(ctx context.Context, marshaler runtime.Marshaler, server SellerProductServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListProductsByRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListProductsByRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerProductService_ListProductsBy_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListProductsBy(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_SellerActionsService_GetSellerActions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_SellerActionsService_GetSellerActions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_SellerActionsService_GetSellerActions_0(ctx context.Context, marshaler runtime.Marshaler, client SellerActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSellerActionsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetSellerActionsRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerActionsService_GetSellerActions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetSellerActions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SellerActionsService_GetSellerActions_0(ctx context.Context, marshaler runtime.Marshaler, server SellerActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSellerActionsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetSellerActionsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerActionsService_GetSellerActions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetSellerActions(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_SellerBetsService_GetSellerBetsList_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_SellerBetsService_GetSellerBetsList_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_SellerBetsService_GetSellerBetsList_0(ctx context.Context, marshaler runtime.Marshaler, client SellerBetsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSellerBetsListRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetSellerBetsListRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerBetsService_GetSellerBetsList_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetSellerBetsList(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SellerBetsService_GetSellerBetsList_0(ctx context.Context, marshaler runtime.Marshaler, server SellerBetsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSellerBetsListRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetSellerBetsListRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SellerBetsService_GetSellerBetsList_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetSellerBetsList(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_SellerBetsService_MakeBet_0(ctx context.Context, marshaler runtime.Marshaler, client SellerBetsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MakeBetRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq MakeBetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.MakeBet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SellerBetsService_MakeBet_0(ctx context.Context, marshaler runtime.Marshaler, server SellerBetsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MakeBetRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq MakeBetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.MakeBet(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_SellerBetsService_RemoveBet_0(ctx context.Context, marshaler runtime.Marshaler, client SellerBetsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RemoveBetRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RemoveBetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.RemoveBet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SellerBetsService_RemoveBet_0(ctx context.Context, marshaler runtime.Marshaler, server SellerBetsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RemoveBetRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RemoveBetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.RemoveBet(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterSellerProductServiceHandlerServer registers the http handlers for service SellerProductService to "mux".
 // UnaryRPC     :call SellerProductServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSellerProductServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSellerProductServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SellerProductServiceServer) error {
-
-	mux.Handle("GET", pattern_SellerProductService_ListProductsBy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerProductService_ListProductsBy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerProductService/ListProductsBy", runtime.WithHTTPPathPattern("/products/list-by"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerProductService/ListProductsBy", runtime.WithHTTPPathPattern("/products/list-by"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -233,9 +218,7 @@ func RegisterSellerProductServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerProductService_ListProductsBy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -245,17 +228,15 @@ func RegisterSellerProductServiceHandlerServer(ctx context.Context, mux *runtime
 // UnaryRPC     :call SellerActionsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSellerActionsServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSellerActionsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SellerActionsServiceServer) error {
-
-	mux.Handle("GET", pattern_SellerActionsService_GetSellerActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerActionsService_GetSellerActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerActionsService/GetSellerActions", runtime.WithHTTPPathPattern("/seller/actions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerActionsService/GetSellerActions", runtime.WithHTTPPathPattern("/seller/actions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -267,9 +248,7 @@ func RegisterSellerActionsServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerActionsService_GetSellerActions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -279,17 +258,15 @@ func RegisterSellerActionsServiceHandlerServer(ctx context.Context, mux *runtime
 // UnaryRPC     :call SellerBetsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSellerBetsServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSellerBetsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SellerBetsServiceServer) error {
-
-	mux.Handle("GET", pattern_SellerBetsService_GetSellerBetsList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerBetsService_GetSellerBetsList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/GetSellerBetsList", runtime.WithHTTPPathPattern("/seller/bets/list"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/GetSellerBetsList", runtime.WithHTTPPathPattern("/seller/bets/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -301,20 +278,15 @@ func RegisterSellerBetsServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_GetSellerBetsList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_SellerBetsService_MakeBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SellerBetsService_MakeBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/MakeBet", runtime.WithHTTPPathPattern("/seller/bets/make"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/MakeBet", runtime.WithHTTPPathPattern("/seller/bets/make"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -326,20 +298,15 @@ func RegisterSellerBetsServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_MakeBet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_SellerBetsService_RemoveBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SellerBetsService_RemoveBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/RemoveBet", runtime.WithHTTPPathPattern("/seller/bets/remove"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/RemoveBet", runtime.WithHTTPPathPattern("/seller/bets/remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -351,9 +318,7 @@ func RegisterSellerBetsServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_RemoveBet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -362,25 +327,24 @@ func RegisterSellerBetsServiceHandlerServer(ctx context.Context, mux *runtime.Se
 // RegisterSellerProductServiceHandlerFromEndpoint is same as RegisterSellerProductServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterSellerProductServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterSellerProductServiceHandler(ctx, mux, conn)
 }
 
@@ -394,16 +358,13 @@ func RegisterSellerProductServiceHandler(ctx context.Context, mux *runtime.Serve
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SellerProductServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SellerProductServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "SellerProductServiceClient" to call the correct interceptors.
+// "SellerProductServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterSellerProductServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SellerProductServiceClient) error {
-
-	mux.Handle("GET", pattern_SellerProductService_ListProductsBy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerProductService_ListProductsBy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerProductService/ListProductsBy", runtime.WithHTTPPathPattern("/products/list-by"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerProductService/ListProductsBy", runtime.WithHTTPPathPattern("/products/list-by"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -414,11 +375,8 @@ func RegisterSellerProductServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerProductService_ListProductsBy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
@@ -433,25 +391,24 @@ var (
 // RegisterSellerActionsServiceHandlerFromEndpoint is same as RegisterSellerActionsServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterSellerActionsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterSellerActionsServiceHandler(ctx, mux, conn)
 }
 
@@ -465,16 +422,13 @@ func RegisterSellerActionsServiceHandler(ctx context.Context, mux *runtime.Serve
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SellerActionsServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SellerActionsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "SellerActionsServiceClient" to call the correct interceptors.
+// "SellerActionsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterSellerActionsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SellerActionsServiceClient) error {
-
-	mux.Handle("GET", pattern_SellerActionsService_GetSellerActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerActionsService_GetSellerActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerActionsService/GetSellerActions", runtime.WithHTTPPathPattern("/seller/actions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerActionsService/GetSellerActions", runtime.WithHTTPPathPattern("/seller/actions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -485,11 +439,8 @@ func RegisterSellerActionsServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerActionsService_GetSellerActions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
@@ -504,25 +455,24 @@ var (
 // RegisterSellerBetsServiceHandlerFromEndpoint is same as RegisterSellerBetsServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterSellerBetsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterSellerBetsServiceHandler(ctx, mux, conn)
 }
 
@@ -536,16 +486,13 @@ func RegisterSellerBetsServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SellerBetsServiceClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SellerBetsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "SellerBetsServiceClient" to call the correct interceptors.
+// "SellerBetsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterSellerBetsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SellerBetsServiceClient) error {
-
-	mux.Handle("GET", pattern_SellerBetsService_GetSellerBetsList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SellerBetsService_GetSellerBetsList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/GetSellerBetsList", runtime.WithHTTPPathPattern("/seller/bets/list"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/GetSellerBetsList", runtime.WithHTTPPathPattern("/seller/bets/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -556,18 +503,13 @@ func RegisterSellerBetsServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_GetSellerBetsList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_SellerBetsService_MakeBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SellerBetsService_MakeBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/MakeBet", runtime.WithHTTPPathPattern("/seller/bets/make"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/MakeBet", runtime.WithHTTPPathPattern("/seller/bets/make"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -578,18 +520,13 @@ func RegisterSellerBetsServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_MakeBet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_SellerBetsService_RemoveBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SellerBetsService_RemoveBet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/RemoveBet", runtime.WithHTTPPathPattern("/seller/bets/remove"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/wildberries.seller.SellerBetsService/RemoveBet", runtime.WithHTTPPathPattern("/seller/bets/remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -600,26 +537,19 @@ func RegisterSellerBetsServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SellerBetsService_RemoveBet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_SellerBetsService_GetSellerBetsList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"seller", "bets", "list"}, ""))
-
-	pattern_SellerBetsService_MakeBet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"seller", "bets", "make"}, ""))
-
-	pattern_SellerBetsService_RemoveBet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"seller", "bets", "remove"}, ""))
+	pattern_SellerBetsService_MakeBet_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"seller", "bets", "make"}, ""))
+	pattern_SellerBetsService_RemoveBet_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"seller", "bets", "remove"}, ""))
 )
 
 var (
 	forward_SellerBetsService_GetSellerBetsList_0 = runtime.ForwardResponseMessage
-
-	forward_SellerBetsService_MakeBet_0 = runtime.ForwardResponseMessage
-
-	forward_SellerBetsService_RemoveBet_0 = runtime.ForwardResponseMessage
+	forward_SellerBetsService_MakeBet_0           = runtime.ForwardResponseMessage
+	forward_SellerBetsService_RemoveBet_0         = runtime.ForwardResponseMessage
 )

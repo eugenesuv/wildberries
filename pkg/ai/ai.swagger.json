@@ -10,7 +10,7 @@
       "name": "AIService"
     }
   ],
-  "host": "localhost:7003",
+  "host": "localhost:8080",
   "schemes": [
     "http"
   ],

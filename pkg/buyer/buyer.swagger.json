@@ -13,7 +13,7 @@
       "name": "IdentificationService"
     }
   ],
-  "host": "localhost:7001",
+  "host": "localhost:8080",
   "schemes": [
     "http"
   ],
