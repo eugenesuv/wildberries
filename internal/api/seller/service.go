@@ -22,6 +22,10 @@ func New(sellerService *seller.Service) *Service {
 	}
 }
 
+func (s *Service) GetActionSegments(ctx context.Context, req *desc.GetActionSegmentsRequest) (*desc.GetActionSegmentsResponse, error) {
+	panic("unimplemented")
+}
+
 // ListProductsBy lists products by seller
 func (s *Service) ListProductsBy(ctx context.Context, req *desc.ListProductsByRequest) (*desc.ListProductsByResponse, error) {
 	// Call service

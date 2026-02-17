@@ -125,7 +125,8 @@ var SellerProductService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	SellerActionsService_GetSellerActions_FullMethodName = "/wildberries.seller.SellerActionsService/GetSellerActions"
+	SellerActionsService_GetSellerActions_FullMethodName  = "/wildberries.seller.SellerActionsService/GetSellerActions"
+	SellerActionsService_GetActionSegments_FullMethodName = "/wildberries.seller.SellerActionsService/GetActionSegments"
 )
 
 // SellerActionsServiceClient is the client API for SellerActionsService service.
@@ -133,6 +134,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SellerActionsServiceClient interface {
 	GetSellerActions(ctx context.Context, in *GetSellerActionsRequest, opts ...grpc.CallOption) (*GetSellerActionsResponse, error)
+	GetActionSegments(ctx context.Context, in *GetActionSegmentsRequest, opts ...grpc.CallOption) (*GetActionSegmentsResponse, error)
 }
 
 type sellerActionsServiceClient struct {
@@ -153,11 +155,22 @@ func (c *sellerActionsServiceClient) GetSellerActions(ctx context.Context, in *G
 	return out, nil
 }
 
+func (c *sellerActionsServiceClient) GetActionSegments(ctx context.Context, in *GetActionSegmentsRequest, opts ...grpc.CallOption) (*GetActionSegmentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetActionSegmentsResponse)
+	err := c.cc.Invoke(ctx, SellerActionsService_GetActionSegments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SellerActionsServiceServer is the server API for SellerActionsService service.
 // All implementations must embed UnimplementedSellerActionsServiceServer
 // for forward compatibility.
 type SellerActionsServiceServer interface {
 	GetSellerActions(context.Context, *GetSellerActionsRequest) (*GetSellerActionsResponse, error)
+	GetActionSegments(context.Context, *GetActionSegmentsRequest) (*GetActionSegmentsResponse, error)
 	mustEmbedUnimplementedSellerActionsServiceServer()
 }
 
@@ -170,6 +183,9 @@ type UnimplementedSellerActionsServiceServer struct{}
 
 func (UnimplementedSellerActionsServiceServer) GetSellerActions(context.Context, *GetSellerActionsRequest) (*GetSellerActionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSellerActions not implemented")
+}
+func (UnimplementedSellerActionsServiceServer) GetActionSegments(context.Context, *GetActionSegmentsRequest) (*GetActionSegmentsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetActionSegments not implemented")
 }
 func (UnimplementedSellerActionsServiceServer) mustEmbedUnimplementedSellerActionsServiceServer() {}
 func (UnimplementedSellerActionsServiceServer) testEmbeddedByValue()                              {}
@@ -210,6 +226,24 @@ func _SellerActionsService_GetSellerActions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SellerActionsService_GetActionSegments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActionSegmentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SellerActionsServiceServer).GetActionSegments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SellerActionsService_GetActionSegments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SellerActionsServiceServer).GetActionSegments(ctx, req.(*GetActionSegmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SellerActionsService_ServiceDesc is the grpc.ServiceDesc for SellerActionsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -220,6 +254,10 @@ var SellerActionsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSellerActions",
 			Handler:    _SellerActionsService_GetSellerActions_Handler,
+		},
+		{
+			MethodName: "GetActionSegments",
+			Handler:    _SellerActionsService_GetActionSegments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

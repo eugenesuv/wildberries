@@ -114,6 +114,39 @@
         ]
       }
     },
+    "/seller/actions/{actionId}": {
+      "get": {
+        "summary": "Получить инфу по сегментам акции",
+        "description": "-",
+        "operationId": "GetActionSegments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerGetActionSegmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Actions"
+        ]
+      }
+    },
     "/seller/bets/list": {
       "get": {
         "summary": "Получить список ставок селлера",
@@ -256,6 +289,45 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "sellerActionSegment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "population": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bookedSlots": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalSlots": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "sellerGetActionSegmentsResponse": {
+      "type": "object",
+      "properties": {
+        "actionSegments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sellerActionSegment"
           }
         }
       }

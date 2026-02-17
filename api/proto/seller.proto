@@ -46,6 +46,23 @@ message ListProductsByResponse {
   int32 per_page = 4;
 }
 
+message GetActionSegmentsRequest {
+  int64 action_id = 1;
+}
+
+message ActionSegment {
+  int64 id = 1;
+  string name = 2;
+  string category = 3;
+  int64 population = 4;
+  int64 booked_slots = 5;
+  int64 total_slots = 6;
+}
+
+message GetActionSegmentsResponse {
+  repeated ActionSegment action_segments = 1;
+}
+
 // --- GET /seller/actions — доступные акции для селлера ---
 message GetSellerActionsRequest {
   int64 seller_id = 1;
@@ -135,6 +152,17 @@ service SellerActionsService {
       description: "Получает список доступных акций для селлера";
       tags: "Actions";
       operation_id: "GetSellerActions";
+    };
+  }
+  rpc GetActionSegments(GetActionSegmentsRequest) returns (GetActionSegmentsResponse) {
+    option (google.api.http) = {
+      get: "/seller/actions/{action_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить инфу по сегментам акции";
+      description: "-";
+      tags: "Actions";
+      operation_id: "GetActionSegments";
     };
   }
 }

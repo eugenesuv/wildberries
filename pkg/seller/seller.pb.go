@@ -252,6 +252,178 @@ func (x *ListProductsByResponse) GetPerPage() int32 {
 	return 0
 }
 
+type GetActionSegmentsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ActionId      int64                  `protobuf:"varint,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetActionSegmentsRequest) Reset() {
+	*x = GetActionSegmentsRequest{}
+	mi := &file_seller_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetActionSegmentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetActionSegmentsRequest) ProtoMessage() {}
+
+func (x *GetActionSegmentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_seller_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetActionSegmentsRequest.ProtoReflect.Descriptor instead.
+func (*GetActionSegmentsRequest) Descriptor() ([]byte, []int) {
+	return file_seller_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetActionSegmentsRequest) GetActionId() int64 {
+	if x != nil {
+		return x.ActionId
+	}
+	return 0
+}
+
+type ActionSegment struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
+	Population    int64                  `protobuf:"varint,4,opt,name=population,proto3" json:"population,omitempty"`
+	BookedSlots   int64                  `protobuf:"varint,5,opt,name=booked_slots,json=bookedSlots,proto3" json:"booked_slots,omitempty"`
+	TotalSlots    int64                  `protobuf:"varint,6,opt,name=total_slots,json=totalSlots,proto3" json:"total_slots,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActionSegment) Reset() {
+	*x = ActionSegment{}
+	mi := &file_seller_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActionSegment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActionSegment) ProtoMessage() {}
+
+func (x *ActionSegment) ProtoReflect() protoreflect.Message {
+	mi := &file_seller_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActionSegment.ProtoReflect.Descriptor instead.
+func (*ActionSegment) Descriptor() ([]byte, []int) {
+	return file_seller_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ActionSegment) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ActionSegment) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ActionSegment) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *ActionSegment) GetPopulation() int64 {
+	if x != nil {
+		return x.Population
+	}
+	return 0
+}
+
+func (x *ActionSegment) GetBookedSlots() int64 {
+	if x != nil {
+		return x.BookedSlots
+	}
+	return 0
+}
+
+func (x *ActionSegment) GetTotalSlots() int64 {
+	if x != nil {
+		return x.TotalSlots
+	}
+	return 0
+}
+
+type GetActionSegmentsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ActionSegments []*ActionSegment       `protobuf:"bytes,1,rep,name=action_segments,json=actionSegments,proto3" json:"action_segments,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetActionSegmentsResponse) Reset() {
+	*x = GetActionSegmentsResponse{}
+	mi := &file_seller_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetActionSegmentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetActionSegmentsResponse) ProtoMessage() {}
+
+func (x *GetActionSegmentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_seller_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetActionSegmentsResponse.ProtoReflect.Descriptor instead.
+func (*GetActionSegmentsResponse) Descriptor() ([]byte, []int) {
+	return file_seller_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetActionSegmentsResponse) GetActionSegments() []*ActionSegment {
+	if x != nil {
+		return x.ActionSegments
+	}
+	return nil
+}
+
 // --- GET /seller/actions — доступные акции для селлера ---
 type GetSellerActionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -262,7 +434,7 @@ type GetSellerActionsRequest struct {
 
 func (x *GetSellerActionsRequest) Reset() {
 	*x = GetSellerActionsRequest{}
-	mi := &file_seller_proto_msgTypes[3]
+	mi := &file_seller_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -274,7 +446,7 @@ func (x *GetSellerActionsRequest) String() string {
 func (*GetSellerActionsRequest) ProtoMessage() {}
 
 func (x *GetSellerActionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[3]
+	mi := &file_seller_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -287,7 +459,7 @@ func (x *GetSellerActionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSellerActionsRequest.ProtoReflect.Descriptor instead.
 func (*GetSellerActionsRequest) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{3}
+	return file_seller_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetSellerActionsRequest) GetSellerId() int64 {
@@ -312,7 +484,7 @@ type SellerActionSummary struct {
 
 func (x *SellerActionSummary) Reset() {
 	*x = SellerActionSummary{}
-	mi := &file_seller_proto_msgTypes[4]
+	mi := &file_seller_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +496,7 @@ func (x *SellerActionSummary) String() string {
 func (*SellerActionSummary) ProtoMessage() {}
 
 func (x *SellerActionSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[4]
+	mi := &file_seller_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -337,7 +509,7 @@ func (x *SellerActionSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SellerActionSummary.ProtoReflect.Descriptor instead.
 func (*SellerActionSummary) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{4}
+	return file_seller_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SellerActionSummary) GetId() int64 {
@@ -398,7 +570,7 @@ type GetSellerActionsResponse struct {
 
 func (x *GetSellerActionsResponse) Reset() {
 	*x = GetSellerActionsResponse{}
-	mi := &file_seller_proto_msgTypes[5]
+	mi := &file_seller_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +582,7 @@ func (x *GetSellerActionsResponse) String() string {
 func (*GetSellerActionsResponse) ProtoMessage() {}
 
 func (x *GetSellerActionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[5]
+	mi := &file_seller_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +595,7 @@ func (x *GetSellerActionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSellerActionsResponse.ProtoReflect.Descriptor instead.
 func (*GetSellerActionsResponse) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{5}
+	return file_seller_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSellerActionsResponse) GetActions() []*SellerActionSummary {
@@ -445,7 +617,7 @@ type GetSellerBetsListRequest struct {
 
 func (x *GetSellerBetsListRequest) Reset() {
 	*x = GetSellerBetsListRequest{}
-	mi := &file_seller_proto_msgTypes[6]
+	mi := &file_seller_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +629,7 @@ func (x *GetSellerBetsListRequest) String() string {
 func (*GetSellerBetsListRequest) ProtoMessage() {}
 
 func (x *GetSellerBetsListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[6]
+	mi := &file_seller_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -470,7 +642,7 @@ func (x *GetSellerBetsListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSellerBetsListRequest.ProtoReflect.Descriptor instead.
 func (*GetSellerBetsListRequest) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{6}
+	return file_seller_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetSellerBetsListRequest) GetPromotionId() int64 {
@@ -510,7 +682,7 @@ type SellerBetItem struct {
 
 func (x *SellerBetItem) Reset() {
 	*x = SellerBetItem{}
-	mi := &file_seller_proto_msgTypes[7]
+	mi := &file_seller_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +694,7 @@ func (x *SellerBetItem) String() string {
 func (*SellerBetItem) ProtoMessage() {}
 
 func (x *SellerBetItem) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[7]
+	mi := &file_seller_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -535,7 +707,7 @@ func (x *SellerBetItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SellerBetItem.ProtoReflect.Descriptor instead.
 func (*SellerBetItem) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{7}
+	return file_seller_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SellerBetItem) GetId() int64 {
@@ -603,7 +775,7 @@ type GetSellerBetsListResponse struct {
 
 func (x *GetSellerBetsListResponse) Reset() {
 	*x = GetSellerBetsListResponse{}
-	mi := &file_seller_proto_msgTypes[8]
+	mi := &file_seller_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -615,7 +787,7 @@ func (x *GetSellerBetsListResponse) String() string {
 func (*GetSellerBetsListResponse) ProtoMessage() {}
 
 func (x *GetSellerBetsListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[8]
+	mi := &file_seller_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -628,7 +800,7 @@ func (x *GetSellerBetsListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSellerBetsListResponse.ProtoReflect.Descriptor instead.
 func (*GetSellerBetsListResponse) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{8}
+	return file_seller_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetSellerBetsListResponse) GetItems() []*SellerBetItem {
@@ -651,7 +823,7 @@ type MakeBetRequest struct {
 
 func (x *MakeBetRequest) Reset() {
 	*x = MakeBetRequest{}
-	mi := &file_seller_proto_msgTypes[9]
+	mi := &file_seller_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -663,7 +835,7 @@ func (x *MakeBetRequest) String() string {
 func (*MakeBetRequest) ProtoMessage() {}
 
 func (x *MakeBetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[9]
+	mi := &file_seller_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -676,7 +848,7 @@ func (x *MakeBetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MakeBetRequest.ProtoReflect.Descriptor instead.
 func (*MakeBetRequest) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{9}
+	return file_seller_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *MakeBetRequest) GetSellerId() int64 {
@@ -717,7 +889,7 @@ type MakeBetResponse struct {
 
 func (x *MakeBetResponse) Reset() {
 	*x = MakeBetResponse{}
-	mi := &file_seller_proto_msgTypes[10]
+	mi := &file_seller_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -729,7 +901,7 @@ func (x *MakeBetResponse) String() string {
 func (*MakeBetResponse) ProtoMessage() {}
 
 func (x *MakeBetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[10]
+	mi := &file_seller_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -742,7 +914,7 @@ func (x *MakeBetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MakeBetResponse.ProtoReflect.Descriptor instead.
 func (*MakeBetResponse) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{10}
+	return file_seller_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *MakeBetResponse) GetSuccess() bool {
@@ -770,7 +942,7 @@ type RemoveBetRequest struct {
 
 func (x *RemoveBetRequest) Reset() {
 	*x = RemoveBetRequest{}
-	mi := &file_seller_proto_msgTypes[11]
+	mi := &file_seller_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -782,7 +954,7 @@ func (x *RemoveBetRequest) String() string {
 func (*RemoveBetRequest) ProtoMessage() {}
 
 func (x *RemoveBetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[11]
+	mi := &file_seller_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +967,7 @@ func (x *RemoveBetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveBetRequest.ProtoReflect.Descriptor instead.
 func (*RemoveBetRequest) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{11}
+	return file_seller_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RemoveBetRequest) GetSlotId() int64 {
@@ -821,7 +993,7 @@ type RemoveBetResponse struct {
 
 func (x *RemoveBetResponse) Reset() {
 	*x = RemoveBetResponse{}
-	mi := &file_seller_proto_msgTypes[12]
+	mi := &file_seller_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -833,7 +1005,7 @@ func (x *RemoveBetResponse) String() string {
 func (*RemoveBetResponse) ProtoMessage() {}
 
 func (x *RemoveBetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_seller_proto_msgTypes[12]
+	mi := &file_seller_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -846,7 +1018,7 @@ func (x *RemoveBetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveBetResponse.ProtoReflect.Descriptor instead.
 func (*RemoveBetResponse) Descriptor() ([]byte, []int) {
-	return file_seller_proto_rawDescGZIP(), []int{12}
+	return file_seller_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RemoveBetResponse) GetSuccess() bool {
@@ -879,7 +1051,21 @@ const file_seller_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2#.wildberries.seller.ProductListItemR\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x19\n" +
-	"\bper_page\x18\x04 \x01(\x05R\aperPage\"6\n" +
+	"\bper_page\x18\x04 \x01(\x05R\aperPage\"7\n" +
+	"\x18GetActionSegmentsRequest\x12\x1b\n" +
+	"\taction_id\x18\x01 \x01(\x03R\bactionId\"\xb3\x01\n" +
+	"\rActionSegment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x1e\n" +
+	"\n" +
+	"population\x18\x04 \x01(\x03R\n" +
+	"population\x12!\n" +
+	"\fbooked_slots\x18\x05 \x01(\x03R\vbookedSlots\x12\x1f\n" +
+	"\vtotal_slots\x18\x06 \x01(\x03R\n" +
+	"totalSlots\"g\n" +
+	"\x19GetActionSegmentsResponse\x12J\n" +
+	"\x0faction_segments\x18\x01 \x03(\v2!.wildberries.seller.ActionSegmentR\x0eactionSegments\"6\n" +
 	"\x17GetSellerActionsRequest\x12\x1b\n" +
 	"\tseller_id\x18\x01 \x01(\x03R\bsellerId\"\xc2\x01\n" +
 	"\x13SellerActionSummary\x12\x0e\n" +
@@ -924,10 +1110,12 @@ const file_seller_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess2\xe7\x02\n" +
 	"\x14SellerProductService\x12\xce\x02\n" +
 	"\x0eListProductsBy\x12).wildberries.seller.ListProductsByRequest\x1a*.wildberries.seller.ListProductsByResponse\"\xe4\x01\x92A\xc7\x01\n" +
-	"\bProducts\x12?Получить список продуктов селлера\x1ajПолучает список продуктов селлера по заданным параметрам*\x0eListProductsBy\x82\xd3\xe4\x93\x02\x13\x12\x11/products/list-by2\xd8\x02\n" +
+	"\bProducts\x12?Получить список продуктов селлера\x1ajПолучает список продуктов селлера по заданным параметрам*\x0eListProductsBy\x82\xd3\xe4\x93\x02\x13\x12\x11/products/list-by2\xd1\x04\n" +
 	"\x14SellerActionsService\x12\xbf\x02\n" +
 	"\x10GetSellerActions\x12+.wildberries.seller.GetSellerActionsRequest\x1a,.wildberries.seller.GetSellerActionsResponse\"\xcf\x01\x92A\xb4\x01\n" +
-	"\aActions\x12DПолучить доступные акции для селлера\x1aQПолучает список доступных акций для селлера*\x10GetSellerActions\x82\xd3\xe4\x93\x02\x11\x12\x0f/seller/actions2\x9c\x06\n" +
+	"\aActions\x12DПолучить доступные акции для селлера\x1aQПолучает список доступных акций для селлера*\x10GetSellerActions\x82\xd3\xe4\x93\x02\x11\x12\x0f/seller/actions\x12\xf6\x01\n" +
+	"\x11GetActionSegments\x12,.wildberries.seller.GetActionSegmentsRequest\x1a-.wildberries.seller.GetActionSegmentsResponse\"\x83\x01\x92A]\n" +
+	"\aActions\x12<Получить инфу по сегментам акции\x1a\x01-*\x11GetActionSegments\x82\xd3\xe4\x93\x02\x1d\x12\x1b/seller/actions/{action_id}2\x9c\x06\n" +
 	"\x11SellerBetsService\x12\xca\x02\n" +
 	"\x11GetSellerBetsList\x12,.wildberries.seller.GetSellerBetsListRequest\x1a-.wildberries.seller.GetSellerBetsListResponse\"\xd7\x01\x92A\xba\x01\n" +
 	"\x04Bets\x129Получить список ставок селлера\x1adПолучает список ставок селлера по заданным параметрам*\x11GetSellerBetsList\x82\xd3\xe4\x93\x02\x13\x12\x11/seller/bets/list\x12\xd6\x01\n" +
@@ -949,41 +1137,47 @@ func file_seller_proto_rawDescGZIP() []byte {
 	return file_seller_proto_rawDescData
 }
 
-var file_seller_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_seller_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_seller_proto_goTypes = []any{
 	(*ListProductsByRequest)(nil),     // 0: wildberries.seller.ListProductsByRequest
 	(*ProductListItem)(nil),           // 1: wildberries.seller.ProductListItem
 	(*ListProductsByResponse)(nil),    // 2: wildberries.seller.ListProductsByResponse
-	(*GetSellerActionsRequest)(nil),   // 3: wildberries.seller.GetSellerActionsRequest
-	(*SellerActionSummary)(nil),       // 4: wildberries.seller.SellerActionSummary
-	(*GetSellerActionsResponse)(nil),  // 5: wildberries.seller.GetSellerActionsResponse
-	(*GetSellerBetsListRequest)(nil),  // 6: wildberries.seller.GetSellerBetsListRequest
-	(*SellerBetItem)(nil),             // 7: wildberries.seller.SellerBetItem
-	(*GetSellerBetsListResponse)(nil), // 8: wildberries.seller.GetSellerBetsListResponse
-	(*MakeBetRequest)(nil),            // 9: wildberries.seller.MakeBetRequest
-	(*MakeBetResponse)(nil),           // 10: wildberries.seller.MakeBetResponse
-	(*RemoveBetRequest)(nil),          // 11: wildberries.seller.RemoveBetRequest
-	(*RemoveBetResponse)(nil),         // 12: wildberries.seller.RemoveBetResponse
+	(*GetActionSegmentsRequest)(nil),  // 3: wildberries.seller.GetActionSegmentsRequest
+	(*ActionSegment)(nil),             // 4: wildberries.seller.ActionSegment
+	(*GetActionSegmentsResponse)(nil), // 5: wildberries.seller.GetActionSegmentsResponse
+	(*GetSellerActionsRequest)(nil),   // 6: wildberries.seller.GetSellerActionsRequest
+	(*SellerActionSummary)(nil),       // 7: wildberries.seller.SellerActionSummary
+	(*GetSellerActionsResponse)(nil),  // 8: wildberries.seller.GetSellerActionsResponse
+	(*GetSellerBetsListRequest)(nil),  // 9: wildberries.seller.GetSellerBetsListRequest
+	(*SellerBetItem)(nil),             // 10: wildberries.seller.SellerBetItem
+	(*GetSellerBetsListResponse)(nil), // 11: wildberries.seller.GetSellerBetsListResponse
+	(*MakeBetRequest)(nil),            // 12: wildberries.seller.MakeBetRequest
+	(*MakeBetResponse)(nil),           // 13: wildberries.seller.MakeBetResponse
+	(*RemoveBetRequest)(nil),          // 14: wildberries.seller.RemoveBetRequest
+	(*RemoveBetResponse)(nil),         // 15: wildberries.seller.RemoveBetResponse
 }
 var file_seller_proto_depIdxs = []int32{
 	1,  // 0: wildberries.seller.ListProductsByResponse.items:type_name -> wildberries.seller.ProductListItem
-	4,  // 1: wildberries.seller.GetSellerActionsResponse.actions:type_name -> wildberries.seller.SellerActionSummary
-	7,  // 2: wildberries.seller.GetSellerBetsListResponse.items:type_name -> wildberries.seller.SellerBetItem
-	0,  // 3: wildberries.seller.SellerProductService.ListProductsBy:input_type -> wildberries.seller.ListProductsByRequest
-	3,  // 4: wildberries.seller.SellerActionsService.GetSellerActions:input_type -> wildberries.seller.GetSellerActionsRequest
-	6,  // 5: wildberries.seller.SellerBetsService.GetSellerBetsList:input_type -> wildberries.seller.GetSellerBetsListRequest
-	9,  // 6: wildberries.seller.SellerBetsService.MakeBet:input_type -> wildberries.seller.MakeBetRequest
-	11, // 7: wildberries.seller.SellerBetsService.RemoveBet:input_type -> wildberries.seller.RemoveBetRequest
-	2,  // 8: wildberries.seller.SellerProductService.ListProductsBy:output_type -> wildberries.seller.ListProductsByResponse
-	5,  // 9: wildberries.seller.SellerActionsService.GetSellerActions:output_type -> wildberries.seller.GetSellerActionsResponse
-	8,  // 10: wildberries.seller.SellerBetsService.GetSellerBetsList:output_type -> wildberries.seller.GetSellerBetsListResponse
-	10, // 11: wildberries.seller.SellerBetsService.MakeBet:output_type -> wildberries.seller.MakeBetResponse
-	12, // 12: wildberries.seller.SellerBetsService.RemoveBet:output_type -> wildberries.seller.RemoveBetResponse
-	8,  // [8:13] is the sub-list for method output_type
-	3,  // [3:8] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	4,  // 1: wildberries.seller.GetActionSegmentsResponse.action_segments:type_name -> wildberries.seller.ActionSegment
+	7,  // 2: wildberries.seller.GetSellerActionsResponse.actions:type_name -> wildberries.seller.SellerActionSummary
+	10, // 3: wildberries.seller.GetSellerBetsListResponse.items:type_name -> wildberries.seller.SellerBetItem
+	0,  // 4: wildberries.seller.SellerProductService.ListProductsBy:input_type -> wildberries.seller.ListProductsByRequest
+	6,  // 5: wildberries.seller.SellerActionsService.GetSellerActions:input_type -> wildberries.seller.GetSellerActionsRequest
+	3,  // 6: wildberries.seller.SellerActionsService.GetActionSegments:input_type -> wildberries.seller.GetActionSegmentsRequest
+	9,  // 7: wildberries.seller.SellerBetsService.GetSellerBetsList:input_type -> wildberries.seller.GetSellerBetsListRequest
+	12, // 8: wildberries.seller.SellerBetsService.MakeBet:input_type -> wildberries.seller.MakeBetRequest
+	14, // 9: wildberries.seller.SellerBetsService.RemoveBet:input_type -> wildberries.seller.RemoveBetRequest
+	2,  // 10: wildberries.seller.SellerProductService.ListProductsBy:output_type -> wildberries.seller.ListProductsByResponse
+	8,  // 11: wildberries.seller.SellerActionsService.GetSellerActions:output_type -> wildberries.seller.GetSellerActionsResponse
+	5,  // 12: wildberries.seller.SellerActionsService.GetActionSegments:output_type -> wildberries.seller.GetActionSegmentsResponse
+	11, // 13: wildberries.seller.SellerBetsService.GetSellerBetsList:output_type -> wildberries.seller.GetSellerBetsListResponse
+	13, // 14: wildberries.seller.SellerBetsService.MakeBet:output_type -> wildberries.seller.MakeBetResponse
+	15, // 15: wildberries.seller.SellerBetsService.RemoveBet:output_type -> wildberries.seller.RemoveBetResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_seller_proto_init() }
@@ -997,7 +1191,7 @@ func file_seller_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_seller_proto_rawDesc), len(file_seller_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
