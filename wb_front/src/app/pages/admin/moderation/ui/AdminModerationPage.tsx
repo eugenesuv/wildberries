@@ -18,6 +18,8 @@ export function AdminModerationPage() {
         setActiveTab,
         showDetailsDialog,
         detectedStopFactors,
+        isLoading,
+        hasError,
         handleApprove,
         handleReject,
         handleBulkApprove,
@@ -51,6 +53,14 @@ export function AdminModerationPage() {
 
                     <Card>
                         <CardContent className="p-6">
+                            {hasError && (
+                                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                    {hasError}
+                                </div>
+                            )}
+                            {isLoading && (
+                                <div className="mb-4 text-sm text-muted-foreground">Загрузка заявок на модерацию...</div>
+                            )}
                             <ApplicationsTable
                                 applications={filteredApplications}
                                 onViewDetails={handleViewDetails}

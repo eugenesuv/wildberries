@@ -15,6 +15,9 @@ export function AdminSettingsPage() {
         settings,
         setSettings,
         aiThemes,
+        isLoading,
+        isSaving,
+        hasError,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,
@@ -40,6 +43,16 @@ export function AdminSettingsPage() {
 
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    {hasError && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {hasError}
+                        </div>
+                    )}
+                    {(isLoading || isSaving) && (
+                        <div className="text-sm text-muted-foreground">
+                            {isLoading ? "Загрузка настроек..." : "Сохранение настроек..."}
+                        </div>
+                    )}
                     <BasicInfoCard
                         settings={settings}
                         aiThemes={aiThemes}

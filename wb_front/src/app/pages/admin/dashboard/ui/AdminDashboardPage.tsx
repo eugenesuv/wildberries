@@ -12,6 +12,8 @@ export function AdminDashboardPage() {
         statistics,
         statusFilter,
         setStatusFilter,
+        isLoading,
+        hasError,
         handleCreateAction,
         handleEditAction,
         handleViewAction,
@@ -34,6 +36,12 @@ export function AdminDashboardPage() {
                             </div>
                         </CardHeader>
                         <CardContent>
+                            {hasError && (
+                                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                    {hasError}
+                                </div>
+                            )}
+                            {isLoading && <div className="mb-4 text-sm text-muted-foreground">Загрузка акций...</div>}
                             <ActionsTable
                                 actions={filteredActions}
                                 onEdit={handleEditAction}
