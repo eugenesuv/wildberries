@@ -15,6 +15,7 @@ export const routesConfig: RouteObject[] = [
         children: [
             // Роль: Покупатель
             { index: true, Component: HomePage },
+            { path: "promotion/:promotionId/:segmentId", Component: PromotionPage },
             { path: "promotion/:segment", Component: PromotionPage },
 
             // Роль: Продавец

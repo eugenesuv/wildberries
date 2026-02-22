@@ -14,6 +14,8 @@ export function PromotionPage() {
         quickViewProduct,
         gridKey,
         isCompleted,
+        isLoading,
+        hasError,
         updateFilters,
         toggleFavorite,
         openQuickView,
@@ -25,11 +27,24 @@ export function PromotionPage() {
         console.log("Add to cart:", product);
     };
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 flex items-center justify-center">
+                <p className="text-muted-foreground">Загружаем подборку...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
             <HoroscopeHero horoscope={horoscope} />
 
             <section className="container mx-auto px-4 py-8">
+                {hasError && (
+                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        {hasError}
+                    </div>
+                )}
                 <FilterBar filters={filters} onFilterChange={updateFilters} />
 
                 <CompletionBanner isVisible={isCompleted} />

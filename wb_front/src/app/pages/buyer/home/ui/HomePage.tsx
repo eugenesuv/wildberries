@@ -1,5 +1,4 @@
 import { useHomePage } from "../lib/useHomePage";
-import { PROMOTIONS, TEST_QUESTIONS } from "../constants";
 import { Header } from "./components/Header";
 import { HeroSection } from "./components/HeroSection";
 import { PromotionCarousel } from "./components/PromotionCarousel";
@@ -9,6 +8,8 @@ import { SegmentationTestModal } from "./components/SegmentationTestModal";
 
 export function HomePage() {
     const {
+        promotions,
+        testQuestions,
         showTestModal,
         currentQuestion,
         answers,
@@ -36,7 +37,7 @@ export function HomePage() {
                 <HeroSection />
 
                 <PromotionCarousel
-                    promotions={PROMOTIONS}
+                    promotions={promotions}
                     abIndex={abIndex}
                     isHovering={isHoveringCarousel}
                     onHoverChange={setIsHoveringCarousel}
@@ -54,7 +55,7 @@ export function HomePage() {
                 onOpenChange={handleCloseTestModal}
                 currentQuestion={currentQuestion}
                 answers={answers}
-                questions={TEST_QUESTIONS}
+                questions={testQuestions}
                 progress={progress}
                 onAnswer={handleTestAnswer}
                 onSubmit={handleTestSubmit}
