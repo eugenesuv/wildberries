@@ -2,10 +2,13 @@ package app
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"wildberries/internal/entity"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (a *App) serveCustomHTTP(w http.ResponseWriter, r *http.Request) bool {
@@ -14,6 +17,20 @@ func (a *App) serveCustomHTTP(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method == http.MethodGet && path == "/admin/promotions" {
 		a.handleAdminListPromotions(w, r)
 		return true
+	}
+
+	if strings.HasPrefix(path, "/admin/promotions/") {
+		parts := splitPath(path)
+		// /admin/promotions/{id}
+		if len(parts) == 3 && parts[0] == "admin" && parts[1] == "promotions" && r.Method == http.MethodPatch {
+			a.handleAdminUpdatePromotion(w, r, parts[2])
+			return true
+		}
+		// /admin/promotions/{id}/segments/{segmentId}
+		if len(parts) == 5 && parts[0] == "admin" && parts[1] == "promotions" && parts[3] == "segments" && r.Method == http.MethodPatch {
+			a.handleAdminUpdateSegment(w, r, parts[2], parts[4])
+			return true
+		}
 	}
 
 	if strings.HasPrefix(path, "/admin/promotions/") && strings.HasSuffix(path, "/auction-params") {
@@ -60,12 +77,12 @@ func (a *App) handleAdminListPromotions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	type item struct {
-		ID        int64  `json:"id"`
-		Name      string `json:"name"`
-		Theme     string `json:"theme"`
-		Status    string `json:"status"`
-		DateFrom  string `json:"dateFrom"`
-		DateTo    string `json:"dateTo"`
+		ID       int64  `json:"id"`
+		Name     string `json:"name"`
+		Theme    string `json:"theme"`
+		Status   string `json:"status"`
+		DateFrom string `json:"dateFrom"`
+		DateTo   string `json:"dateTo"`
 	}
 	resp := struct {
 		Promotions []item `json:"promotions"`
@@ -104,6 +121,82 @@ func (a *App) handleAdminGetAuctionParams(w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, resp)
 }
 
+func (a *App) handleAdminUpdatePromotion(w http.ResponseWriter, r *http.Request, idRaw string) {
+	id, ok := parseInt64PathParam(w, idRaw)
+	if !ok {
+		return
+	}
+
+	// Frontend sends camelCase fields for PATCH /admin/promotions/{id}.
+	var req struct {
+		Name               *string   `json:"name"`
+		Description        *string   `json:"description"`
+		Theme              *string   `json:"theme"`
+		DateFrom           *string   `json:"dateFrom"`
+		DateTo             *string   `json:"dateTo"`
+		IdentificationMode *string   `json:"identificationMode"`
+		PricingModel       *string   `json:"pricingModel"`
+		SlotCount          *int      `json:"slotCount"`
+		Discount           *int      `json:"discount"`
+		StopFactors        *[]string `json:"stopFactors"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSONError(w, http.StatusBadRequest, "invalid json")
+		return
+	}
+
+	promo, err := a.promotionService.GetPromotion(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			writeJSONError(w, http.StatusNotFound, "promotion not found")
+			return
+		}
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if promo == nil {
+		writeJSONError(w, http.StatusNotFound, "promotion not found")
+		return
+	}
+
+	if req.Name != nil {
+		promo.Name = *req.Name
+	}
+	if req.Description != nil {
+		promo.Description = *req.Description
+	}
+	if req.Theme != nil {
+		promo.Theme = *req.Theme
+	}
+	if req.DateFrom != nil {
+		promo.DateFrom = *req.DateFrom
+	}
+	if req.DateTo != nil {
+		promo.DateTo = *req.DateTo
+	}
+	if req.IdentificationMode != nil {
+		promo.IdentificationMode = entity.ParseIdentificationMode(*req.IdentificationMode)
+	}
+	if req.PricingModel != nil {
+		promo.PricingModel = entity.ParsePricingModel(*req.PricingModel)
+	}
+	if req.SlotCount != nil {
+		promo.SlotCount = *req.SlotCount
+	}
+	if req.Discount != nil {
+		promo.Discount = *req.Discount
+	}
+	if req.StopFactors != nil {
+		promo.StopFactors = entity.StopFactors{Factors: *req.StopFactors}
+	}
+
+	if err := a.promotionService.UpdatePromotion(r.Context(), promo); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, struct{}{})
+}
+
 func (a *App) handleAdminSetAuctionParams(w http.ResponseWriter, r *http.Request) {
 	id, ok := parseInt64PathParam(w, extractPromotionIDFromAuctionPath(r.URL.Path))
 	if !ok {
@@ -135,6 +228,38 @@ func (a *App) handleAdminSetAuctionParams(w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, struct{}{})
 }
 
+func (a *App) handleAdminUpdateSegment(w http.ResponseWriter, r *http.Request, promotionIDRaw, segmentIDRaw string) {
+	promotionID, ok := parseInt64PathParam(w, promotionIDRaw)
+	if !ok {
+		return
+	}
+	segmentID, ok := parseInt64PathParam(w, segmentIDRaw)
+	if !ok {
+		return
+	}
+
+	// Frontend sends camelCase fields for PATCH /admin/promotions/{id}/segments/{segmentId}.
+	var req struct {
+		Name         *string `json:"name"`
+		CategoryName *string `json:"categoryName"`
+		OrderIndex   *int32  `json:"orderIndex"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSONError(w, http.StatusBadRequest, "invalid json")
+		return
+	}
+
+	if err := a.promotionService.UpdateSegment(r.Context(), promotionID, segmentID, req.Name, req.CategoryName, req.OrderIndex); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			writeJSONError(w, http.StatusNotFound, "segment not found")
+			return
+		}
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, struct{}{})
+}
+
 func extractPromotionIDFromAuctionPath(path string) string {
 	parts := splitPath(path)
 	// admin/promotions/{id}/auction-params
@@ -155,12 +280,12 @@ func (a *App) handleSellerSegmentsAlias(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	type segment struct {
-		ID         int64  `json:"id"`
-		Name       string `json:"name"`
-		Category   string `json:"category"`
-		Population int64  `json:"population"`
-		BookedSlots int64 `json:"bookedSlots"`
-		TotalSlots int64  `json:"totalSlots"`
+		ID          int64  `json:"id"`
+		Name        string `json:"name"`
+		Category    string `json:"category"`
+		Population  int64  `json:"population"`
+		BookedSlots int64  `json:"bookedSlots"`
+		TotalSlots  int64  `json:"totalSlots"`
 	}
 	resp := struct {
 		ActionSegments []segment `json:"actionSegments"`
@@ -193,12 +318,12 @@ func (a *App) handleSellerSegmentSlots(w http.ResponseWriter, r *http.Request, a
 		return
 	}
 	type auctionItem struct {
-		SlotID       int64  `json:"slotId"`
-		Position     int    `json:"position"`
-		CurrentBid   int64  `json:"currentBid"`
-		MinBid       int64  `json:"minBid"`
-		BidStep      int64  `json:"bidStep"`
-		TimeLeft     string `json:"timeLeft"`
+		SlotID        int64  `json:"slotId"`
+		Position      int    `json:"position"`
+		CurrentBid    int64  `json:"currentBid"`
+		MinBid        int64  `json:"minBid"`
+		BidStep       int64  `json:"bidStep"`
+		TimeLeft      string `json:"timeLeft"`
 		TopBidderName string `json:"topBidderName,omitempty"`
 	}
 	type fixedItem struct {
