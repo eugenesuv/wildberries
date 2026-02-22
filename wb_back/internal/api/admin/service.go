@@ -3,8 +3,13 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"sort"
+
+	"github.com/jackc/pgx/v5"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
@@ -193,9 +198,44 @@ func (s *Service) ChangeStatus(ctx context.Context, req *desc.ChangeStatusReques
 	status := entity.ParsePromotionStatus(req.Status)
 	err := s.promotionService.ChangeStatus(ctx, req.PromotionId, status)
 	if err != nil {
-		return nil, err
+		return nil, mapChangeStatusError(err)
 	}
 	return &desc.ChangeStatusResponse{}, nil
+}
+
+func mapChangeStatusError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var validationErr *promotion.ChangeStatusValidationError
+	if errors.As(err, &validationErr) {
+		return grpcstatus.Error(codes.InvalidArgument, validationErr.Error())
+	}
+
+	var conflictErr *promotion.ChangeStatusConflictError
+	if errors.As(err, &conflictErr) {
+		return grpcstatus.Error(codes.Aborted, conflictErr.Error())
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return grpcstatus.Error(codes.NotFound, "promotion not found")
+	}
+
+	return err
+}
+
+func mapModerationDecisionError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, repository.ErrNotFound) || errors.Is(err, pgx.ErrNoRows) {
+		return grpcstatus.Error(codes.NotFound, err.Error())
+	}
+	if errors.Is(err, repository.ErrConflict) {
+		return grpcstatus.Error(codes.Aborted, err.Error())
+	}
+	return err
 }
 
 // SetSlotProduct sets product in slot (WB curation)
@@ -373,7 +413,7 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 func (s *Service) Approve(ctx context.Context, req *desc.ApproveModerationRequest) (*desc.ApproveModerationResponse, error) {
 	err := s.promotionService.ApproveModeration(ctx, req.ApplicationId, nil)
 	if err != nil {
-		return nil, err
+		return nil, mapModerationDecisionError(err)
 	}
 	return &desc.ApproveModerationResponse{}, nil
 }
@@ -382,7 +422,7 @@ func (s *Service) Approve(ctx context.Context, req *desc.ApproveModerationReques
 func (s *Service) Reject(ctx context.Context, req *desc.RejectModerationRequest) (*desc.RejectModerationResponse, error) {
 	err := s.promotionService.RejectModeration(ctx, req.ApplicationId, req.Reason, nil)
 	if err != nil {
-		return nil, err
+		return nil, mapModerationDecisionError(err)
 	}
 	return &desc.RejectModerationResponse{}, nil
 }
