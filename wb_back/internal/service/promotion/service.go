@@ -3,6 +3,7 @@ package promotion
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
 )
@@ -15,6 +16,7 @@ type Service struct {
 	productRepo    repository.ProductRepository
 	moderationRepo repository.ModerationRepository
 	auctionRepo    repository.AuctionRepository
+	pollRepo       repository.PollRepository
 }
 
 // New creates a new promotion service
@@ -25,6 +27,7 @@ func New(
 	productRepo repository.ProductRepository,
 	moderationRepo repository.ModerationRepository,
 	auctionRepo repository.AuctionRepository,
+	pollRepo repository.PollRepository,
 ) *Service {
 	return &Service{
 		promotionRepo:  promotionRepo,
@@ -33,6 +36,7 @@ func New(
 		productRepo:    productRepo,
 		moderationRepo: moderationRepo,
 		auctionRepo:    auctionRepo,
+		pollRepo:       pollRepo,
 	}
 }
 
@@ -76,6 +80,25 @@ func (s *Service) GetPromotion(ctx context.Context, id int64) (*entity.Promotion
 		return nil, err
 	}
 	return rowToPromotion(row)
+}
+
+// ListPromotions returns all non-deleted promotions.
+func (s *Service) ListPromotions(ctx context.Context) ([]*entity.Promotion, error) {
+	rows, err := s.promotionRepo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*entity.Promotion, 0, len(rows))
+	for _, row := range rows {
+		p, err := rowToPromotion(row)
+		if err != nil {
+			return nil, err
+		}
+		if p != nil {
+			out = append(out, p)
+		}
+	}
+	return out, nil
 }
 
 // GetPromotionSegments returns segments for a promotion
@@ -173,6 +196,9 @@ func (s *Service) ChangeStatus(ctx context.Context, promotionID int64, status en
 	if err != nil {
 		return err
 	}
+	if err := s.ensureSlotsForPromotion(ctx, promo); err != nil {
+		return err
+	}
 	if promo.PricingModel == entity.PricingModelAuction && promo.MinPrice != nil && promo.BidStep != nil {
 		auctionID, err := s.auctionRepo.Create(ctx, promotionID, promo.DateFrom, promo.DateTo, *promo.MinPrice, *promo.BidStep)
 		if err != nil {
@@ -183,7 +209,7 @@ func (s *Service) ChangeStatus(ctx context.Context, promotionID int64, status en
 			return err
 		}
 		for _, slot := range slots {
-			if slot.PricingType == "auction" {
+			if slot.PricingType == "auction" && slot.AuctionID == nil {
 				slot.AuctionID = &auctionID
 				_ = s.slotRepo.Update(ctx, slot)
 			}
@@ -192,10 +218,61 @@ func (s *Service) ChangeStatus(ctx context.Context, promotionID int64, status en
 	return s.promotionRepo.SetStatus(ctx, promotionID, status.String())
 }
 
+func keySlot(segmentID int64, position int, pricingType string) string {
+	return pricingType + ":" + strconv.FormatInt(segmentID, 10) + ":" + strconv.Itoa(position)
+}
+
 // SetSlotProduct sets product in slot (WB curation); seller_id is left nil
 func (s *Service) SetSlotProduct(ctx context.Context, segmentID, slotID, productID int64) error {
 	var sid *int64 // nil = WB curation
 	return s.slotRepo.SetProduct(ctx, slotID, sid, productID, "occupied")
+}
+
+func (s *Service) ensureSlotsForPromotion(ctx context.Context, promo *entity.Promotion) error {
+	segments, err := s.segmentRepo.ByPromotionID(ctx, promo.ID)
+	if err != nil {
+		return err
+	}
+	if len(segments) == 0 || promo.SlotCount <= 0 {
+		return nil
+	}
+
+	existing, err := s.slotRepo.ByPromotionID(ctx, promo.ID)
+	if err != nil {
+		return err
+	}
+	exists := make(map[string]struct{}, len(existing))
+	for _, slot := range existing {
+		key := keySlot(slot.SegmentID, slot.Position, slot.PricingType)
+		exists[key] = struct{}{}
+	}
+
+	for _, seg := range segments {
+		for pos := 1; pos <= promo.SlotCount; pos++ {
+			pricingType := promo.PricingModel.APIString()
+			key := keySlot(seg.ID, pos, pricingType)
+			if _, ok := exists[key]; ok {
+				continue
+			}
+			row := &repository.SlotRow{
+				PromotionID: promo.ID,
+				SegmentID:   seg.ID,
+				Position:    pos,
+				PricingType: pricingType,
+				Status:      "available",
+			}
+			if promo.PricingModel == entity.PricingModelFixed && promo.FixedPrices != nil {
+				if price, ok := promo.FixedPrices[int32(pos)]; ok {
+					priceCopy := price
+					row.Price = &priceCopy
+				}
+			}
+			if _, err := s.slotRepo.Create(ctx, row); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // CreateSegment creates a segment for a promotion
@@ -280,4 +357,51 @@ func (s *Service) RejectModeration(ctx context.Context, applicationID int64, rea
 	slot.SellerID = nil
 	slot.ProductID = nil
 	return s.slotRepo.Update(ctx, slot)
+}
+
+type PromotionPoll struct {
+	Questions []*repository.PollQuestionRow
+	Options   []*repository.PollOptionRow
+	AnswerTree []*repository.PollAnswerTreeRow
+}
+
+func (s *Service) GetPromotionPoll(ctx context.Context, promotionID int64) (*PromotionPoll, error) {
+	if s.pollRepo == nil {
+		return &PromotionPoll{}, nil
+	}
+	questions, err := s.pollRepo.QuestionsByPromotion(ctx, promotionID)
+	if err != nil {
+		return nil, err
+	}
+	questionIDs := make([]int64, 0, len(questions))
+	for _, q := range questions {
+		questionIDs = append(questionIDs, q.ID)
+	}
+	options, err := s.pollRepo.OptionsByQuestionIDs(ctx, questionIDs)
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := s.pollRepo.AnswerTreeByPromotion(ctx, promotionID)
+	if err != nil {
+		return nil, err
+	}
+	return &PromotionPoll{
+		Questions: questions,
+		Options:   options,
+		AnswerTree: nodes,
+	}, nil
+}
+
+func (s *Service) SavePollQuestions(ctx context.Context, promotionID int64, questions []repository.PollQuestionInput) error {
+	if s.pollRepo == nil {
+		return nil
+	}
+	return s.pollRepo.SaveQuestions(ctx, promotionID, questions)
+}
+
+func (s *Service) SaveAnswerTree(ctx context.Context, promotionID int64, nodes []repository.PollAnswerTreeInput) error {
+	if s.pollRepo == nil {
+		return nil
+	}
+	return s.pollRepo.SaveAnswerTree(ctx, promotionID, nodes)
 }

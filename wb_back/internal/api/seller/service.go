@@ -23,7 +23,24 @@ func New(sellerService *seller.Service) *Service {
 }
 
 func (s *Service) GetActionSegments(ctx context.Context, req *desc.GetActionSegmentsRequest) (*desc.GetActionSegmentsResponse, error) {
-	panic("unimplemented")
+	items, err := s.sellerService.GetActionSegments(ctx, req.ActionId)
+	if err != nil {
+		return nil, err
+	}
+	resp := &desc.GetActionSegmentsResponse{
+		ActionSegments: make([]*desc.ActionSegment, 0, len(items)),
+	}
+	for _, item := range items {
+		resp.ActionSegments = append(resp.ActionSegments, &desc.ActionSegment{
+			Id:         item.ID,
+			Name:       item.Name,
+			Category:   item.Category,
+			Population: item.Population,
+			BookedSlots: item.BookedSlots,
+			TotalSlots: item.TotalSlots,
+		})
+	}
+	return resp, nil
 }
 
 // ListProductsBy lists products by seller

@@ -44,6 +44,31 @@ func (r *PromotionPostgres) GetActive(ctx context.Context) (*PromotionRow, error
 	return &row, nil
 }
 
+func (r *PromotionPostgres) ListAll(ctx context.Context) ([]*PromotionRow, error) {
+	rows, err := r.pool.Query(ctx, `SELECT id, name, description, theme, date_from, date_to, status,
+		identification_mode, pricing_model, slot_count, discount, min_price, bid_step, stop_factors, fixed_prices,
+		created_at, updated_at, deleted_at FROM public.promotion
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC, id DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []*PromotionRow
+	for rows.Next() {
+		var row PromotionRow
+		err = rows.Scan(&row.ID, &row.Name, &row.Description, &row.Theme, &row.DateFrom, &row.DateTo, &row.Status,
+			&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.Discount, &row.MinPrice, &row.BidStep,
+			&row.StopFactors, &row.FixedPrices, &row.CreatedAt, &row.UpdatedAt, &row.DeletedAt)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, &row)
+	}
+	return out, rows.Err()
+}
+
 func (r *PromotionPostgres) Create(ctx context.Context, row *PromotionRow) (int64, error) {
 	var id int64
 	err := r.pool.QueryRow(ctx, `INSERT INTO public.promotion (name, description, theme, date_from, date_to, status,

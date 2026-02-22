@@ -30,6 +30,9 @@ type App struct {
 	cfg  *config.Config
 	pool *pgxpool.Pool
 
+	promotionService *promotion.Service
+	sellerService    *seller.Service
+
 	// API services
 	adminAPI  *admin_api.Service
 	buyerAPI  *buyer_api.Service
@@ -55,6 +58,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	moderationRepo := repository.NewModerationPostgres(pool)
 	betRepo := repository.NewBetPostgres(pool)
 	auctionRepo := repository.NewAuctionPostgres(pool)
+	pollRepo := repository.NewPollPostgres(pool)
 
 	// Create services
 	promotionService := promotion.New(
@@ -64,10 +68,11 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		productRepo,
 		moderationRepo,
 		auctionRepo,
+		pollRepo,
 	)
 
-	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo)
-	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, promotionRepo, moderationRepo)
+	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo, pollRepo)
+	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo)
 	aiService := ai.New()
 
 	// Create API services
@@ -82,6 +87,8 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	app := &App{
 		cfg:       cfg,
 		pool:      pool,
+		promotionService: promotionService,
+		sellerService:    sellerService,
 		adminAPI:  adminAPIService,
 		buyerAPI:  buyerAPIService,
 		sellerAPI: sellerAPIService,
@@ -152,6 +159,9 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 }
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if a.serveCustomHTTP(w, r) {
+		return
+	}
 	// Delegate to gRPC gateway
 	a.gwmux.ServeHTTP(w, r)
 }

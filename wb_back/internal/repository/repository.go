@@ -91,6 +91,7 @@ type ModerationRow struct {
 type PromotionRepository interface {
 	GetByID(ctx context.Context, id int64) (*PromotionRow, error)
 	GetActive(ctx context.Context) (*PromotionRow, error)
+	ListAll(ctx context.Context) ([]*PromotionRow, error)
 	Create(ctx context.Context, row *PromotionRow) (int64, error)
 	Update(ctx context.Context, row *PromotionRow) error
 	SoftDelete(ctx context.Context, id int64) error

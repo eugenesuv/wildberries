@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
 )
@@ -14,6 +17,7 @@ type Service struct {
 	betRepo        repository.BetRepository
 	auctionRepo    repository.AuctionRepository
 	slotRepo       repository.SlotRepository
+	segmentRepo    repository.SegmentRepository
 	promotionRepo  repository.PromotionRepository
 	moderationRepo repository.ModerationRepository
 }
@@ -24,6 +28,7 @@ func New(
 	betRepo repository.BetRepository,
 	auctionRepo repository.AuctionRepository,
 	slotRepo repository.SlotRepository,
+	segmentRepo repository.SegmentRepository,
 	promotionRepo repository.PromotionRepository,
 	moderationRepo repository.ModerationRepository,
 ) *Service {
@@ -32,6 +37,7 @@ func New(
 		betRepo:        betRepo,
 		auctionRepo:    auctionRepo,
 		slotRepo:       slotRepo,
+		segmentRepo:    segmentRepo,
 		promotionRepo:  promotionRepo,
 		moderationRepo: moderationRepo,
 	}
@@ -65,9 +71,170 @@ func (s *Service) ListProductsBy(ctx context.Context, sellerID int64, categoryID
 
 // GetSellerActions gets seller actions (promotions)
 func (s *Service) GetSellerActions(ctx context.Context, sellerID int64) ([]*entity.SellerAction, error) {
-	// Return active/ready promotions; full impl would filter by promotion status/dates
-	// Stub: would use promotionRepo list by status RUNNING or READY_TO_START
-	return nil, nil
+	_ = sellerID // auth/ownership filtering is not implemented yet
+	rows, err := s.promotionRepo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*entity.SellerAction, 0, len(rows))
+	for _, row := range rows {
+		if row == nil {
+			continue
+		}
+		if row.Status != "RUNNING" && row.Status != "READY_TO_START" {
+			continue
+		}
+		categoryHint := ""
+		segments, err := s.segmentRepo.ByPromotionID(ctx, row.ID)
+		if err == nil && len(segments) > 0 && segments[0].CategoryName != nil {
+			categoryHint = *segments[0].CategoryName
+		}
+		out = append(out, &entity.SellerAction{
+			ID:           row.ID,
+			Name:         row.Name,
+			Status:       row.Status,
+			DateFrom:     row.DateFrom,
+			DateTo:       row.DateTo,
+			CategoryHint: categoryHint,
+			Theme:        row.Theme,
+		})
+	}
+	return out, nil
+}
+
+type ActionSegmentSummary struct {
+	ID         int64
+	Name       string
+	Category   string
+	Population int64
+	BookedSlots int64
+	TotalSlots int64
+}
+
+func (s *Service) GetActionSegments(ctx context.Context, actionID int64) ([]*ActionSegmentSummary, error) {
+	segs, err := s.segmentRepo.ByPromotionID(ctx, actionID)
+	if err != nil {
+		return nil, err
+	}
+	slots, err := s.slotRepo.ByPromotionID(ctx, actionID)
+	if err != nil {
+		return nil, err
+	}
+	type agg struct{ total, booked int64 }
+	aggBySeg := map[int64]*agg{}
+	for _, slot := range slots {
+		a := aggBySeg[slot.SegmentID]
+		if a == nil {
+			a = &agg{}
+			aggBySeg[slot.SegmentID] = a
+		}
+		a.total++
+		if slot.Status != "available" {
+			a.booked++
+		}
+	}
+	out := make([]*ActionSegmentSummary, 0, len(segs))
+	for _, seg := range segs {
+		a := aggBySeg[seg.ID]
+		if a == nil {
+			a = &agg{}
+		}
+		category := ""
+		if seg.CategoryName != nil {
+			category = *seg.CategoryName
+		}
+		out = append(out, &ActionSegmentSummary{
+			ID:          seg.ID,
+			Name:        seg.Name,
+			Category:    category,
+			Population:  0,
+			BookedSlots: a.booked,
+			TotalSlots:  a.total,
+		})
+	}
+	return out, nil
+}
+
+type SegmentSlotsMarket struct {
+	Auction []AuctionSlotMarketItem
+	Fixed   []FixedSlotMarketItem
+}
+
+type AuctionSlotMarketItem struct {
+	SlotID       int64
+	Position     int
+	CurrentBid   int64
+	MinBid       int64
+	BidStep      int64
+	TimeLeft     string
+	TopBidderName string
+}
+
+type FixedSlotMarketItem struct {
+	SlotID   int64
+	Position int
+	Price    int64
+	Status   string
+}
+
+func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID int64) (*SegmentSlotsMarket, error) {
+	_ = actionID
+	slots, err := s.slotRepo.BySegmentID(ctx, segmentID, false)
+	if err != nil {
+		return nil, err
+	}
+	var auctionMin, auctionStep int64
+	var auctionDateTo string
+	if len(slots) > 0 {
+		id, minPrice, bidStep, _, dateTo, err := s.auctionRepo.GetByPromotionID(ctx, slots[0].PromotionID)
+		if err == nil && id > 0 {
+			auctionMin = minPrice
+			auctionStep = bidStep
+			auctionDateTo = dateTo
+		}
+	}
+
+	out := &SegmentSlotsMarket{
+		Auction: make([]AuctionSlotMarketItem, 0),
+		Fixed:   make([]FixedSlotMarketItem, 0),
+	}
+	for _, slot := range slots {
+		switch strings.ToLower(slot.PricingType) {
+		case "auction":
+			var currentBid int64
+			if _, _, topBet, err := s.betRepo.TopBySlot(ctx, slot.ID); err == nil {
+				currentBid = topBet
+			}
+			minBid := auctionMin
+			if currentBid > 0 && auctionStep > 0 {
+				minBid = currentBid + auctionStep
+			}
+			if minBid == 0 {
+				minBid = currentBid
+			}
+			out.Auction = append(out.Auction, AuctionSlotMarketItem{
+				SlotID:        slot.ID,
+				Position:      slot.Position,
+				CurrentBid:    currentBid,
+				MinBid:        minBid,
+				BidStep:       auctionStep,
+				TimeLeft:      formatTimeLeft(auctionDateTo),
+				TopBidderName: "",
+			})
+		default:
+			var price int64
+			if slot.Price != nil {
+				price = *slot.Price
+			}
+			out.Fixed = append(out.Fixed, FixedSlotMarketItem{
+				SlotID:   slot.ID,
+				Position: slot.Position,
+				Price:    price,
+				Status:   slot.Status,
+			})
+		}
+	}
+	return out, nil
 }
 
 // GetSellerBetsList gets seller bets/applications
@@ -210,4 +377,25 @@ func (s *Service) RemoveBet(ctx context.Context, sellerID, slotID int64) (bool, 
 		return true, s.slotRepo.Update(ctx, slot)
 	}
 	return false, errors.New("cannot remove")
+}
+
+func formatTimeLeft(dateTo string) string {
+	if dateTo == "" {
+		return ""
+	}
+	t, err := time.Parse(time.RFC3339, dateTo)
+	if err != nil {
+		if parsed, err2 := time.Parse(time.RFC3339Nano, dateTo); err2 == nil {
+			t = parsed
+		} else {
+			return ""
+		}
+	}
+	d := time.Until(t)
+	if d < 0 {
+		return "0ч 0м"
+	}
+	h := int(d.Hours())
+	m := int(d.Minutes()) % 60
+	return strconv.Itoa(h) + "ч " + strconv.Itoa(m) + "м"
 }

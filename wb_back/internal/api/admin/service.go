@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"sort"
 
 	"wildberries/internal/entity"
+	"wildberries/internal/repository"
 	"wildberries/internal/service/promotion"
 	desc "wildberries/pkg/admin"
 )
@@ -86,6 +88,37 @@ func (s *Service) GetPromotion(ctx context.Context, req *desc.GetPromotionReques
 	}
 	if promo.FixedPrices != nil {
 		resp.FixedPrices = promo.FixedPrices
+	}
+	pollData, err := s.promotionService.GetPromotionPoll(ctx, req.Id)
+	if err == nil && pollData != nil {
+		resp.Poll = &desc.PromotionPoll{}
+		optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+		for _, opt := range pollData.Options {
+			optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+				Id:    opt.ID,
+				Text:  opt.Text,
+				Value: opt.Value,
+			})
+		}
+		for _, q := range pollData.Questions {
+			resp.Poll.Questions = append(resp.Poll.Questions, &desc.PollQuestionAdmin{
+				Id:      q.ID,
+				Text:    q.Text,
+				Options: optByQuestion[q.ID],
+			})
+		}
+		for _, n := range pollData.AnswerTree {
+			parent := ""
+			if n.ParentNodeID != nil {
+				parent = *n.ParentNodeID
+			}
+			resp.Poll.AnswerTree = append(resp.Poll.AnswerTree, &desc.AnswerTreeNode{
+				NodeId:       n.NodeID,
+				ParentNodeId: parent,
+				Label:        n.Label,
+				Value:        n.Value,
+			})
+		}
 	}
 	return resp, nil
 }
@@ -227,6 +260,84 @@ func (s *Service) ShuffleSegmentCategories(ctx context.Context, req *desc.Shuffl
 		return nil, err
 	}
 	return &desc.ShuffleSegmentCategoriesResponse{}, nil
+}
+
+// --- PollAdminService ---
+
+func (s *Service) GeneratePoll(ctx context.Context, req *desc.GeneratePollRequest) (*desc.GeneratePollResponse, error) {
+	// MVP fallback: return current stored poll state, no AI generation.
+	pollData, err := s.promotionService.GetPromotionPoll(ctx, req.PromotionId)
+	if err != nil {
+		return nil, err
+	}
+	resp := &desc.GeneratePollResponse{}
+	if pollData == nil {
+		return resp, nil
+	}
+	if req.Type == "questions" || req.Type == "" {
+		optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+		for _, opt := range pollData.Options {
+			optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+				Id:    opt.ID,
+				Text:  opt.Text,
+				Value: opt.Value,
+			})
+		}
+		for _, q := range pollData.Questions {
+			resp.Questions = append(resp.Questions, &desc.PollQuestionAdmin{
+				Id:      q.ID,
+				Text:    q.Text,
+				Options: optByQuestion[q.ID],
+			})
+		}
+	}
+	if req.Type == "answer_tree" || req.Type == "" {
+		for _, n := range pollData.AnswerTree {
+			parent := ""
+			if n.ParentNodeID != nil {
+				parent = *n.ParentNodeID
+			}
+			resp.AnswerTree = append(resp.AnswerTree, &desc.AnswerTreeNode{
+				NodeId:       n.NodeID,
+				ParentNodeId: parent,
+				Label:        n.Label,
+				Value:        n.Value,
+			})
+		}
+	}
+	return resp, nil
+}
+
+func (s *Service) SetPollQuestions(ctx context.Context, req *desc.SetPollQuestionsRequest) (*desc.SetPollQuestionsResponse, error) {
+	input := make([]repository.PollQuestionInput, 0, len(req.Questions))
+	for _, q := range req.Questions {
+		item := repository.PollQuestionInput{Text: q.Text}
+		for _, opt := range q.Options {
+			item.Options = append(item.Options, struct{ Text, Value string }{Text: opt.Text, Value: opt.Value})
+		}
+		input = append(input, item)
+	}
+	if err := s.promotionService.SavePollQuestions(ctx, req.PromotionId, input); err != nil {
+		return nil, err
+	}
+	return &desc.SetPollQuestionsResponse{}, nil
+}
+
+func (s *Service) SetAnswerTree(ctx context.Context, req *desc.SetAnswerTreeRequest) (*desc.SetAnswerTreeResponse, error) {
+	nodes := make([]repository.PollAnswerTreeInput, 0, len(req.Nodes))
+	for _, n := range req.Nodes {
+		nodes = append(nodes, repository.PollAnswerTreeInput{
+			NodeID:       n.NodeId,
+			ParentNodeID: n.ParentNodeId,
+			Label:        n.Label,
+			Value:        n.Value,
+		})
+	}
+	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].NodeID < nodes[j].NodeID })
+	if err := s.promotionService.SaveAnswerTree(ctx, req.PromotionId, nodes); err != nil {
+		return nil, err
+	}
+	return &desc.SetAnswerTreeResponse{}, nil
 }
 
 // --- ModerationService ---
