@@ -1,4 +1,5 @@
 import { ApiClient } from "../base.client";
+import { API_BASE_URL } from "../config";
 import type {
     BuyerGetCurrentPromotionResponse,
     BuyerStartIdentificationRequest,
@@ -10,7 +11,7 @@ import type {
 
 class BuyerClient extends ApiClient {
     constructor() {
-        super("http://localhost:7001", "Buyer");
+        super(API_BASE_URL, "Buyer");
     }
 
     async getCurrentPromotion(): Promise<BuyerGetCurrentPromotionResponse> {
@@ -36,7 +37,16 @@ class BuyerClient extends ApiClient {
             perPage?: number;
         },
     ): Promise<BuyerGetSegmentProductsResponse> {
-        return this.get(`/promotions/${promotionId}/segments/${segmentId}/products`, { params });
+        const query = params
+            ? {
+                  category: params.category,
+                  only_discounts: params.onlyDiscounts,
+                  sort: params.sort,
+                  page: params.page,
+                  per_page: params.perPage,
+              }
+            : undefined;
+        return this.get(`/promotions/${promotionId}/segments/${segmentId}/products`, { params: query });
     }
 }
 

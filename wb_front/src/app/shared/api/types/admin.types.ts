@@ -10,8 +10,9 @@ export interface AdminCreatePromotionRequest {
     identificationMode: "questions" | "user_profile";
     pricingModel: "auction" | "fixed";
     slotCount: number; // int32
-    minDiscount: number; // int32
-    maxDiscount: number; // int32
+    discount: number; // int32
+    minDiscount?: number; // compatibility for UI state (not sent to backend)
+    maxDiscount?: number; // compatibility for UI state (not sent to backend)
     stopFactors: string[];
 }
 
@@ -31,8 +32,9 @@ export interface AdminGetPromotionResponse {
     identificationMode: string;
     pricingModel: string;
     slotCount: number; // int32
-    minDiscount: number; // int32
-    maxDiscount: number; // int32
+    discount: number; // int32
+    minDiscount?: number; // compatibility field for UI mapping
+    maxDiscount?: number; // compatibility field for UI mapping
     stopFactors: string[];
     segments: AdminSegmentWithOrder[];
     fixedPrices: Record<string, string>; // position -> price (int64)

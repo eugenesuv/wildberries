@@ -1,6 +1,9 @@
 import { ApiClient } from "../base.client";
+import { API_BASE_URL } from "../config";
 import type {
+    SellerGetActionSegmentsResponse,
     SellerGetSellerActionsResponse,
+    SellerGetSegmentSlotsResponse,
     SellerListProductsByResponse,
     SellerMakeBetRequest,
     SellerMakeBetResponse,
@@ -11,7 +14,7 @@ import type {
 
 class SellerClient extends ApiClient {
     constructor() {
-        super("http://localhost:7004", "Seller");
+        super(API_BASE_URL, "Seller");
     }
 
     async getSellerActions(sellerId?: number): Promise<SellerGetSellerActionsResponse> {
@@ -24,7 +27,24 @@ class SellerClient extends ApiClient {
         page?: number;
         perPage?: number;
     }): Promise<SellerListProductsByResponse> {
-        return this.get("/products/list-by", { params });
+        return this.get("/products/list-by", {
+            params: params
+                ? {
+                      category_id: params.categoryId,
+                      seller_id: params.sellerId,
+                      page: params.page,
+                      per_page: params.perPage,
+                  }
+                : undefined,
+        });
+    }
+
+    async getActionSegments(actionId: number): Promise<SellerGetActionSegmentsResponse> {
+        return this.get(`/seller/actions/${actionId}/segments`);
+    }
+
+    async getSegmentSlots(actionId: number, segmentId: number): Promise<SellerGetSegmentSlotsResponse> {
+        return this.get(`/seller/actions/${actionId}/segments/${segmentId}/slots`);
     }
 
     async makeBet(data: SellerMakeBetRequest): Promise<SellerMakeBetResponse> {

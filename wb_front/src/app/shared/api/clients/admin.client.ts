@@ -1,4 +1,5 @@
 import { ApiClient } from "../base.client";
+import { API_BASE_URL } from "../config";
 import type {
     AdminCreatePromotionRequest,
     AdminCreatePromotionResponse,
@@ -25,7 +26,7 @@ import type {
 
 class AdminClient extends ApiClient {
     constructor() {
-        super("http://localhost:7002", "Admin");
+        super(API_BASE_URL, "Admin");
     }
 
     // Promotions
@@ -33,8 +34,23 @@ class AdminClient extends ApiClient {
         return this.post("/admin/promotions", data);
     }
 
+    async listPromotions(): Promise<{ promotions: Array<{ id: number; name: string; theme: string; status: string; dateFrom: string; dateTo: string }> }> {
+        return this.get("/admin/promotions");
+    }
+
     async getPromotion(id: number): Promise<AdminGetPromotionResponse> {
         return this.get(`/admin/promotions/${id}`);
+    }
+
+    async getAuctionParams(promotionId: number): Promise<{ minPrice?: number; bidStep?: number }> {
+        return this.get(`/admin/promotions/${promotionId}/auction-params`);
+    }
+
+    async setAuctionParams(
+        promotionId: number,
+        data: { minPrice?: number; bidStep?: number },
+    ): Promise<Record<string, never>> {
+        return this.put(`/admin/promotions/${promotionId}/auction-params`, data);
     }
 
     async updatePromotion(

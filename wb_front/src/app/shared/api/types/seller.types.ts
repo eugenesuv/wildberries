@@ -42,6 +42,41 @@ export interface SellerGetSellerActionsResponse {
     actions: SellerSellerActionSummary[];
 }
 
+export interface SellerActionSegmentSummary {
+    id: number;
+    name: string;
+    category: string;
+    population: number;
+    bookedSlots: number;
+    totalSlots: number;
+}
+
+export interface SellerGetActionSegmentsResponse {
+    actionSegments: SellerActionSegmentSummary[];
+}
+
+export interface SellerSegmentAuctionSlotItem {
+    slotId: number;
+    position: number;
+    currentBid: number;
+    minBid: number;
+    bidStep: number;
+    timeLeft: string;
+    topBidderName?: string;
+}
+
+export interface SellerSegmentFixedSlotItem {
+    slotId: number;
+    position: number;
+    price: number;
+    status: "available" | "occupied";
+}
+
+export interface SellerGetSegmentSlotsResponse {
+    auction: SellerSegmentAuctionSlotItem[];
+    fixed: SellerSegmentFixedSlotItem[];
+}
+
 // ==================== Bets ====================
 export interface SellerProductForSlot {
     name: string;
@@ -54,7 +89,7 @@ export interface SellerMakeBetRequest {
     sellerId: string; // int64
     slotId: string; // int64
     amount?: string; // int64, для аукциона — сумма ставки
-    product?: SellerProductForSlot; // для фиксированной цены
+    productId: string; // int64, товар каталога продавца
 }
 
 export interface SellerMakeBetResponse {

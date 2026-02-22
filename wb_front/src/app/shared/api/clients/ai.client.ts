@@ -1,4 +1,5 @@
 import { ApiClient } from "../base.client";
+import { API_BASE_URL } from "../config";
 import type {
     AiGenerateThemesResponse,
     AiGenerateSegmentsRequest,
@@ -13,7 +14,7 @@ import type {
 
 class AIClient extends ApiClient {
     constructor() {
-        super("http://localhost:7003", "AI");
+        super(API_BASE_URL, "AI");
     }
 
     async generateThemes(): Promise<AiGenerateThemesResponse> {
