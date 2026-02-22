@@ -3,8 +3,8 @@ package seller
 import (
 	"context"
 
-	"wildberries/internal/service/seller"
-	desc "wildberries/pkg/seller"
+	"wildberries/backend/internal/service/seller"
+	desc "wildberries/backend/pkg/seller"
 )
 
 // Service handles seller API requests

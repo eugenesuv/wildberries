@@ -3,7 +3,7 @@ syntax = "proto3";
 package wildberries.buyer;
 
 
-option go_package = "wildberries/pkg/buyer;buyer";
+option go_package = "wildberries/backend/pkg/buyer;buyer";
 
 //import "google/protobuf/timestamp.proto";
 import "common.proto";

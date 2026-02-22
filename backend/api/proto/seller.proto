@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package wildberries.seller;
 
-option go_package = "wildberries/pkg/seller;seller";
+option go_package = "wildberries/backend/pkg/seller;seller";
 
 //import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";

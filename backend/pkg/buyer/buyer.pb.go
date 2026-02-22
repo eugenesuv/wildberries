@@ -14,7 +14,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-	common "wildberries/pkg/common"
+	common "wildberries/backend/pkg/common"
 )
 
 const (
@@ -811,8 +811,8 @@ const file_buyer_proto_rawDesc = "" +
 	"\x13StartIdentification\x12-.wildberries.buyer.StartIdentificationRequest\x1a..wildberries.buyer.StartIdentificationResponse\"\xc3\x01\x92A\x9f\x01\n" +
 	"\x0eIdentification\x12'Начать идентификацию\x1aOНачинает процесс идентификации покупателя*\x13StartIdentification\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/identification/start\x12\xe1\x01\n" +
 	"\x06Answer\x12 .wildberries.buyer.AnswerRequest\x1a!.wildberries.buyer.AnswerResponse\"\x91\x01\x92Am\n" +
-	"\x0eIdentification\x12\"Ответить на вопрос\x1a/Отвечает на вопрос опроса*\x06Answer\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/identification/answerB\xbe\x01\x92A\x9d\x01\x12d\n" +
-	"\x12Buyer сервис\x12GСервис покупателя для работы с акциями2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x1bwildberries/pkg/buyer;buyerb\x06proto3"
+	"\x0eIdentification\x12\"Ответить на вопрос\x1a/Отвечает на вопрос опроса*\x06Answer\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/identification/answerB\xc6\x01\x92A\x9d\x01\x12d\n" +
+	"\x12Buyer сервис\x12GСервис покупателя для работы с акциями2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ#wildberries/backend/pkg/buyer;buyerb\x06proto3"
 
 var (
 	file_buyer_proto_rawDescOnce sync.Once

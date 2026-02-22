@@ -3,9 +3,9 @@ package buyer
 import (
 	"context"
 
-	"wildberries/internal/service/buyer"
-	desc "wildberries/pkg/buyer"
-	commonpb "wildberries/pkg/common"
+	"wildberries/backend/internal/service/buyer"
+	desc "wildberries/backend/pkg/buyer"
+	commonpb "wildberries/backend/pkg/common"
 )
 
 // Service handles buyer API requests

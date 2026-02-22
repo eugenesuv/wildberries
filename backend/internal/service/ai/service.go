@@ -3,7 +3,7 @@ package ai
 import (
 	"context"
 
-	"wildberries/internal/entity"
+	"wildberries/backend/internal/entity"
 )
 
 // Service handles AI business logic

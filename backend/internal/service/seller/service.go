@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"wildberries/internal/entity"
-	"wildberries/internal/repository"
+	"wildberries/backend/internal/entity"
+	"wildberries/backend/internal/repository"
 )
 
 // Service handles seller business logic

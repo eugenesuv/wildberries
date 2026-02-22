@@ -3,8 +3,8 @@ package promotion
 import (
 	"context"
 	"encoding/json"
-	"wildberries/internal/entity"
-	"wildberries/internal/repository"
+	"wildberries/backend/internal/entity"
+	"wildberries/backend/internal/repository"
 )
 
 // Service handles promotion business logic

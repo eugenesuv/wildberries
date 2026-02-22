@@ -3,8 +3,8 @@ package buyer
 import (
 	"context"
 
-	"wildberries/internal/entity"
-	"wildberries/internal/repository"
+	"wildberries/backend/internal/entity"
+	"wildberries/backend/internal/repository"
 )
 
 // Service handles buyer business logic

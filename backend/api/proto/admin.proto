@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package wildberries.admin;
 
-option go_package = "wildberries/pkg/admin;admin";
+option go_package = "wildberries/backend/pkg/admin;admin";
 
 //import "google/protobuf/timestamp.proto";
 import "common.proto";

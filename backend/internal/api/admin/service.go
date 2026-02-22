@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"wildberries/internal/entity"
-	"wildberries/internal/service/promotion"
-	desc "wildberries/pkg/admin"
+	"wildberries/backend/internal/entity"
+	"wildberries/backend/internal/service/promotion"
+	desc "wildberries/backend/pkg/admin"
 )
 
 // Service handles admin API requests
