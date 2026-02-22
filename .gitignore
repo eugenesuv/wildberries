@@ -28,9 +28,11 @@ __pycache__/
 
 # Go (backend)
 backend/bin/
+bin/
 *.test
 coverage.out
 backend/vendor.protogen/
+*.exe
 
 # Node / Vite (wb_front)
 node_modules/

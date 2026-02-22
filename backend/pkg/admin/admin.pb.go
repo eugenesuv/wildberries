@@ -2797,8 +2797,8 @@ const file_admin_proto_rawDesc = "" +
 	"Moderation\x12\x1dОдобрить заявку\x1a7Одобрение заявки на модерацию*\aApprove\x82\xd3\xe4\x93\x02/:\x01*\"*/admin/moderation/{application_id}/approve\x12\x8b\x02\n" +
 	"\x06Reject\x12*.wildberries.admin.RejectModerationRequest\x1a+.wildberries.admin.RejectModerationResponse\"\xa7\x01\x92Ap\n" +
 	"\n" +
-	"Moderation\x12\x1fОтклонить заявку\x1a9Отклонение заявки на модерацию*\x06Reject\x82\xd3\xe4\x93\x02.:\x01*\")/admin/moderation/{application_id}/rejectB\xa3\x01\x92A\x82\x01\x12I\n" +
-	"\x1fАдминская панель\x12\x1fАдминская панель2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x1bwildberries/pkg/admin;adminb\x06proto3"
+	"Moderation\x12\x1fОтклонить заявку\x1a9Отклонение заявки на модерацию*\x06Reject\x82\xd3\xe4\x93\x02.:\x01*\")/admin/moderation/{application_id}/rejectB\xab\x01\x92A\x82\x01\x12I\n" +
+	"\x1fАдминская панель\x12\x1fАдминская панель2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ#wildberries/pkg/admin;adminb\x06proto3"
 
 var (
 	file_admin_proto_rawDescOnce sync.Once

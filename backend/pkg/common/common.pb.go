@@ -433,8 +433,8 @@ const file_common_proto_rawDesc = "" +
 	"\fPricingModel\x12\x1d\n" +
 	"\x19PRICING_MODEL_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aAUCTION\x10\x01\x12\t\n" +
-	"\x05FIXED\x10\x02B\xbf\x01\x92A\x9c\x01\x12c\n" +
-	"\x13Common модели\x12EОбщие модели данных для всех сервисов2\x051.0.0\x1a\x0elocalhost:7000*\x01\x012\x10application/json:\x10application/jsonZ\x1dwildberries/pkg/common;commonb\x06proto3"
+	"\x05FIXED\x10\x02B\xc7\x01\x92A\x9c\x01\x12c\n" +
+	"\x13Common модели\x12EОбщие модели данных для всех сервисов2\x051.0.0\x1a\x0elocalhost:7000*\x01\x012\x10application/json:\x10application/jsonZ%wildberries/pkg/common;commonb\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once
