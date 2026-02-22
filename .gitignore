@@ -3,3 +3,4 @@ backend/vendor.protogen
 backend/bin
 bin
 .vscode
+*.exe
