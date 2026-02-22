@@ -18,7 +18,7 @@ func NewModerationPostgres(pool *pgxpool.Pool) *ModerationPostgres {
 }
 
 func (r *ModerationPostgres) ListByPromotion(ctx context.Context, promotionID int64, status string) ([]*ModerationRow, error) {
-	q := `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at, updated_at, moderated_at, moderator_id
+	q := `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at::text, updated_at::text, moderated_at::text, moderator_id
 		FROM public.moderation WHERE promotion_id = $1`
 	args := []interface{}{promotionID}
 	if status != "" {
@@ -45,7 +45,7 @@ func (r *ModerationPostgres) ListByPromotion(ctx context.Context, promotionID in
 
 func (r *ModerationPostgres) GetByID(ctx context.Context, id int64) (*ModerationRow, error) {
 	var row ModerationRow
-	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at, updated_at, moderated_at, moderator_id
+	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at::text, updated_at::text, moderated_at::text, moderator_id
 		FROM public.moderation WHERE id = $1`, id).
 		Scan(&row.ID, &row.PromotionID, &row.SegmentID, &row.SlotID, &row.SellerID, &row.ProductID, &row.Discount, &row.StopFactors, &row.Status, &row.CreatedAt, &row.UpdatedAt, &row.ModeratedAt, &row.ModeratorID)
 	if err != nil {
@@ -79,7 +79,7 @@ func (r *ModerationPostgres) ResolveApplication(ctx context.Context, id int64, s
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	var app ModerationRow
-	err = tx.QueryRow(ctx, `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at, updated_at, moderated_at, moderator_id
+	err = tx.QueryRow(ctx, `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at::text, updated_at::text, moderated_at::text, moderator_id
 		FROM public.moderation
 		WHERE id = $1
 		FOR UPDATE`, id).
