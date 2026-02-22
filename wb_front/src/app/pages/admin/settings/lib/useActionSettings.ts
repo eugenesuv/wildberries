@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { adminClient } from "@/app/shared/api/clients/admin.client";
 import { aiClient } from "@/app/shared/api/clients/ai.client";
-import { ActionSettings, Theme, TestQuestion } from "../types";
+import { ActionSettings, PromotionStatus, Theme, TestQuestion } from "../types";
 import {
     DEFAULT_AUCTION_SETTINGS,
     DEFAULT_FIXED_PRICE_SETTINGS,
@@ -78,6 +78,82 @@ const flattenAnswerTree = (nodes: any[]): Array<{ nodeId: string; parentNodeId: 
     return flat;
 };
 
+const PROMOTION_STATUS_VALUES: PromotionStatus[] = ["NOT_READY", "READY_TO_START", "RUNNING", "PAUSED", "COMPLETED"];
+
+const normalizePromotionStatus = (status?: string): PromotionStatus => {
+    if (PROMOTION_STATUS_VALUES.includes(status as PromotionStatus)) {
+        return status as PromotionStatus;
+    }
+    return "NOT_READY";
+};
+
+interface LoadedPromotionState {
+    nextSettings: ActionSettings;
+    nextSegmentIdsByName: Record<string, number>;
+    nextOriginalSegmentIds: number[];
+    promotionStatus: PromotionStatus;
+}
+
+const fetchPromotionState = async (promotionId: number): Promise<LoadedPromotionState> => {
+    const [promotion, auctionParams] = await Promise.all([
+        adminClient.getPromotion(promotionId),
+        adminClient.getAuctionParams(promotionId).catch(() => ({})),
+    ]);
+
+    const segments = [...(promotion.segments || [])].sort((a, b) => a.orderIndex - b.orderIndex);
+    const segmentNames = segments.map((segment) => segment.name);
+    const categories = segments.reduce<Record<string, string>>((acc, segment) => {
+        acc[segment.name] = segment.categoryName;
+        return acc;
+    }, {});
+    const idsByName = segments.reduce<Record<string, number>>((acc, segment) => {
+        acc[segment.name] = Number(segment.id);
+        return acc;
+    }, {});
+
+    const fixedPriceMap = Object.entries(promotion.fixedPrices || {}).reduce<Record<number, number>>(
+        (acc, [position, price]) => {
+            acc[Number(position)] = Number(price);
+            return acc;
+        },
+        {},
+    );
+
+    const pollQuestions: TestQuestion[] =
+        promotion.poll?.questions?.map((question) => ({
+            question: question.text,
+            options: (question.options || []).map((option) => option.text),
+        })) || [];
+
+    return {
+        nextSettings: {
+            name: promotion.name || "",
+            description: promotion.description || "",
+            startDate: toDateInputValue(promotion.dateFrom),
+            endDate: toDateInputValue(promotion.dateTo),
+            theme: promotion.theme || "zodiac",
+            categories,
+            segments: segmentNames,
+            pricingModel: (promotion.pricingModel as ActionSettings["pricingModel"]) || "auction",
+            auctionSettings: {
+                minPrice: Number((auctionParams as any)?.minPrice || DEFAULT_AUCTION_SETTINGS.minPrice),
+                bidStep: Number((auctionParams as any)?.bidStep || DEFAULT_AUCTION_SETTINGS.bidStep),
+            },
+            fixedPriceSettings: { priceByPosition: fixedPriceMap },
+            slotCount: Number(promotion.slotCount || 10),
+            minDiscount: Number((promotion as any).discount || 0),
+            maxDiscount: Number((promotion as any).discount || 0),
+            stopFactors: promotion.stopFactors || [],
+            testQuestions: pollQuestions.length > 0 ? pollQuestions : [{ ...DEFAULT_TEST_QUESTION }],
+            testAnswerTree: ((promotion.poll?.answerTree || []) as any) ?? [],
+            identificationMode: (promotion.identificationMode as ActionSettings["identificationMode"]) || "questions",
+        },
+        nextSegmentIdsByName: idsByName,
+        nextOriginalSegmentIds: Object.values(idsByName),
+        promotionStatus: normalizePromotionStatus(promotion.status),
+    };
+};
+
 export const useActionSettings = () => {
     const navigate = useNavigate();
     const { actionId } = useParams<{ actionId: string }>();
@@ -87,12 +163,22 @@ export const useActionSettings = () => {
     const [aiThemes, setAiThemes] = useState<Theme[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isStatusChanging, setIsStatusChanging] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
     const [segmentIdsByName, setSegmentIdsByName] = useState<Record<string, number>>({});
     const [originalSegmentIds, setOriginalSegmentIds] = useState<number[]>([]);
+    const [promotionStatus, setPromotionStatus] = useState<PromotionStatus | null>(null);
+
+    const applyLoadedPromotionState = (loadedState: LoadedPromotionState) => {
+        setSettings(loadedState.nextSettings);
+        setSegmentIdsByName(loadedState.nextSegmentIdsByName);
+        setOriginalSegmentIds(loadedState.nextOriginalSegmentIds);
+        setPromotionStatus(loadedState.promotionStatus);
+    };
 
     useEffect(() => {
         if (isNew || !actionId) {
+            setPromotionStatus(null);
             return;
         }
 
@@ -103,70 +189,17 @@ export const useActionSettings = () => {
             setHasError(null);
 
             try {
-                const [promotion, auctionParams] = await Promise.all([
-                    adminClient.getPromotion(Number(actionId)),
-                    adminClient.getAuctionParams(Number(actionId)).catch(() => ({})),
-                ]);
+                const loadedState = await fetchPromotionState(Number(actionId));
 
                 if (!mounted) {
                     return;
                 }
-
-                const segments = [...(promotion.segments || [])].sort((a, b) => a.orderIndex - b.orderIndex);
-                const segmentNames = segments.map((segment) => segment.name);
-                const categories = segments.reduce<Record<string, string>>((acc, segment) => {
-                    acc[segment.name] = segment.categoryName;
-                    return acc;
-                }, {});
-                const idsByName = segments.reduce<Record<string, number>>((acc, segment) => {
-                    acc[segment.name] = Number(segment.id);
-                    return acc;
-                }, {});
-
-                const fixedPriceMap = Object.entries(promotion.fixedPrices || {}).reduce<Record<number, number>>(
-                    (acc, [position, price]) => {
-                        acc[Number(position)] = Number(price);
-                        return acc;
-                    },
-                    {},
-                );
-
-                const pollQuestions: TestQuestion[] =
-                    promotion.poll?.questions?.map((question) => ({
-                        question: question.text,
-                        options: (question.options || []).map((option) => option.text),
-                    })) || [];
-
-                setSettings({
-                    name: promotion.name || "",
-                    description: promotion.description || "",
-                    startDate: toDateInputValue(promotion.dateFrom),
-                    endDate: toDateInputValue(promotion.dateTo),
-                    theme: promotion.theme || "zodiac",
-                    categories,
-                    segments: segmentNames,
-                    pricingModel: (promotion.pricingModel as ActionSettings["pricingModel"]) || "auction",
-                    auctionSettings: {
-                        minPrice: Number((auctionParams as any)?.minPrice || DEFAULT_AUCTION_SETTINGS.minPrice),
-                        bidStep: Number((auctionParams as any)?.bidStep || DEFAULT_AUCTION_SETTINGS.bidStep),
-                    },
-                    fixedPriceSettings: { priceByPosition: fixedPriceMap },
-                    slotCount: Number(promotion.slotCount || 10),
-                    minDiscount: Number((promotion as any).discount || 0),
-                    maxDiscount: Number((promotion as any).discount || 0),
-                    stopFactors: promotion.stopFactors || [],
-                    testQuestions: pollQuestions.length > 0 ? pollQuestions : [{ ...DEFAULT_TEST_QUESTION }],
-                    testAnswerTree: ((promotion.poll?.answerTree || []) as any) ?? [],
-                    identificationMode:
-                        (promotion.identificationMode as ActionSettings["identificationMode"]) || "questions",
-                });
-
-                setSegmentIdsByName(idsByName);
-                setOriginalSegmentIds(Object.values(idsByName));
+                applyLoadedPromotionState(loadedState);
             } catch (error) {
                 if (!mounted) {
                     return;
                 }
+                setPromotionStatus(null);
                 setHasError("Не удалось загрузить настройки акции");
             } finally {
                 if (mounted) {
@@ -181,6 +214,26 @@ export const useActionSettings = () => {
             mounted = false;
         };
     }, [actionId, isNew]);
+
+    const handleChangeStatus = async (nextStatus: PromotionStatus) => {
+        if (isNew || !actionId) {
+            return;
+        }
+
+        setIsStatusChanging(true);
+        setHasError(null);
+
+        try {
+            const promotionId = Number(actionId);
+            await adminClient.changeStatus(promotionId, nextStatus);
+            const loadedState = await fetchPromotionState(promotionId);
+            applyLoadedPromotionState(loadedState);
+        } catch (error: any) {
+            setHasError(error?.message || "Не удалось изменить статус акции");
+        } finally {
+            setIsStatusChanging(false);
+        }
+    };
 
     const handleGenerateDescription = async () => {
         try {
@@ -521,7 +574,9 @@ export const useActionSettings = () => {
         aiThemes,
         isLoading,
         isSaving,
+        isStatusChanging,
         hasError,
+        promotionStatus,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,
@@ -538,6 +593,7 @@ export const useActionSettings = () => {
         handleGenerateAnswerTree,
         handleToggleStopFactor,
         handleSave,
+        handleChangeStatus,
         handleGoBack,
     };
 };

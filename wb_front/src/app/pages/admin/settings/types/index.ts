@@ -1,5 +1,6 @@
 export type PricingModel = "auction" | "fixed";
 export type IdentificationMode = "questions" | "user_profile";
+export type PromotionStatus = "NOT_READY" | "READY_TO_START" | "RUNNING" | "PAUSED" | "COMPLETED";
 
 export interface TestAnswerNode {
     label: string;

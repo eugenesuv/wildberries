@@ -17,7 +17,9 @@ export function AdminSettingsPage() {
         aiThemes,
         isLoading,
         isSaving,
+        isStatusChanging,
         hasError,
+        promotionStatus,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,
@@ -34,12 +36,21 @@ export function AdminSettingsPage() {
         handleGenerateAnswerTree,
         handleToggleStopFactor,
         handleSave,
+        handleChangeStatus,
         handleGoBack,
     } = useActionSettings();
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <SettingsHeader isNew={isNew} onGoBack={handleGoBack} onSave={handleSave} />
+            <SettingsHeader
+                isNew={isNew}
+                currentStatus={promotionStatus}
+                isSaving={isSaving}
+                isStatusChanging={isStatusChanging}
+                onGoBack={handleGoBack}
+                onSave={handleSave}
+                onChangeStatus={handleChangeStatus}
+            />
 
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -48,9 +59,13 @@ export function AdminSettingsPage() {
                             {hasError}
                         </div>
                     )}
-                    {(isLoading || isSaving) && (
+                    {(isLoading || isSaving || isStatusChanging) && (
                         <div className="text-sm text-muted-foreground">
-                            {isLoading ? "Загрузка настроек..." : "Сохранение настроек..."}
+                            {isLoading
+                                ? "Загрузка настроек..."
+                                : isSaving
+                                  ? "Сохранение настроек..."
+                                  : "Изменение статуса акции..."}
                         </div>
                     )}
                     <BasicInfoCard
