@@ -6,7 +6,7 @@ services:
     container_name: server
     build:
       context: .
-      dockerfile: ./cmd/server/Dockerfile
+      dockerfile: ./backend/cmd/server/Dockerfile
     ports:
       - "7001:7001"
       - "7002:7002"
@@ -41,11 +41,11 @@ services:
     ports:
       - "7003:8080"
     volumes:
-      - ./pkg/admin/admin.swagger.json:/admin.swagger.json
-      - ./pkg/ai/ai.swagger.json:/ai.swagger.json
-      - ./pkg/buyer/buyer.swagger.json:/buyer.swagger.json
-      - ./pkg/seller/seller.swagger.json:/seller.swagger.json
-      - ./pkg/common/common.swagger.json:/common.swagger.json
+      - ./backend/pkg/admin/admin.swagger.json:/admin.swagger.json
+      - ./backend/pkg/ai/ai.swagger.json:/ai.swagger.json
+      - ./backend/pkg/buyer/buyer.swagger.json:/buyer.swagger.json
+      - ./backend/pkg/seller/seller.swagger.json:/seller.swagger.json
+      - ./backend/pkg/common/common.swagger.json:/common.swagger.json
     environment:
       - SWAGGER_JSON=/admin.swagger.json
       - DEEP_LINKS=true

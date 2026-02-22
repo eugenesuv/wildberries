@@ -2,7 +2,7 @@ package entity
 
 // QuestionSuggestion represents a question suggestion
 type QuestionSuggestion struct {
-	Text  string        `json:"text"`
+	Text    string              `json:"text"`
 	Options []*OptionSuggestion `json:"options"`
 }
 

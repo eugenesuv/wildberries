@@ -1,4 +1,5 @@
 .idea
-vendor.protogen
+backend/vendor.protogen
+backend/bin
 bin
 .vscode
