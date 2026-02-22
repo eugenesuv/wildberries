@@ -6,45 +6,79 @@
 - Backend gRPC порт: `7002`
 - `7003` в текущем `docker-compose` используется для Swagger UI, это не AI API
 - Фронт должен ходить в backend через `VITE_API_BASE_URL=/api` (Vite proxy -> `http://localhost:8080`)
+- Для локального запуска backend через `go run` нужно явно задать `DATABASE_DSN` на `localhost:5442` (иначе backend попытается подключаться к контейнерному host `db:5432`)
 
 ## Порядок запуска (локально)
 
 1. Поднять инфраструктуру backend:
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
 docker compose up -d
 ```
 
 2. Применить миграции БД (отдельным шагом):
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wb_back
-goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 ```
 
 3. Загрузить dev-товары для seller flow:
 
 ```bash
-psql "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" \
-  -f /Users/eugenesuvorov/Study/wildberris/wb_back/docs/dev_seed_products.sql
+psql "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" \
+  -f /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back/docs/dev_seed_products.sql
 ```
 
-4. Запустить backend (если запускается не контейнером приложения):
+4. Установить frontend-зависимости:
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_front
+npm ci
+```
+
+Если `npm ci` не проходит из-за локального окружения/lockfile, допустим fallback:
+
+```bash
+npm install
+```
+
+5. Проверки перед smoke (рекомендуется, соответствует workflow монорепы)
+
+Backend:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+GOCACHE=/tmp/wb-go-build-cache go test ./internal/service/... ./internal/api/... ./internal/repository/...
+GOCACHE=/tmp/wb-go-build-cache go test ./internal/app ./cmd/server
+```
+
+Frontend:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_front
+npm run build
+```
+
+6. Запустить backend (если запускается не контейнером приложения):
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable \
 HTTP_PORT=8080 GRPC_PORT=7002 go run ./cmd/server
 ```
 
-5. Запустить frontend:
+7. Запустить frontend:
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wb_front
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_front
 VITE_API_BASE_URL=/api VITE_SELLER_ID=1 npm run dev
 ```
 
 ## Проверка smoke после запуска
+
+Smoke имеет смысл выполнять только после шагов с миграциями и seed (пункты 2-3 выше).
 
 1. `Buyer`:
 - Открыть `/`
@@ -60,6 +94,13 @@ VITE_API_BASE_URL=/api VITE_SELLER_ID=1 npm run dev
 - Открыть `/admin/dashboard`
 - Создать/отредактировать акцию в `/admin/actions/new/settings`
 - Проверить moderation `/admin/actions/:id/moderation`
+
+## Troubleshooting (типичные проблемы)
+
+- `goose` / `psql` -> `connection refused`: проверьте `docker compose up -d` и что используете порт `5442`, а не `5432`
+- `vite: command not found`: не установлены frontend-зависимости, выполните `npm ci` (или `npm install` как fallback)
+- Backend пытается подключиться к `db:5432` при `go run`: не задан `DATABASE_DSN` для локального запуска
+- Ошибка доступа к `~/Library/Caches/go-build` в sandbox/CI: используйте `GOCACHE=/tmp/wb-go-build-cache` в командах `go test`
 
 ## Известные ограничения launch-MVP
 
