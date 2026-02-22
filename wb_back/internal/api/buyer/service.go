@@ -68,7 +68,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, req *desc.GetSegmentPr
 	}
 
 	// Call service
-	items, total, err := s.buyerService.GetSegmentProducts(ctx, req.PromotionId, req.SegmentId, filters)
+	items, total, completed, err := s.buyerService.GetSegmentProducts(ctx, req.PromotionId, req.SegmentId, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +88,11 @@ func (s *Service) GetSegmentProducts(ctx context.Context, req *desc.GetSegmentPr
 	}
 
 	return &desc.GetSegmentProductsResponse{
-		Items:   responseItems,
-		Total:   int32(total),
-		Page:    int32(filters.Page),
-		PerPage: int32(filters.PerPage),
+		Items:     responseItems,
+		Total:     int32(total),
+		Page:      int32(filters.Page),
+		PerPage:   int32(filters.PerPage),
+		Completed: completed,
 	}, nil
 }
 
@@ -140,7 +141,7 @@ func (s *Service) Answer(ctx context.Context, req *desc.AnswerRequest) (*desc.An
 		return nil, err
 	}
 	return &desc.AnswerResponse{
-		NextQuestionId: nextQ,
+		NextQuestionId:  nextQ,
 		ResultSegmentId: resultSegment,
 	}, nil
 }

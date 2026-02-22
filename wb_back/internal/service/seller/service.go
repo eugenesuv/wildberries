@@ -9,6 +9,8 @@ import (
 	"time"
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // Service handles seller business logic
@@ -103,12 +105,12 @@ func (s *Service) GetSellerActions(ctx context.Context, sellerID int64) ([]*enti
 }
 
 type ActionSegmentSummary struct {
-	ID         int64
-	Name       string
-	Category   string
-	Population int64
+	ID          int64
+	Name        string
+	Category    string
+	Population  int64
 	BookedSlots int64
-	TotalSlots int64
+	TotalSlots  int64
 }
 
 func (s *Service) GetActionSegments(ctx context.Context, actionID int64) ([]*ActionSegmentSummary, error) {
@@ -161,12 +163,12 @@ type SegmentSlotsMarket struct {
 }
 
 type AuctionSlotMarketItem struct {
-	SlotID       int64
-	Position     int
-	CurrentBid   int64
-	MinBid       int64
-	BidStep      int64
-	TimeLeft     string
+	SlotID        int64
+	Position      int
+	CurrentBid    int64
+	MinBid        int64
+	BidStep       int64
+	TimeLeft      string
 	TopBidderName string
 }
 
@@ -201,17 +203,11 @@ func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID
 	for _, slot := range slots {
 		switch strings.ToLower(slot.PricingType) {
 		case "auction":
-			var currentBid int64
-			if _, _, topBet, err := s.betRepo.TopBySlot(ctx, slot.ID); err == nil {
-				currentBid = topBet
+			currentBid, err := s.getTopBid(ctx, slot.ID)
+			if err != nil {
+				return nil, err
 			}
-			minBid := auctionMin
-			if currentBid > 0 && auctionStep > 0 {
-				minBid = currentBid + auctionStep
-			}
-			if minBid == 0 {
-				minBid = currentBid
-			}
+			minBid := nextAuctionBidMin(auctionMin, auctionStep, currentBid)
 			out.Auction = append(out.Auction, AuctionSlotMarketItem{
 				SlotID:        slot.ID,
 				Position:      slot.Position,
@@ -292,10 +288,19 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 		if auctionID == 0 {
 			return false, "auction not found", nil
 		}
-		if amount < minPrice {
-			return false, fmt.Sprintf("bid must be >= %d", minPrice), nil
+		currentBid, err := s.getTopBid(ctx, slotID)
+		if err != nil {
+			return false, "", err
 		}
-		if bidStep > 0 && (amount-minPrice)%bidStep != 0 {
+		minAllowedBid := nextAuctionBidMin(minPrice, bidStep, currentBid)
+		if amount < minAllowedBid {
+			return false, fmt.Sprintf("bid must be >= %d", minAllowedBid), nil
+		}
+		stepBase := minPrice
+		if currentBid > 0 {
+			stepBase = currentBid
+		}
+		if bidStep > 0 && amount > stepBase && (amount-stepBase)%bidStep != 0 {
 			return false, fmt.Sprintf("bid step is %d", bidStep), nil
 		}
 		if productID <= 0 {
@@ -398,4 +403,25 @@ func formatTimeLeft(dateTo string) string {
 	h := int(d.Hours())
 	m := int(d.Minutes()) % 60
 	return strconv.Itoa(h) + "ч " + strconv.Itoa(m) + "м"
+}
+
+func (s *Service) getTopBid(ctx context.Context, slotID int64) (int64, error) {
+	_, _, topBet, err := s.betRepo.TopBySlot(ctx, slotID)
+	if err == nil {
+		return topBet, nil
+	}
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil
+	}
+	return 0, err
+}
+
+func nextAuctionBidMin(minPrice, bidStep, currentBid int64) int64 {
+	if currentBid <= 0 {
+		return minPrice
+	}
+	if bidStep > 0 {
+		return currentBid + bidStep
+	}
+	return currentBid
 }

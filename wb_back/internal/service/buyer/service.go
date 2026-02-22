@@ -84,21 +84,23 @@ func (s *Service) GetCurrentPromotion(ctx context.Context) (*entity.Promotion, e
 }
 
 // GetSegmentProducts gets products for a segment (occupied slots); discount from WB or seller
-func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID int64, filters *ProductFilters) ([]*entity.ProductItem, int, error) {
+func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID int64, filters *ProductFilters) ([]*entity.ProductItem, int, bool, error) {
 	slots, err := s.slotRepo.BySegmentID(ctx, segmentID, true)
 	if err != nil {
-		return nil, 0, err
-	}
-	if len(slots) == 0 {
-		return nil, 0, nil
+		return nil, 0, false, err
 	}
 	promoRow, err := s.promotionRepo.GetByID(ctx, promotionID)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, false, err
 	}
+	completed := false
 	promoDiscount := 0
 	if promoRow != nil {
 		promoDiscount = promoRow.Discount
+		completed = entity.ParsePromotionStatus(promoRow.Status) == entity.PromotionStatusCompleted
+	}
+	if len(slots) == 0 {
+		return nil, 0, completed, nil
 	}
 	var productIDs []int64
 	for _, slot := range slots {
@@ -107,7 +109,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 		}
 	}
 	if len(productIDs) == 0 {
-		return nil, 0, nil
+		return nil, 0, completed, nil
 	}
 	productRows, err := s.productRepo.GetByIDs(ctx, productIDs, repository.ProductFilters{
 		Category:      filters.Category,
@@ -115,7 +117,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 		Sort:          filters.Sort,
 	})
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, completed, err
 	}
 	// WB-filled slot (seller_id nil) uses promotion.discount; seller-filled uses product.discount
 	productIDToWBDiscount := make(map[int64]bool)
@@ -150,7 +152,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 		})
 	}
 	total := len(items)
-	return items, total, nil
+	return items, total, completed, nil
 }
 
 // ProductFilters represents filters for product queries
