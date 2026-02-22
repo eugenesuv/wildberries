@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -62,6 +65,69 @@ func (r *ModerationPostgres) Create(ctx context.Context, row *ModerationRow) (in
 func (r *ModerationPostgres) SetStatus(ctx context.Context, id int64, status string, moderatorID *int64) error {
 	_, err := r.pool.Exec(ctx, `UPDATE public.moderation SET status=$2, moderated_at=now(), moderator_id=$3, updated_at=now() WHERE id=$1`, id, status, moderatorID)
 	return err
+}
+
+func (r *ModerationPostgres) ResolveApplication(ctx context.Context, id int64, status string, moderatorID *int64) error {
+	if status != "approved" && status != "rejected" {
+		return fmt.Errorf("unsupported moderation status %q", status)
+	}
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	var app ModerationRow
+	err = tx.QueryRow(ctx, `SELECT id, promotion_id, segment_id, slot_id, seller_id, product_id, discount, stop_factors, status, created_at, updated_at, moderated_at, moderator_id
+		FROM public.moderation
+		WHERE id = $1
+		FOR UPDATE`, id).
+		Scan(&app.ID, &app.PromotionID, &app.SegmentID, &app.SlotID, &app.SellerID, &app.ProductID, &app.Discount, &app.StopFactors, &app.Status, &app.CreatedAt, &app.UpdatedAt, &app.ModeratedAt, &app.ModeratorID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("moderation application not found: %w", ErrNotFound)
+		}
+		return err
+	}
+	if app.Status != "pending" {
+		return fmt.Errorf("moderation application already processed (status=%s): %w", app.Status, ErrConflict)
+	}
+
+	var slotStatus string
+	err = tx.QueryRow(ctx, `SELECT status FROM public.slot WHERE id = $1 FOR UPDATE`, app.SlotID).Scan(&slotStatus)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("slot not found for moderation application %d: %w", app.ID, ErrNotFound)
+		}
+		return err
+	}
+	if slotStatus != "moderation" {
+		return fmt.Errorf("slot %d is in status %s, expected moderation: %w", app.SlotID, slotStatus, ErrConflict)
+	}
+
+	if _, err := tx.Exec(ctx, `UPDATE public.moderation
+		SET status=$2, moderated_at=now(), moderator_id=$3, updated_at=now()
+		WHERE id=$1`, id, status, moderatorID); err != nil {
+		return err
+	}
+
+	switch status {
+	case "approved":
+		if _, err := tx.Exec(ctx, `UPDATE public.slot
+			SET seller_id=$2, product_id=$3, status='occupied', updated_at=now()
+			WHERE id=$1`, app.SlotID, app.SellerID, app.ProductID); err != nil {
+			return err
+		}
+	case "rejected":
+		if _, err := tx.Exec(ctx, `UPDATE public.slot
+			SET seller_id=NULL, product_id=NULL, status='available', updated_at=now()
+			WHERE id=$1`, app.SlotID); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
 }
 
 var _ ModerationRepository = (*ModerationPostgres)(nil)
