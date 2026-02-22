@@ -1,6 +1,7 @@
 import { Segment } from "../types";
 
 export const getSegmentStatusColor = (occupiedSlots: number, totalSlots: number): string => {
+    if (totalSlots <= 0) return "bg-gray-400";
     const percentage = (occupiedSlots / totalSlots) * 100;
     if (percentage === 100) return "bg-red-500";
     if (percentage >= 70) return "bg-orange-500";
@@ -8,6 +9,7 @@ export const getSegmentStatusColor = (occupiedSlots: number, totalSlots: number)
 };
 
 export const getSegmentStatusText = (occupiedSlots: number, totalSlots: number): string => {
+    if (totalSlots <= 0) return "Слоты готовятся";
     const available = totalSlots - occupiedSlots;
     if (available === 0) return "Все слоты заняты";
     if (available === 1) return "1 слот доступен";
@@ -16,6 +18,7 @@ export const getSegmentStatusText = (occupiedSlots: number, totalSlots: number):
 };
 
 export const calculateOccupiedPercentage = (occupied: number, total: number): number => {
+    if (total <= 0) return 0;
     return (occupied / total) * 100;
 };
 

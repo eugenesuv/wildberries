@@ -2,11 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/app/entities
 import { Button } from "@/app/entities/ui/button";
 import { Input } from "@/app/entities/ui/input";
 import { Label } from "@/app/entities/ui/label";
-import { Slider } from "@/app/entities/ui/slider";
-import { Upload } from "lucide-react";
-import { SelectedSlotInfo, ProductData } from "../../types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/entities/ui/select";
+import { SelectedSlotInfo, ProductData, SellerCatalogProduct } from "../../types";
 import { formatPrice } from "../../lib/helpers";
-import { DISCOUNT_SLIDER_CONFIG } from "../../constants";
 
 interface AddProductDialogProps {
     open: boolean;
@@ -14,10 +12,14 @@ interface AddProductDialogProps {
     selectedSlot: SelectedSlotInfo | null;
     bidAmount: number;
     productData: ProductData;
+    sellerProducts: SellerCatalogProduct[];
+    selectedProductId: string;
     onBidAmountChange: (amount: number) => void;
     onProductDataChange: (data: ProductData) => void;
+    onSelectedProductIdChange: (productId: string) => void;
     onImageUpload: (file: File | null) => void;
     onConfirm: () => void;
+    isSubmitting?: boolean;
 }
 
 export function AddProductDialog({
@@ -26,10 +28,14 @@ export function AddProductDialog({
     selectedSlot,
     bidAmount,
     productData,
+    sellerProducts,
+    selectedProductId,
     onBidAmountChange,
     onProductDataChange,
+    onSelectedProductIdChange,
     onImageUpload,
     onConfirm,
+    isSubmitting,
 }: AddProductDialogProps) {
     if (!selectedSlot) return null;
 
@@ -71,14 +77,19 @@ export function AddProductDialog({
                     {/* Форма товара */}
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="product-name">Название товара</Label>
-                            <Input
-                                id="product-name"
-                                value={productData.name}
-                                onChange={(e) => onProductDataChange({ ...productData, name: e.target.value })}
-                                placeholder="Введите название товара"
-                                className="mt-1"
-                            />
+                            <Label htmlFor="seller-product">Товар продавца</Label>
+                            <Select value={selectedProductId} onValueChange={onSelectedProductIdChange}>
+                                <SelectTrigger id="seller-product" className="mt-1">
+                                    <SelectValue placeholder="Выберите товар из каталога" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sellerProducts.map((product) => (
+                                        <SelectItem key={product.id} value={product.id}>
+                                            {product.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -88,52 +99,27 @@ export function AddProductDialog({
                                     id="product-price"
                                     type="number"
                                     value={productData.price}
-                                    onChange={(e) =>
-                                        onProductDataChange({ ...productData, price: Number(e.target.value) })
-                                    }
                                     placeholder="0"
                                     className="mt-1"
+                                    readOnly
                                 />
                             </div>
 
                             <div>
                                 <Label htmlFor="product-discount">Скидка (%)</Label>
-                                <div className="mt-1 space-y-2">
-                                    <Slider
-                                        id="product-discount"
-                                        value={[productData.discount]}
-                                        onValueChange={([value]) =>
-                                            onProductDataChange({ ...productData, discount: value })
-                                        }
-                                        {...DISCOUNT_SLIDER_CONFIG}
-                                    />
-                                    <div className="text-center text-sm font-medium">{productData.discount}%</div>
-                                </div>
+                                <Input
+                                    id="product-discount"
+                                    type="number"
+                                    value={productData.discount}
+                                    className="mt-1"
+                                    readOnly
+                                />
                             </div>
                         </div>
 
                         <div>
-                            <Label htmlFor="product-image">Изображение товара</Label>
-                            <div className="mt-1">
-                                <label
-                                    htmlFor="product-image"
-                                    className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-500 transition-colors"
-                                >
-                                    <div className="text-center">
-                                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                                        <span className="text-sm text-muted-foreground">
-                                            {productData.image ? productData.image.name : "Нажмите для загрузки"}
-                                        </span>
-                                    </div>
-                                    <input
-                                        id="product-image"
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) => onImageUpload(e.target.files?.[0] || null)}
-                                    />
-                                </label>
-                            </div>
+                            <Label htmlFor="product-name">Название товара</Label>
+                            <Input id="product-name" value={productData.name} className="mt-1" readOnly />
                         </div>
                     </div>
 
@@ -150,10 +136,10 @@ export function AddProductDialog({
                             </Button>
                             <Button
                                 onClick={onConfirm}
-                                disabled={!productData.name || !productData.price}
+                                disabled={!selectedProductId || !productData.name || !productData.price || isSubmitting}
                                 className="bg-gradient-to-r from-purple-600 to-indigo-600"
                             >
-                                Подтвердить и оплатить
+                                {isSubmitting ? "Отправка..." : "Подтвердить и оплатить"}
                             </Button>
                         </div>
                     </div>

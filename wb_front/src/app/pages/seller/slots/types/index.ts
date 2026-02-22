@@ -27,7 +27,18 @@ export interface ProductData {
     image: File | null;
 }
 
+export interface SellerCatalogProduct {
+    id: string;
+    name: string;
+    price: number;
+    discount: number;
+    image: string;
+    categoryName: string;
+}
+
 export interface SelectedSlotInfo {
+    slotId: number;
+    pricingType: PricingType;
     position: number;
     price: number;
     minBid?: number;

@@ -17,9 +17,15 @@ export function SellerSlotMarketPage() {
         productData,
         showConfirmDialog,
         activeTab,
+        sellerProducts,
+        selectedProductId,
+        isLoading,
+        isSubmitting,
+        hasError,
         setActiveTab,
         setBidAmount,
         setProductData,
+        setSelectedProductId,
         handleBid,
         handleBuyFixed,
         handleConfirmPurchase,
@@ -34,6 +40,12 @@ export function SellerSlotMarketPage() {
 
             <div className="container mx-auto px-4 py-8">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                    {hasError && (
+                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {hasError}
+                        </div>
+                    )}
+                    {isLoading && <div className="mb-4 text-sm text-muted-foreground">Загрузка слотов...</div>}
                     <Tabs
                         value={activeTab}
                         onValueChange={(v) => setActiveTab(v as "auction" | "fixed")}
@@ -58,10 +70,14 @@ export function SellerSlotMarketPage() {
                 selectedSlot={selectedSlot}
                 bidAmount={bidAmount}
                 productData={productData}
+                sellerProducts={sellerProducts}
+                selectedProductId={selectedProductId}
                 onBidAmountChange={setBidAmount}
                 onProductDataChange={setProductData}
+                onSelectedProductIdChange={setSelectedProductId}
                 onImageUpload={handleImageUpload}
                 onConfirm={handleConfirmPurchase}
+                isSubmitting={isSubmitting}
             />
         </div>
     );
