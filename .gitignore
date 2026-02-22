@@ -14,8 +14,8 @@ Thumbs.db
 *.log
 *.tmp
 *.temp
-.codex-task-plan.local.md
-.codex-integration-context.local.md
+codex-task-plan.local.md
+codex-integration-context.local.md
 
 # Environment files (keep examples committed separately if needed)
 .env
