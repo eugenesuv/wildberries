@@ -26,11 +26,11 @@ codex-integration-context.local.md
 __pycache__/
 *.pyc
 
-# Go (wb_back)
-wb_back/bin/
+# Go (backend)
+backend/bin/
 *.test
 coverage.out
-wb_back/vendor.protogen/
+backend/vendor.protogen/
 
 # Node / Vite (wb_front)
 node_modules/

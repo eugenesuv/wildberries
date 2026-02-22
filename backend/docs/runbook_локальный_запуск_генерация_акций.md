@@ -13,14 +13,14 @@
 1. Поднять инфраструктуру backend:
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 docker compose up -d
 ```
 
 2. Применить миграции БД (отдельным шагом):
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 ```
 
@@ -28,7 +28,7 @@ goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/se
 
 ```bash
 psql "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" \
-  -f /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back/docs/dev_seed_products.sql
+  -f /Users/eugenesuvorov/Study/wildberris/wildberries/backend/docs/dev_seed_products.sql
 ```
 
 4. Установить frontend-зависимости:
@@ -49,7 +49,7 @@ npm install
 Backend:
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 GOCACHE=/tmp/wb-go-build-cache go test ./internal/service/... ./internal/api/... ./internal/repository/...
 GOCACHE=/tmp/wb-go-build-cache go test ./internal/app ./cmd/server
 ```
@@ -64,7 +64,7 @@ npm run build
 6. Запустить backend (если запускается не контейнером приложения):
 
 ```bash
-cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_back
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable \
 HTTP_PORT=8080 GRPC_PORT=7002 go run ./cmd/server
 ```

@@ -23,12 +23,12 @@ Date: 2026-02-23 (local, MSK)
 - Postgres: temporary local PostgreSQL 18 on `127.0.0.1:55432` (`seller_promotions`)
 - DB setup:
   - migration `20251108161617_init.sql` applied via `psql` (manual `goose Up` extraction)
-  - seed loaded: `wb_back/docs/dev_seed_products.sql`
+  - seed loaded: `backend/docs/dev_seed_products.sql`
 - Smoke runner (local): `/tmp/wb-e1-smoke.sh`
 
 ## Checks
 
-- `wb_back`: `go test ./internal/service/... ./internal/api/... ./internal/repository/... ./internal/app ./cmd/server` - PASS
+- `backend`: `go test ./internal/service/... ./internal/api/... ./internal/repository/... ./internal/app ./cmd/server` - PASS
 - `wb_front`: `npm run build` - PASS
 
 ## Core E1 Flow (PASS)
