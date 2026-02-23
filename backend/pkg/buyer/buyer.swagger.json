@@ -1,0 +1,451 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Buyer сервис",
+    "description": "Сервис покупателя для работы с акциями",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "BuyerPromotionService"
+    },
+    {
+      "name": "IdentificationService"
+    }
+  ],
+  "host": "localhost:8080",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/identification/answer": {
+      "post": {
+        "summary": "Ответить на вопрос",
+        "description": "Отвечает на вопрос опроса",
+        "operationId": "Answer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/buyerAnswerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/buyerAnswerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Identification"
+        ]
+      }
+    },
+    "/identification/start": {
+      "post": {
+        "summary": "Начать идентификацию",
+        "description": "Начинает процесс идентификации покупателя",
+        "operationId": "StartIdentification",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/buyerStartIdentificationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/buyerStartIdentificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Identification"
+        ]
+      }
+    },
+    "/promotions/current": {
+      "get": {
+        "summary": "Получить текущую акцию",
+        "description": "Получает информацию о текущей акции",
+        "operationId": "GetCurrentPromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/buyerGetCurrentPromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/promotions/{promotionId}/segments/{segmentId}/products": {
+      "get": {
+        "summary": "Получить продукты сегмента",
+        "description": "Получает список продуктов для заданного сегмента",
+        "operationId": "GetSegmentProducts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/buyerGetSegmentProductsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "segmentId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "category",
+            "description": "filter",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "onlyDiscounts",
+            "description": "filter",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "sort",
+            "description": "e.g. price_asc, discount_desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "buyerAnswerRequest": {
+      "type": "object",
+      "properties": {
+        "promotionId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "questionId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "optionId": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "POST /identification/answer"
+    },
+    "buyerAnswerResponse": {
+      "type": "object",
+      "properties": {
+        "nextQuestionId": {
+          "type": "string",
+          "format": "int64",
+          "title": "0 если нет следующего"
+        },
+        "resultSegmentId": {
+          "type": "string",
+          "format": "int64",
+          "title": "0 если ещё не финал"
+        }
+      }
+    },
+    "buyerGetCurrentPromotionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "title": "RUNNING"
+        },
+        "dateFrom": {
+          "type": "string",
+          "title": "RFC3339"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonSegment"
+          }
+        }
+      }
+    },
+    "buyerGetSegmentProductsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonProductItem"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "perPage": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "completed": {
+          "type": "boolean",
+          "title": "акция завершена"
+        }
+      }
+    },
+    "buyerPoll": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/buyerPollQuestion"
+          }
+        }
+      }
+    },
+    "buyerPollOption": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "buyerPollQuestion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/buyerPollOption"
+          }
+        }
+      }
+    },
+    "buyerStartIdentificationRequest": {
+      "type": "object",
+      "properties": {
+        "promotionId": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "--- Identification ---\nPOST /identification/start"
+    },
+    "buyerStartIdentificationResponse": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "title": "\"questions\" | \"user_profile\""
+        },
+        "poll": {
+          "$ref": "#/definitions/buyerPoll",
+          "title": "для method=questions"
+        },
+        "resultSegmentId": {
+          "type": "string",
+          "format": "int64",
+          "title": "для method=user_profile (заглушка — случайный)"
+        }
+      }
+    },
+    "commonProductItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string",
+          "format": "int64"
+        },
+        "oldPrice": {
+          "type": "string",
+          "format": "int64"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "badge": {
+          "type": "string"
+        }
+      },
+      "title": "ProductItem — товар в ответах (витрина, модерация)"
+    },
+    "commonSegment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "text": {
+          "type": "string",
+          "title": "опционально, для AI-текста"
+        }
+      },
+      "title": "Segment — сегмент акции (знак зодиака, факультет и т.д.)"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

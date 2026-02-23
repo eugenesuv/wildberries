@@ -1,0 +1,537 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Seller сервис",
+    "description": "Сервис селлера для работы с акциями",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "SellerProductService"
+    },
+    {
+      "name": "SellerActionsService"
+    },
+    {
+      "name": "SellerBetsService"
+    }
+  ],
+  "host": "localhost:8080",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/products/list-by": {
+      "get": {
+        "summary": "Получить список продуктов селлера",
+        "description": "Получает список продуктов селлера по заданным параметрам",
+        "operationId": "ListProductsBy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerListProductsByResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "categoryId",
+            "description": "optional filter",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sellerId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/seller/actions": {
+      "get": {
+        "summary": "Получить доступные акции для селлера",
+        "description": "Получает список доступных акций для селлера",
+        "operationId": "GetSellerActions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerGetSellerActionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Actions"
+        ]
+      }
+    },
+    "/seller/actions/{actionId}": {
+      "get": {
+        "summary": "Получить инфу по сегментам акции",
+        "description": "-",
+        "operationId": "GetActionSegments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerGetActionSegmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Actions"
+        ]
+      }
+    },
+    "/seller/bets/list": {
+      "get": {
+        "summary": "Получить список ставок селлера",
+        "description": "Получает список ставок селлера по заданным параметрам",
+        "operationId": "GetSellerBetsList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerGetSellerBetsListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "description": "optional filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "description": "optional",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sellerId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Bets"
+        ]
+      }
+    },
+    "/seller/bets/make": {
+      "post": {
+        "summary": "Сделать ставку",
+        "description": "Создает новую ставку на слот",
+        "operationId": "MakeBet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerMakeBetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/sellerMakeBetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Bets"
+        ]
+      }
+    },
+    "/seller/bets/remove": {
+      "post": {
+        "summary": "Удалить ставку",
+        "description": "Удаляет существующую ставку",
+        "operationId": "RemoveBet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerRemoveBetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/sellerRemoveBetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Bets"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "sellerActionSegment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "population": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bookedSlots": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalSlots": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "sellerGetActionSegmentsResponse": {
+      "type": "object",
+      "properties": {
+        "actionSegments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sellerActionSegment"
+          }
+        }
+      }
+    },
+    "sellerGetSellerActionsResponse": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sellerSellerActionSummary"
+          }
+        }
+      }
+    },
+    "sellerGetSellerBetsListResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sellerSellerBetItem"
+          }
+        }
+      }
+    },
+    "sellerListProductsByResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sellerProductListItem"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "perPage": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "sellerMakeBetRequest": {
+      "type": "object",
+      "properties": {
+        "sellerId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "slotId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "для аукциона — сумма ставки"
+        },
+        "productId": {
+          "type": "string",
+          "format": "int64",
+          "title": "для фиксированной цены и аукциона — привязка к товару каталога селлера"
+        }
+      },
+      "title": "--- POST /seller/bets/make ---"
+    },
+    "sellerMakeBetResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "sellerProductListItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nmId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string",
+          "format": "int64"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "sellerRemoveBetRequest": {
+      "type": "object",
+      "properties": {
+        "slotId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "sellerId": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "--- POST /seller/bets/remove ---"
+    },
+    "sellerRemoveBetResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sellerSellerActionSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "categoryHint": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        }
+      }
+    },
+    "sellerSellerBetItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "slot/bet/application id"
+        },
+        "promotionId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "segmentId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "slotId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bet": {
+          "type": "string",
+          "format": "int64",
+          "title": "для аукциона"
+        },
+        "price": {
+          "type": "string",
+          "format": "int64",
+          "title": "для фиксированного"
+        },
+        "status": {
+          "type": "string",
+          "title": "available, pending, moderation, occupied, rejected"
+        },
+        "productName": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

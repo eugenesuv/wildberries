@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package wildberries.common;
+
+option go_package = "wildberries/pkg/common;common";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Common модели";
+    version: "1.0.0";
+    description: "Общие модели данных для всех сервисов";
+  };
+  host: "localhost:7000";
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+// Segment — сегмент акции (знак зодиака, факультет и т.д.)
+message Segment {
+  int64 id = 1;
+  string name = 2;
+  string category_name = 3;
+  int32 order_index = 4;
+  string text = 5;  // опционально, для AI-текста
+}
+
+// ProductItem — товар в ответах (витрина, модерация)
+message ProductItem {
+  int64 id = 1;
+  string name = 2;
+  string image = 3;
+  int64 price = 4;
+  int64 old_price = 5;
+  int32 discount = 6;
+  string badge = 7;
+}
+
+// StopFactors — список стоп-факторов (JSON array of strings в БД)
+message StopFactors {
+  repeated string factors = 1;
+}
+
+// PromotionStatus
+enum PromotionStatus {
+  PROMOTION_STATUS_UNSPECIFIED = 0;
+  NOT_READY = 1;
+  READY_TO_START = 2;
+  RUNNING = 3;
+  PAUSED = 4;
+  COMPLETED = 5;
+}
+
+// IdentificationMode
+enum IdentificationMode {
+  IDENTIFICATION_MODE_UNSPECIFIED = 0;
+  QUESTIONS = 1;
+  USER_PROFILE = 2;
+}
+
+// PricingModel
+enum PricingModel {
+  PRICING_MODEL_UNSPECIFIED = 0;
+  AUCTION = 1;
+  FIXED = 2;
+}

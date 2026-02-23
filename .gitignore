@@ -1,1 +1,44 @@
-.idea
+# Local agent instructions (not part of repository source)
+AGENTS.md
+**/AGENTS.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+codex-task-plan.local.md
+codex-integration-context.local.md
+
+# Environment files (keep examples committed separately if needed)
+.env
+.env.local
+.env.*.local
+
+# Python cache (for local tooling/scripts)
+__pycache__/
+*.pyc
+
+# Go (backend)
+backend/bin/
+bin/
+*.test
+coverage.out
+backend/vendor.protogen/
+*.exe
+
+# Node / Vite (wb_front)
+node_modules/
+wb_front/dist/
+wb_front/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

@@ -1,0 +1,51 @@
+volumes:
+  postgresql_data:
+
+services:
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: ./cmd/server/Dockerfile
+    ports:
+      - "7001:7001"
+      - "7002:7002"
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+  db:
+    container_name: db
+    image: postgres:17-alpine
+    ports:
+      - "5442:5432"
+    restart: always
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=seller_promotions
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 15s
+      timeout: 15s
+      retries: 10
+      start_period: 5s
+
+  swagger-ui:
+    container_name: swagger-ui
+    image: swaggerapi/swagger-ui
+    ports:
+      - "7003:8080"
+    volumes:
+      - ./pkg/admin/admin.swagger.json:/admin.swagger.json
+      - ./pkg/ai/ai.swagger.json:/ai.swagger.json
+      - ./pkg/buyer/buyer.swagger.json:/buyer.swagger.json
+      - ./pkg/seller/seller.swagger.json:/seller.swagger.json
+      - ./pkg/common/common.swagger.json:/common.swagger.json
+    environment:
+      - SWAGGER_JSON=/admin.swagger.json
+      - DEEP_LINKS=true

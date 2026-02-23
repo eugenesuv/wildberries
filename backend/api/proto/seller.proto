@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+package wildberries.seller;
+
+option go_package = "wildberries/pkg/seller;seller";
+
+//import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+//import "validate/validate.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Seller сервис";
+    version: "1.0.0";
+    description: "Сервис селлера для работы с акциями";
+  };
+  host: "localhost:8080";
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+// --- GET /products/list-by — список продуктов селлера ---
+message ListProductsByRequest {
+  string category_id = 1;  // optional filter
+  int64 seller_id = 2;
+  int32 page = 3;
+  int32 per_page = 4;
+}
+
+message ProductListItem {
+  int64 id = 1;
+  int64 nm_id = 2;
+  string category_name = 3;
+  string name = 4;
+  string image = 5;
+  int64 price = 6;
+  int32 discount = 7;
+}
+
+message ListProductsByResponse {
+  repeated ProductListItem items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 per_page = 4;
+}
+
+message GetActionSegmentsRequest {
+  int64 action_id = 1;
+}
+
+message ActionSegment {
+  int64 id = 1;
+  string name = 2;
+  string category = 3;
+  int64 population = 4;
+  int64 booked_slots = 5;
+  int64 total_slots = 6;
+}
+
+message GetActionSegmentsResponse {
+  repeated ActionSegment action_segments = 1;
+}
+
+// --- GET /seller/actions — доступные акции для селлера ---
+message GetSellerActionsRequest {
+  int64 seller_id = 1;
+}
+
+message SellerActionSummary {
+  int64 id = 1;
+  string name = 2;
+  string status = 3;
+  string date_from = 4;
+  string date_to = 5;
+  string category_hint = 6;
+  string theme = 7;
+}
+
+message GetSellerActionsResponse {
+  repeated SellerActionSummary actions = 1;
+}
+
+// --- GET /seller/bets/list — ставки/заявки селлера ---
+message GetSellerBetsListRequest {
+  int64 promotion_id = 1;  // optional filter
+  string status = 2;       // optional
+  int64 seller_id = 3;
+}
+
+message SellerBetItem {
+  int64 id = 1;            // slot/bet/application id
+  int64 promotion_id = 2;
+  int64 segment_id = 3;
+  int64 slot_id = 4;
+  int64 bet = 5;           // для аукциона
+  int64 price = 6;         // для фиксированного
+  string status = 7;       // available, pending, moderation, occupied, rejected
+  string product_name = 8;
+}
+
+message GetSellerBetsListResponse {
+  repeated SellerBetItem items = 1;
+}
+
+// --- POST /seller/bets/make ---
+message MakeBetRequest {
+  int64 seller_id = 1;
+  int64 slot_id = 2;
+  int64 amount = 3;   // для аукциона — сумма ставки
+  int64 product_id = 4;  // для фиксированной цены и аукциона — привязка к товару каталога селлера
+}
+
+message MakeBetResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// --- POST /seller/bets/remove ---
+message RemoveBetRequest {
+  int64 slot_id = 1;
+  int64 seller_id = 2;
+}
+
+message RemoveBetResponse {
+  bool success = 1;
+}
+
+// --- Seller Services ---
+service SellerProductService {
+  rpc ListProductsBy(ListProductsByRequest) returns (ListProductsByResponse) {
+    option (google.api.http) = {
+      get: "/products/list-by"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить список продуктов селлера";
+      description: "Получает список продуктов селлера по заданным параметрам";
+      tags: "Products";
+      operation_id: "ListProductsBy";
+    };
+  }
+}
+
+service SellerActionsService {
+  rpc GetSellerActions(GetSellerActionsRequest) returns (GetSellerActionsResponse) {
+    option (google.api.http) = {
+      get: "/seller/actions"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить доступные акции для селлера";
+      description: "Получает список доступных акций для селлера";
+      tags: "Actions";
+      operation_id: "GetSellerActions";
+    };
+  }
+  rpc GetActionSegments(GetActionSegmentsRequest) returns (GetActionSegmentsResponse) {
+    option (google.api.http) = {
+      get: "/seller/actions/{action_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить инфу по сегментам акции";
+      description: "-";
+      tags: "Actions";
+      operation_id: "GetActionSegments";
+    };
+  }
+}
+
+service SellerBetsService {
+  rpc GetSellerBetsList(GetSellerBetsListRequest) returns (GetSellerBetsListResponse) {
+    option (google.api.http) = {
+      get: "/seller/bets/list"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить список ставок селлера";
+      description: "Получает список ставок селлера по заданным параметрам";
+      tags: "Bets";
+      operation_id: "GetSellerBetsList";
+    };
+  }
+  rpc MakeBet(MakeBetRequest) returns (MakeBetResponse) {
+    option (google.api.http) = {
+      post: "/seller/bets/make"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Сделать ставку";
+      description: "Создает новую ставку на слот";
+      tags: "Bets";
+      operation_id: "MakeBet";
+    };
+  }
+  rpc RemoveBet(RemoveBetRequest) returns (RemoveBetResponse) {
+    option (google.api.http) = {
+      post: "/seller/bets/remove"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Удалить ставку";
+      description: "Удаляет существующую ставку";
+      tags: "Bets";
+      operation_id: "RemoveBet";
+    };
+  }
+}

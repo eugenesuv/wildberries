@@ -1,0 +1,506 @@
+syntax = "proto3";
+
+package wildberries.admin;
+
+option go_package = "wildberries/pkg/admin;admin";
+
+//import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "google/api/annotations.proto";
+//import "validate/validate.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Админская панель";
+    version: "1.0.0";
+    description: "Админская панель";
+  };
+  host: "localhost:8080";
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+// --- Promotion Admin ---
+// POST /admin/promotions
+message CreatePromotionRequest {
+  string name = 1;
+  string description = 2;
+  string theme = 3;
+  string date_from = 4;  // RFC3339
+  string date_to = 5;
+  string identification_mode = 6;  // questions | user_profile
+  string pricing_model = 7;        // auction | fixed
+  int32 slot_count = 8;
+  int32 discount = 9;  // WB discount (admin setting) for WB-curated slots
+  repeated string stop_factors = 10;
+}
+
+message CreatePromotionResponse {
+  int64 id = 1;
+  string status = 2;  // NOT_READY
+}
+
+// GET /admin/promotions/
+message GetPromotionRequest {}
+
+message GetPromotionResponse {
+  repeated SinglePromotion promotions = 1;
+}
+
+message SinglePromotion {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string theme = 4;
+  string status = 5;
+  string date_from = 6;
+  string date_to = 7;
+  string identification_mode = 8;
+  string pricing_model = 9;
+  int32 slot_count = 10;
+  int32 discount = 11;
+  repeated string stop_factors = 12;
+  repeated SegmentWithOrder segments = 13;
+  map<int32, int64> fixed_prices = 14;  // position -> price
+  PromotionPoll poll = 15;
+}
+
+message SegmentWithOrder {
+  int64 id = 1;
+  string name = 2;
+  string category_name = 3;
+  int32 order_index = 4;
+}
+
+message PromotionPoll {
+  repeated PollQuestionAdmin questions = 1;
+  repeated AnswerTreeNode answer_tree = 2;
+}
+
+message PollQuestionAdmin {
+  int64 id = 1;
+  string text = 2;
+  repeated PollOptionAdmin options = 3;
+}
+
+message PollOptionAdmin {
+  int64 id = 1;
+  string text = 2;
+  string value = 3;
+}
+
+message AnswerTreeNode {
+  string node_id = 1;       // UUID
+  string parent_node_id = 2;
+  string label = 3;
+  string value = 4;
+}
+
+// PATCH /admin/promotions/{id}
+message UpdatePromotionRequest {
+  int64 id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string theme = 4;
+  optional string date_from = 5;
+  optional string date_to = 6;
+  optional string identification_mode = 7;
+  optional string pricing_model = 8;
+  optional int32 slot_count = 9;
+  optional int32 discount = 10;
+  repeated string stop_factors = 11;
+}
+
+message UpdatePromotionResponse {}
+
+// DELETE /admin/promotions/{id}
+message DeletePromotionRequest {
+  int64 id = 1;
+}
+
+message DeletePromotionResponse {}
+
+// PUT /admin/promotions/{id}/fixed-prices
+message SetFixedPricesRequest {
+  int64 promotion_id = 1;
+  repeated FixedPriceEntry prices = 2;
+}
+
+message FixedPriceEntry {
+  int32 position = 1;
+  int64 price = 2;
+}
+
+message SetFixedPricesResponse {}
+
+// PUT /admin/promotions/{id}/status
+message ChangeStatusRequest {
+  int64 promotion_id = 1;
+  string status = 2;  // NOT_READY | READY_TO_START | RUNNING | PAUSED | COMPLETED
+}
+
+message ChangeStatusResponse {}
+
+// POST /horoscope/products — ручная установка товара в слот
+message SetSlotProductRequest {
+  int64 segment_id = 1;
+  int64 slot_id = 2;   // optional, если не указан — выбрать свободный
+  int64 product_id = 3;
+}
+
+message SetSlotProductResponse {}
+
+// --- Segment Admin ---
+// POST /admin/promotions/{id}/segments/generate
+message GenerateSegmentsRequest {
+  int64 promotion_id = 1;
+  bool use_theme = 2;
+  int32 limit = 3;
+}
+
+message GenerateSegmentsResponse {
+  repeated common.Segment segments = 1;
+}
+
+// POST /admin/promotions/{id}/segments
+message CreateSegmentRequest {
+  int64 promotion_id = 1;
+  string name = 2;
+  string category_name = 3;
+  int32 order_index = 4;
+}
+
+message CreateSegmentResponse {
+  int64 id = 1;
+  string name = 2;
+  string category_name = 3;
+}
+
+// PATCH /admin/promotions/{id}/segments/{segmentId}
+message UpdateSegmentRequest {
+  int64 promotion_id = 1;
+  int64 segment_id = 2;
+  optional string name = 3;
+  optional string category_name = 4;
+  optional int32 order_index = 5;
+}
+
+message UpdateSegmentResponse {}
+
+// DELETE /admin/promotions/{id}/segments/{segmentId}
+message DeleteSegmentRequest {
+  int64 promotion_id = 1;
+  int64 segment_id = 2;
+}
+
+message DeleteSegmentResponse {}
+
+// POST /admin/promotions/{id}/segments/shuffle-categories
+message ShuffleSegmentCategoriesRequest {
+  int64 promotion_id = 1;
+}
+
+message ShuffleSegmentCategoriesResponse {}
+
+// --- Poll Admin ---
+// POST /admin/promotions/{id}/poll/generate
+message GeneratePollRequest {
+  int64 promotion_id = 1;
+  string type = 2;  // "questions" | "answer_tree"
+}
+
+message GeneratePollResponse {
+  repeated PollQuestionAdmin questions = 1;
+  repeated AnswerTreeNode answer_tree = 2;
+}
+
+// POST /admin/promotions/{id}/poll/questions
+message SetPollQuestionsRequest {
+  int64 promotion_id = 1;
+  repeated SetQuestionInput questions = 2;
+}
+
+message SetQuestionInput {
+  string text = 1;
+  repeated SetOptionInput options = 2;
+}
+
+message SetOptionInput {
+  string text = 1;
+  string value = 2;
+}
+
+message SetPollQuestionsResponse {}
+
+// POST /admin/promotions/{id}/poll/answer-tree
+message SetAnswerTreeRequest {
+  int64 promotion_id = 1;
+  repeated AnswerTreeNode nodes = 2;
+}
+
+message SetAnswerTreeResponse {}
+
+// --- Moderation ---
+// GET /admin/promotions/{id}/moderation/applications
+message GetModerationApplicationsRequest {
+  int64 promotion_id = 1;
+  string status = 2;  // optional: pending | approved | rejected
+}
+
+message ModerationApplication {
+  int64 id = 1;
+  int64 seller_id = 2;
+  int64 segment_id = 3;
+  int64 slot_id = 4;
+  string product_name = 5;
+  int64 price = 6;
+  int32 discount = 7;
+  repeated string stop_factors = 8;
+  string status = 9;
+}
+
+message GetModerationApplicationsResponse {
+  repeated ModerationApplication applications = 1;
+}
+
+// POST /admin/moderation/{applicationId}/approve
+message ApproveModerationRequest {
+  int64 application_id = 1;
+}
+
+message ApproveModerationResponse {}
+
+// POST /admin/moderation/{applicationId}/reject
+message RejectModerationRequest {
+  int64 application_id = 1;
+  string reason = 2;
+}
+
+message RejectModerationResponse {}
+
+// --- Admin Services ---
+service PromotionAdminService {
+  rpc CreatePromotion(CreatePromotionRequest) returns (CreatePromotionResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Создать новую акцию";
+      description: "Создает новую акцию с заданными параметрами";
+      tags: "Promotions";
+      operation_id: "CreatePromotion";
+    };
+  }
+  rpc GetPromotions(GetPromotionRequest) returns (GetPromotionResponse) {
+    option (google.api.http) = {
+      get: "/admin/promotions"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить информацию об акции";
+      description: "Получает информацию об акциях";
+      tags: "Promotions";
+      operation_id: "GetPromotion";
+    };
+  }
+  rpc UpdatePromotion(UpdatePromotionRequest) returns (UpdatePromotionResponse) {
+    option (google.api.http) = {
+      patch: "/admin/promotions/{id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Обновить акцию";
+      description: "Обновляет параметры акции";
+      tags: "Promotions";
+      operation_id: "UpdatePromotion";
+    };
+  }
+  rpc DeletePromotion(DeletePromotionRequest) returns (DeletePromotionResponse) {
+    option (google.api.http) = {
+      delete: "/admin/promotions/{id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Удалить акцию";
+      description: "Удаляет акцию по ID";
+      tags: "Promotions";
+      operation_id: "DeletePromotion";
+    };
+  }
+  rpc SetFixedPrices(SetFixedPricesRequest) returns (SetFixedPricesResponse) {
+    option (google.api.http) = {
+      put: "/admin/promotions/{promotion_id}/fixed-prices"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Установить фиксированные цены";
+      description: "Устанавливает фиксированные цены для слотов акции";
+      tags: "Promotions";
+      operation_id: "SetFixedPrices";
+    };
+  }
+  rpc ChangeStatus(ChangeStatusRequest) returns (ChangeStatusResponse) {
+    option (google.api.http) = {
+      put: "/admin/promotions/{promotion_id}/status"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Изменить статус акции";
+      description: "Изменяет статус акции";
+      tags: "Promotions";
+      operation_id: "ChangeStatus";
+    };
+  }
+  rpc SetSlotProduct(SetSlotProductRequest) returns (SetSlotProductResponse) {
+    option (google.api.http) = {
+      post: "/horoscope/products"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Установить продукт в слот";
+      description: "Ручная установка товара в слот";
+      tags: "Promotions";
+      operation_id: "SetSlotProduct";
+    };
+  }
+}
+
+service SegmentAdminService {
+  rpc GenerateSegments(GenerateSegmentsRequest) returns (GenerateSegmentsResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/segments/generate"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Сгенерировать сегменты";
+      description: "Генерирует сегменты для акции";
+      tags: "Segments";
+      operation_id: "GenerateSegments";
+    };
+  }
+  rpc CreateSegment(CreateSegmentRequest) returns (CreateSegmentResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/segments"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Создать сегмент";
+      description: "Создает новый сегмент для акции";
+      tags: "Segments";
+      operation_id: "CreateSegment";
+    };
+  }
+  rpc UpdateSegment(UpdateSegmentRequest) returns (UpdateSegmentResponse) {
+    option (google.api.http) = {
+      patch: "/admin/promotions/{promotion_id}/segments/{segment_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Обновить сегмент";
+      description: "Обновляет параметры сегмента";
+      tags: "Segments";
+      operation_id: "UpdateSegment";
+    };
+  }
+  rpc DeleteSegment(DeleteSegmentRequest) returns (DeleteSegmentResponse) {
+    option (google.api.http) = {
+      delete: "/admin/promotions/{promotion_id}/segments/{segment_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Удалить сегмент";
+      description: "Удаляет сегмент по ID";
+      tags: "Segments";
+      operation_id: "DeleteSegment";
+    };
+  }
+  rpc ShuffleSegmentCategories(ShuffleSegmentCategoriesRequest) returns (ShuffleSegmentCategoriesResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/segments/shuffle-categories"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Перемешать категории сегментов";
+      description: "Перемешивает категории сегментов";
+      tags: "Segments";
+      operation_id: "ShuffleSegmentCategories";
+    };
+  }
+}
+
+service PollAdminService {
+  rpc GeneratePoll(GeneratePollRequest) returns (GeneratePollResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/poll/generate"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Сгенерировать опрос";
+      description: "Генерирует структуру опроса для акции";
+      tags: "Poll";
+      operation_id: "GeneratePoll";
+    };
+  }
+  rpc SetPollQuestions(SetPollQuestionsRequest) returns (SetPollQuestionsResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/poll/questions"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Установить вопросы опроса";
+      description: "Устанавливает вопросы опроса для акции";
+      tags: "Poll";
+      operation_id: "SetPollQuestions";
+    };
+  }
+  rpc SetAnswerTree(SetAnswerTreeRequest) returns (SetAnswerTreeResponse) {
+    option (google.api.http) = {
+      post: "/admin/promotions/{promotion_id}/poll/answer-tree"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Установить дерево ответов";
+      description: "Устанавливает дерево ответов для опроса";
+      tags: "Poll";
+      operation_id: "SetAnswerTree";
+    };
+  }
+}
+
+service ModerationService {
+  rpc GetApplications(GetModerationApplicationsRequest) returns (GetModerationApplicationsResponse) {
+    option (google.api.http) = {
+      get: "/admin/promotions/{promotion_id}/moderation/applications"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить заявки на модерацию";
+      description: "Получает список заявок на модерацию для акции";
+      tags: "Moderation";
+      operation_id: "GetApplications";
+    };
+  }
+  rpc Approve(ApproveModerationRequest) returns (ApproveModerationResponse) {
+    option (google.api.http) = {
+      post: "/admin/moderation/{application_id}/approve"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Одобрить заявку";
+      description: "Одобрение заявки на модерацию";
+      tags: "Moderation";
+      operation_id: "Approve";
+    };
+  }
+  rpc Reject(RejectModerationRequest) returns (RejectModerationResponse) {
+    option (google.api.http) = {
+      post: "/admin/moderation/{application_id}/reject"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Отклонить заявку";
+      description: "Отклонение заявки на модерацию";
+      tags: "Moderation";
+      operation_id: "Reject";
+    };
+  }
+}

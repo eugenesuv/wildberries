@@ -1,0 +1,401 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AI сервис",
+    "description": "Сервис генерации тем, сегментов, вопросов и дерева ответов",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "AIService"
+    }
+  ],
+  "host": "localhost:8080",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/ai/answer-tree": {
+      "post": {
+        "summary": "Сгенерировать дерево ответов",
+        "description": "Генерирует дерево ответов для опроса",
+        "operationId": "GenerateAnswerTree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/aiGenerateAnswerTreeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/aiGenerateAnswerTreeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/get-text": {
+      "post": {
+        "summary": "Получить текст",
+        "description": "Получает текст для сегмента или акции",
+        "operationId": "GetText",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/aiGetTextResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/aiGetTextRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/questions": {
+      "post": {
+        "summary": "Сгенерировать вопросы",
+        "description": "Генерирует вопросы для опроса на основе темы",
+        "operationId": "GenerateQuestions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/aiGenerateQuestionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/aiGenerateQuestionsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/segments": {
+      "post": {
+        "summary": "Сгенерировать сегменты",
+        "description": "Генерирует предложения сегментов на основе темы",
+        "operationId": "GenerateSegments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/aiGenerateSegmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/aiGenerateSegmentsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/themes": {
+      "post": {
+        "summary": "Сгенерировать темы",
+        "description": "Генерирует список тем для использования в акциях",
+        "operationId": "GenerateThemes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/aiGenerateThemesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/aiGenerateThemesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "aiAnswerTreeNode": {
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "aiGenerateAnswerTreeRequest": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "string"
+        }
+      },
+      "title": "--- POST /ai/answer-tree ---"
+    },
+    "aiGenerateAnswerTreeResponse": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/aiAnswerTreeNode"
+          }
+        }
+      }
+    },
+    "aiGenerateQuestionsRequest": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "string"
+        }
+      },
+      "title": "--- POST /ai/questions ---"
+    },
+    "aiGenerateQuestionsResponse": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/aiQuestionSuggestion"
+          }
+        }
+      }
+    },
+    "aiGenerateSegmentsRequest": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "--- POST /ai/segments ---"
+    },
+    "aiGenerateSegmentsResponse": {
+      "type": "object",
+      "properties": {
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/aiSegmentSuggestion"
+          }
+        }
+      }
+    },
+    "aiGenerateThemesRequest": {
+      "type": "object",
+      "title": "--- POST /ai/themes ---"
+    },
+    "aiGenerateThemesResponse": {
+      "type": "object",
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/aiThemeItem"
+          }
+        }
+      }
+    },
+    "aiGetTextRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "e.g. theme, segment_name"
+        },
+        "segmentId": {
+          "type": "string",
+          "format": "int64",
+          "title": "optional, для обновления текста сегмента"
+        }
+      },
+      "title": "--- POST /ai/get-text ---"
+    },
+    "aiGetTextResponse": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "aiOptionSuggestion": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "aiQuestionSuggestion": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/aiOptionSuggestion"
+          }
+        }
+      }
+    },
+    "aiSegmentSuggestion": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        }
+      }
+    },
+    "aiThemeItem": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "machine name, e.g. zodiac, harry-potter"
+        },
+        "label": {
+          "type": "string",
+          "title": "display name"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

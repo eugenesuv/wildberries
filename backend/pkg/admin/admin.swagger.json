@@ -1,0 +1,1366 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Админская панель",
+    "description": "Админская панель",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "PromotionAdminService"
+    },
+    {
+      "name": "SegmentAdminService"
+    },
+    {
+      "name": "PollAdminService"
+    },
+    {
+      "name": "ModerationService"
+    }
+  ],
+  "host": "localhost:8080",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/admin/moderation/{applicationId}/approve": {
+      "post": {
+        "summary": "Одобрить заявку",
+        "description": "Одобрение заявки на модерацию",
+        "operationId": "Approve",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminApproveModerationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModerationServiceApproveBody"
+            }
+          }
+        ],
+        "tags": [
+          "Moderation"
+        ]
+      }
+    },
+    "/admin/moderation/{applicationId}/reject": {
+      "post": {
+        "summary": "Отклонить заявку",
+        "description": "Отклонение заявки на модерацию",
+        "operationId": "Reject",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminRejectModerationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModerationServiceRejectBody"
+            }
+          }
+        ],
+        "tags": [
+          "Moderation"
+        ]
+      }
+    },
+    "/admin/promotions": {
+      "get": {
+        "summary": "Получить информацию об акции",
+        "description": "Получает информацию об акциях",
+        "operationId": "GetPromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGetPromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Promotions"
+        ]
+      },
+      "post": {
+        "summary": "Создать новую акцию",
+        "description": "Создает новую акцию с заданными параметрами",
+        "operationId": "CreatePromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminCreatePromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/adminCreatePromotionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/admin/promotions/{id}": {
+      "delete": {
+        "summary": "Удалить акцию",
+        "description": "Удаляет акцию по ID",
+        "operationId": "DeletePromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminDeletePromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      },
+      "patch": {
+        "summary": "Обновить акцию",
+        "description": "Обновляет параметры акции",
+        "operationId": "UpdatePromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminUpdatePromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PromotionAdminServiceUpdatePromotionBody"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/fixed-prices": {
+      "put": {
+        "summary": "Установить фиксированные цены",
+        "description": "Устанавливает фиксированные цены для слотов акции",
+        "operationId": "SetFixedPrices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSetFixedPricesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PromotionAdminServiceSetFixedPricesBody"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/moderation/applications": {
+      "get": {
+        "summary": "Получить заявки на модерацию",
+        "description": "Получает список заявок на модерацию для акции",
+        "operationId": "GetApplications",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGetModerationApplicationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "description": "optional: pending | approved | rejected",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Moderation"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/poll/answer-tree": {
+      "post": {
+        "summary": "Установить дерево ответов",
+        "description": "Устанавливает дерево ответов для опроса",
+        "operationId": "SetAnswerTree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSetAnswerTreeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PollAdminServiceSetAnswerTreeBody"
+            }
+          }
+        ],
+        "tags": [
+          "Poll"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/poll/generate": {
+      "post": {
+        "summary": "Сгенерировать опрос",
+        "description": "Генерирует структуру опроса для акции",
+        "operationId": "GeneratePoll",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGeneratePollResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PollAdminServiceGeneratePollBody"
+            }
+          }
+        ],
+        "tags": [
+          "Poll"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/poll/questions": {
+      "post": {
+        "summary": "Установить вопросы опроса",
+        "description": "Устанавливает вопросы опроса для акции",
+        "operationId": "SetPollQuestions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSetPollQuestionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PollAdminServiceSetPollQuestionsBody"
+            }
+          }
+        ],
+        "tags": [
+          "Poll"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/segments": {
+      "post": {
+        "summary": "Создать сегмент",
+        "description": "Создает новый сегмент для акции",
+        "operationId": "CreateSegment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminCreateSegmentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SegmentAdminServiceCreateSegmentBody"
+            }
+          }
+        ],
+        "tags": [
+          "Segments"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/segments/generate": {
+      "post": {
+        "summary": "Сгенерировать сегменты",
+        "description": "Генерирует сегменты для акции",
+        "operationId": "GenerateSegments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGenerateSegmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SegmentAdminServiceGenerateSegmentsBody"
+            }
+          }
+        ],
+        "tags": [
+          "Segments"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/segments/shuffle-categories": {
+      "post": {
+        "summary": "Перемешать категории сегментов",
+        "description": "Перемешивает категории сегментов",
+        "operationId": "ShuffleSegmentCategories",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminShuffleSegmentCategoriesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SegmentAdminServiceShuffleSegmentCategoriesBody"
+            }
+          }
+        ],
+        "tags": [
+          "Segments"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/segments/{segmentId}": {
+      "delete": {
+        "summary": "Удалить сегмент",
+        "description": "Удаляет сегмент по ID",
+        "operationId": "DeleteSegment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminDeleteSegmentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "segmentId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Segments"
+        ]
+      },
+      "patch": {
+        "summary": "Обновить сегмент",
+        "description": "Обновляет параметры сегмента",
+        "operationId": "UpdateSegment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminUpdateSegmentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "segmentId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SegmentAdminServiceUpdateSegmentBody"
+            }
+          }
+        ],
+        "tags": [
+          "Segments"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}/status": {
+      "put": {
+        "summary": "Изменить статус акции",
+        "description": "Изменяет статус акции",
+        "operationId": "ChangeStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminChangeStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PromotionAdminServiceChangeStatusBody"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/horoscope/products": {
+      "post": {
+        "summary": "Установить продукт в слот",
+        "description": "Ручная установка товара в слот",
+        "operationId": "SetSlotProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSetSlotProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/adminSetSlotProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ModerationServiceApproveBody": {
+      "type": "object",
+      "title": "POST /admin/moderation/{applicationId}/approve"
+    },
+    "ModerationServiceRejectBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "title": "POST /admin/moderation/{applicationId}/reject"
+    },
+    "PollAdminServiceGeneratePollBody": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "\"questions\" | \"answer_tree\""
+        }
+      },
+      "title": "--- Poll Admin ---\nPOST /admin/promotions/{id}/poll/generate"
+    },
+    "PollAdminServiceSetAnswerTreeBody": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminAnswerTreeNode"
+          }
+        }
+      },
+      "title": "POST /admin/promotions/{id}/poll/answer-tree"
+    },
+    "PollAdminServiceSetPollQuestionsBody": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSetQuestionInput"
+          }
+        }
+      },
+      "title": "POST /admin/promotions/{id}/poll/questions"
+    },
+    "PromotionAdminServiceChangeStatusBody": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "title": "NOT_READY | READY_TO_START | RUNNING | PAUSED | COMPLETED"
+        }
+      },
+      "title": "PUT /admin/promotions/{id}/status"
+    },
+    "PromotionAdminServiceSetFixedPricesBody": {
+      "type": "object",
+      "properties": {
+        "prices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminFixedPriceEntry"
+          }
+        }
+      },
+      "title": "PUT /admin/promotions/{id}/fixed-prices"
+    },
+    "PromotionAdminServiceUpdatePromotionBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "identificationMode": {
+          "type": "string"
+        },
+        "pricingModel": {
+          "type": "string"
+        },
+        "slotCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "PATCH /admin/promotions/{id}"
+    },
+    "SegmentAdminServiceCreateSegmentBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "POST /admin/promotions/{id}/segments"
+    },
+    "SegmentAdminServiceGenerateSegmentsBody": {
+      "type": "object",
+      "properties": {
+        "useTheme": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "--- Segment Admin ---\nPOST /admin/promotions/{id}/segments/generate"
+    },
+    "SegmentAdminServiceShuffleSegmentCategoriesBody": {
+      "type": "object",
+      "title": "POST /admin/promotions/{id}/segments/shuffle-categories"
+    },
+    "SegmentAdminServiceUpdateSegmentBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "PATCH /admin/promotions/{id}/segments/{segmentId}"
+    },
+    "adminAnswerTreeNode": {
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "type": "string",
+          "title": "UUID"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "adminApproveModerationResponse": {
+      "type": "object"
+    },
+    "adminChangeStatusResponse": {
+      "type": "object"
+    },
+    "adminCreatePromotionRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string",
+          "title": "RFC3339"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "identificationMode": {
+          "type": "string",
+          "title": "questions | user_profile"
+        },
+        "pricingModel": {
+          "type": "string",
+          "title": "auction | fixed"
+        },
+        "slotCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "WB discount (admin setting) for WB-curated slots"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "--- Promotion Admin ---\nPOST /admin/promotions"
+    },
+    "adminCreatePromotionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string",
+          "title": "NOT_READY"
+        }
+      }
+    },
+    "adminCreateSegmentResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        }
+      }
+    },
+    "adminDeletePromotionResponse": {
+      "type": "object"
+    },
+    "adminDeleteSegmentResponse": {
+      "type": "object"
+    },
+    "adminFixedPriceEntry": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "price": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "adminGeneratePollResponse": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminPollQuestionAdmin"
+          }
+        },
+        "answerTree": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminAnswerTreeNode"
+          }
+        }
+      }
+    },
+    "adminGenerateSegmentsResponse": {
+      "type": "object",
+      "properties": {
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonSegment"
+          }
+        }
+      }
+    },
+    "adminGetModerationApplicationsResponse": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminModerationApplication"
+          }
+        }
+      }
+    },
+    "adminGetPromotionResponse": {
+      "type": "object",
+      "properties": {
+        "promotions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSinglePromotion"
+          }
+        }
+      }
+    },
+    "adminModerationApplication": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "sellerId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "segmentId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "slotId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "productName": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string",
+          "format": "int64"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "adminPollOptionAdmin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "adminPollQuestionAdmin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminPollOptionAdmin"
+          }
+        }
+      }
+    },
+    "adminPromotionPoll": {
+      "type": "object",
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminPollQuestionAdmin"
+          }
+        },
+        "answerTree": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminAnswerTreeNode"
+          }
+        }
+      }
+    },
+    "adminRejectModerationResponse": {
+      "type": "object"
+    },
+    "adminSegmentWithOrder": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "adminSetAnswerTreeResponse": {
+      "type": "object"
+    },
+    "adminSetFixedPricesResponse": {
+      "type": "object"
+    },
+    "adminSetOptionInput": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "adminSetPollQuestionsResponse": {
+      "type": "object"
+    },
+    "adminSetQuestionInput": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSetOptionInput"
+          }
+        }
+      }
+    },
+    "adminSetSlotProductRequest": {
+      "type": "object",
+      "properties": {
+        "segmentId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "slotId": {
+          "type": "string",
+          "format": "int64",
+          "title": "optional, если не указан — выбрать свободный"
+        },
+        "productId": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "POST /horoscope/products — ручная установка товара в слот"
+    },
+    "adminSetSlotProductResponse": {
+      "type": "object"
+    },
+    "adminShuffleSegmentCategoriesResponse": {
+      "type": "object"
+    },
+    "adminSinglePromotion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "identificationMode": {
+          "type": "string"
+        },
+        "pricingModel": {
+          "type": "string"
+        },
+        "slotCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSegmentWithOrder"
+          }
+        },
+        "fixedPrices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "int64"
+          },
+          "title": "position -\u003e price"
+        },
+        "poll": {
+          "$ref": "#/definitions/adminPromotionPoll"
+        }
+      }
+    },
+    "adminUpdatePromotionResponse": {
+      "type": "object"
+    },
+    "adminUpdateSegmentResponse": {
+      "type": "object"
+    },
+    "commonSegment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "text": {
+          "type": "string",
+          "title": "опционально, для AI-текста"
+        }
+      },
+      "title": "Segment — сегмент акции (знак зодиака, факультет и т.д.)"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
