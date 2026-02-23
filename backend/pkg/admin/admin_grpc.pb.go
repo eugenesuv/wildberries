@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	PromotionAdminService_CreatePromotion_FullMethodName = "/wildberries.admin.PromotionAdminService/CreatePromotion"
-	PromotionAdminService_GetPromotion_FullMethodName    = "/wildberries.admin.PromotionAdminService/GetPromotion"
+	PromotionAdminService_GetPromotions_FullMethodName   = "/wildberries.admin.PromotionAdminService/GetPromotions"
 	PromotionAdminService_UpdatePromotion_FullMethodName = "/wildberries.admin.PromotionAdminService/UpdatePromotion"
 	PromotionAdminService_DeletePromotion_FullMethodName = "/wildberries.admin.PromotionAdminService/DeletePromotion"
 	PromotionAdminService_SetFixedPrices_FullMethodName  = "/wildberries.admin.PromotionAdminService/SetFixedPrices"
@@ -35,7 +35,7 @@ const (
 // --- Admin Services ---
 type PromotionAdminServiceClient interface {
 	CreatePromotion(ctx context.Context, in *CreatePromotionRequest, opts ...grpc.CallOption) (*CreatePromotionResponse, error)
-	GetPromotion(ctx context.Context, in *GetPromotionRequest, opts ...grpc.CallOption) (*GetPromotionResponse, error)
+	GetPromotions(ctx context.Context, in *GetPromotionRequest, opts ...grpc.CallOption) (*GetPromotionResponse, error)
 	UpdatePromotion(ctx context.Context, in *UpdatePromotionRequest, opts ...grpc.CallOption) (*UpdatePromotionResponse, error)
 	DeletePromotion(ctx context.Context, in *DeletePromotionRequest, opts ...grpc.CallOption) (*DeletePromotionResponse, error)
 	SetFixedPrices(ctx context.Context, in *SetFixedPricesRequest, opts ...grpc.CallOption) (*SetFixedPricesResponse, error)
@@ -61,10 +61,10 @@ func (c *promotionAdminServiceClient) CreatePromotion(ctx context.Context, in *C
 	return out, nil
 }
 
-func (c *promotionAdminServiceClient) GetPromotion(ctx context.Context, in *GetPromotionRequest, opts ...grpc.CallOption) (*GetPromotionResponse, error) {
+func (c *promotionAdminServiceClient) GetPromotions(ctx context.Context, in *GetPromotionRequest, opts ...grpc.CallOption) (*GetPromotionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPromotionResponse)
-	err := c.cc.Invoke(ctx, PromotionAdminService_GetPromotion_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PromotionAdminService_GetPromotions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *promotionAdminServiceClient) SetSlotProduct(ctx context.Context, in *Se
 // --- Admin Services ---
 type PromotionAdminServiceServer interface {
 	CreatePromotion(context.Context, *CreatePromotionRequest) (*CreatePromotionResponse, error)
-	GetPromotion(context.Context, *GetPromotionRequest) (*GetPromotionResponse, error)
+	GetPromotions(context.Context, *GetPromotionRequest) (*GetPromotionResponse, error)
 	UpdatePromotion(context.Context, *UpdatePromotionRequest) (*UpdatePromotionResponse, error)
 	DeletePromotion(context.Context, *DeletePromotionRequest) (*DeletePromotionResponse, error)
 	SetFixedPrices(context.Context, *SetFixedPricesRequest) (*SetFixedPricesResponse, error)
@@ -147,8 +147,8 @@ type UnimplementedPromotionAdminServiceServer struct{}
 func (UnimplementedPromotionAdminServiceServer) CreatePromotion(context.Context, *CreatePromotionRequest) (*CreatePromotionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreatePromotion not implemented")
 }
-func (UnimplementedPromotionAdminServiceServer) GetPromotion(context.Context, *GetPromotionRequest) (*GetPromotionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetPromotion not implemented")
+func (UnimplementedPromotionAdminServiceServer) GetPromotions(context.Context, *GetPromotionRequest) (*GetPromotionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPromotions not implemented")
 }
 func (UnimplementedPromotionAdminServiceServer) UpdatePromotion(context.Context, *UpdatePromotionRequest) (*UpdatePromotionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdatePromotion not implemented")
@@ -204,20 +204,20 @@ func _PromotionAdminService_CreatePromotion_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PromotionAdminService_GetPromotion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PromotionAdminService_GetPromotions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPromotionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PromotionAdminServiceServer).GetPromotion(ctx, in)
+		return srv.(PromotionAdminServiceServer).GetPromotions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PromotionAdminService_GetPromotion_FullMethodName,
+		FullMethod: PromotionAdminService_GetPromotions_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PromotionAdminServiceServer).GetPromotion(ctx, req.(*GetPromotionRequest))
+		return srv.(PromotionAdminServiceServer).GetPromotions(ctx, req.(*GetPromotionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -324,8 +324,8 @@ var PromotionAdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PromotionAdminService_CreatePromotion_Handler,
 		},
 		{
-			MethodName: "GetPromotion",
-			Handler:    _PromotionAdminService_GetPromotion_Handler,
+			MethodName: "GetPromotions",
+			Handler:    _PromotionAdminService_GetPromotions_Handler,
 		},
 		{
 			MethodName: "UpdatePromotion",

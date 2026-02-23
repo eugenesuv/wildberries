@@ -42,12 +42,14 @@ message CreatePromotionResponse {
   string status = 2;  // NOT_READY
 }
 
-// GET /admin/promotions/{id}
-message GetPromotionRequest {
-  int64 id = 1;
-}
+// GET /admin/promotions/
+message GetPromotionRequest {}
 
 message GetPromotionResponse {
+  repeated SinglePromotion promotions = 1;
+}
+
+message SinglePromotion {
   int64 id = 1;
   string name = 2;
   string description = 3;
@@ -292,13 +294,13 @@ service PromotionAdminService {
       operation_id: "CreatePromotion";
     };
   }
-  rpc GetPromotion(GetPromotionRequest) returns (GetPromotionResponse) {
+  rpc GetPromotions(GetPromotionRequest) returns (GetPromotionResponse) {
     option (google.api.http) = {
-      get: "/admin/promotions/{id}"
+      get: "/admin/promotions"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Получить информацию об акции";
-      description: "Получает информацию об акции по ID";
+      description: "Получает информацию об акциях";
       tags: "Promotions";
       operation_id: "GetPromotion";
     };
