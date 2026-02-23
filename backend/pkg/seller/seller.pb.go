@@ -1122,8 +1122,8 @@ const file_seller_proto_rawDesc = "" +
 	"\aMakeBet\x12\".wildberries.seller.MakeBetRequest\x1a#.wildberries.seller.MakeBetResponse\"\x81\x01\x92Ab\n" +
 	"\x04Bets\x12\x1bСделать ставку\x1a4Создает новую ставку на слот*\aMakeBet\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/seller/bets/make\x12\xe0\x01\n" +
 	"\tRemoveBet\x12$.wildberries.seller.RemoveBetRequest\x1a%.wildberries.seller.RemoveBetResponse\"\x85\x01\x92Ad\n" +
-	"\x04Bets\x12\x1bУдалить ставку\x1a4Удаляет существующую ставку*\tRemoveBet\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/seller/bets/removeB\xc3\x01\x92A\x98\x01\x12_\n" +
-	"\x13Seller сервис\x12AСервис селлера для работы с акциями2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ%wildberries/pkg/seller;sellerb\x06proto3"
+	"\x04Bets\x12\x1bУдалить ставку\x1a4Удаляет существующую ставку*\tRemoveBet\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/seller/bets/removeB\xbb\x01\x92A\x98\x01\x12_\n" +
+	"\x13Seller сервис\x12AСервис селлера для работы с акциями2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x1dwildberries/pkg/seller;sellerb\x06proto3"
 
 var (
 	file_seller_proto_rawDescOnce sync.Once
