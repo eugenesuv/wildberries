@@ -10,25 +10,28 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 
-	admin_api "wildberries/backend/internal/api/admin"
-	ai_api "wildberries/backend/internal/api/ai"
-	buyer_api "wildberries/backend/internal/api/buyer"
-	seller_api "wildberries/backend/internal/api/seller"
-	"wildberries/backend/internal/config"
-	"wildberries/backend/internal/repository"
-	"wildberries/backend/internal/service/ai"
-	"wildberries/backend/internal/service/buyer"
-	"wildberries/backend/internal/service/promotion"
-	"wildberries/backend/internal/service/seller"
-	adminpb "wildberries/backend/pkg/admin"
-	aipb "wildberries/backend/pkg/ai"
-	buyerpb "wildberries/backend/pkg/buyer"
-	sellerpb "wildberries/backend/pkg/seller"
+	admin_api "wildberries/internal/api/admin"
+	ai_api "wildberries/internal/api/ai"
+	buyer_api "wildberries/internal/api/buyer"
+	seller_api "wildberries/internal/api/seller"
+	"wildberries/internal/config"
+	"wildberries/internal/repository"
+	"wildberries/internal/service/ai"
+	"wildberries/internal/service/buyer"
+	"wildberries/internal/service/promotion"
+	"wildberries/internal/service/seller"
+	adminpb "wildberries/pkg/admin"
+	aipb "wildberries/pkg/ai"
+	buyerpb "wildberries/pkg/buyer"
+	sellerpb "wildberries/pkg/seller"
 )
 
 type App struct {
 	cfg  *config.Config
 	pool *pgxpool.Pool
+
+	promotionService *promotion.Service
+	sellerService    *seller.Service
 
 	// API services
 	adminAPI  *admin_api.Service
@@ -55,6 +58,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	moderationRepo := repository.NewModerationPostgres(pool)
 	betRepo := repository.NewBetPostgres(pool)
 	auctionRepo := repository.NewAuctionPostgres(pool)
+	pollRepo := repository.NewPollPostgres(pool)
 
 	// Create services
 	promotionService := promotion.New(
@@ -64,10 +68,11 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		productRepo,
 		moderationRepo,
 		auctionRepo,
+		pollRepo,
 	)
 
-	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo)
-	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, promotionRepo, moderationRepo)
+	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo, pollRepo)
+	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo)
 	aiService := ai.New()
 
 	// Create API services
@@ -80,13 +85,15 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	gwmux := runtime.NewServeMux()
 
 	app := &App{
-		cfg:       cfg,
-		pool:      pool,
-		adminAPI:  adminAPIService,
-		buyerAPI:  buyerAPIService,
-		sellerAPI: sellerAPIService,
-		aiAPI:     aiAPIService,
-		gwmux:     gwmux,
+		cfg:              cfg,
+		pool:             pool,
+		promotionService: promotionService,
+		sellerService:    sellerService,
+		adminAPI:         adminAPIService,
+		buyerAPI:         buyerAPIService,
+		sellerAPI:        sellerAPIService,
+		aiAPI:            aiAPIService,
+		gwmux:            gwmux,
 	}
 
 	return app, nil
@@ -152,6 +159,9 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 }
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//if a.serveCustomHTTP(w, r) {
+	//	return
+	//}
 	// Delegate to gRPC gateway
 	a.gwmux.ServeHTTP(w, r)
 }

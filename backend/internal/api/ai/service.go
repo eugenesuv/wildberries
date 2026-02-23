@@ -3,8 +3,8 @@ package ai
 import (
 	"context"
 
-	"wildberries/backend/internal/service/ai"
-	desc "wildberries/backend/pkg/ai"
+	"wildberries/internal/service/ai"
+	desc "wildberries/pkg/ai"
 )
 
 // Service handles AI API requests

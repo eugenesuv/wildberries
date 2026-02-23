@@ -811,8 +811,8 @@ const file_ai_proto_rawDesc = "" +
 	"\x12GenerateAnswerTree\x12).wildberries.ai.GenerateAnswerTreeRequest\x1a*.wildberries.ai.GenerateAnswerTreeResponse\"\xb4\x01\x92A\x96\x01\n" +
 	"\x02AI\x126Сгенерировать дерево ответов\x1aDГенерирует дерево ответов для опроса*\x12GenerateAnswerTree\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/ai/answer-tree\x12\xd8\x01\n" +
 	"\aGetText\x12\x1e.wildberries.ai.GetTextRequest\x1a\x1f.wildberries.ai.GetTextResponse\"\x8b\x01\x92Aq\n" +
-	"\x02AI\x12\x1bПолучить текст\x1aEПолучает текст для сегмента или акции*\aGetText\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/ai/get-textB\xe2\x01\x92A\xbf\x01\x12\x85\x01\n" +
-	"\x0fAI сервис\x12kСервис генерации тем, сегментов, вопросов и дерева ответов2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x1dwildberries/backend/pkg/ai;aib\x06proto3"
+	"\x02AI\x12\x1bПолучить текст\x1aEПолучает текст для сегмента или акции*\aGetText\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/ai/get-textB\xda\x01\x92A\xbf\x01\x12\x85\x01\n" +
+	"\x0fAI сервис\x12kСервис генерации тем, сегментов, вопросов и дерева ответов2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x15wildberries/pkg/ai;aib\x06proto3"
 
 var (
 	file_ai_proto_rawDescOnce sync.Once

@@ -32,9 +32,9 @@ endif
 # Paths
 # =====================
 ROOT := $(CURDIR)
-OUT_PATH := $(ROOT)/backend/pkg
-LOCAL_BIN := $(ROOT)/backend/bin
-VENDOR := $(ROOT)/backend/vendor.protogen
+OUT_PATH := $(ROOT)/pkg
+LOCAL_BIN := $(ROOT)/bin
+VENDOR := $(ROOT)/vendor.protogen
 
 PROTOC := protoc
 PROTOC_GEN_GO := $(LOCAL_BIN)/protoc-gen-go$(EXE)
@@ -55,13 +55,13 @@ docker-down:
 # Migrations
 # =====================
 migrations-up:
-	goose -dir ./backend/migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 
 migrations-down:
-	goose -dir ./backend/migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
 
 migrations-new:
-	goose create -dir ./backend/migrations rename sql
+	goose create -dir ./migrations rename sql
 
 # =====================
 # Binary deps (idempotent)
@@ -105,7 +105,7 @@ generate: bin-deps vendor-proto
 
 define gen
 	$(PROTOC) \
-		--proto_path=backend/api/proto \
+		--proto_path=api/proto \
 		--proto_path=$(VENDOR) \
 		--plugin=protoc-gen-go=$(PROTOC_GEN_GO) \
 		--go_out=$(OUT_PATH)/$1 --go_opt=paths=source_relative \
@@ -115,7 +115,7 @@ define gen
 		--grpc-gateway_out=$(OUT_PATH)/$1 --grpc-gateway_opt=paths=source_relative \
 		--plugin=protoc-gen-openapiv2=$(PROTOC_GEN_OPENAPI) \
 		--openapiv2_out=$(OUT_PATH)/$1 \
-		backend/api/proto/$1.proto
+		api/proto/$1.proto
 endef
 
 # =====================

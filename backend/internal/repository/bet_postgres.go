@@ -23,7 +23,7 @@ func (r *BetPostgres) Create(ctx context.Context, auctionID, slotID, sellerID, p
 
 func (r *BetPostgres) TopBySlot(ctx context.Context, slotID int64) (sellerID, productID int64, bet int64, err error) {
 	err = r.pool.QueryRow(ctx, `SELECT seller_id, product_id, bet FROM public.bet
-		WHERE slot_id = $1 AND deleted_at IS NULL ORDER BY bet DESC LIMIT 1`).Scan(&sellerID, &productID, &bet)
+		WHERE slot_id = $1 AND deleted_at IS NULL ORDER BY bet DESC LIMIT 1`, slotID).Scan(&sellerID, &productID, &bet)
 	return sellerID, productID, bet, err
 }
 

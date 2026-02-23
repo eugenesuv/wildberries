@@ -14,7 +14,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-	common "wildberries/backend/pkg/common"
+	common "wildberries/pkg/common"
 )
 
 const (
@@ -194,10 +194,9 @@ func (x *CreatePromotionResponse) GetStatus() string {
 	return ""
 }
 
-// GET /admin/promotions/{id}
+// GET /admin/promotions/
 type GetPromotionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -232,32 +231,11 @@ func (*GetPromotionRequest) Descriptor() ([]byte, []int) {
 	return file_admin_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetPromotionRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
 type GetPromotionResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name               string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description        string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Theme              string                 `protobuf:"bytes,4,opt,name=theme,proto3" json:"theme,omitempty"`
-	Status             string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	DateFrom           string                 `protobuf:"bytes,6,opt,name=date_from,json=dateFrom,proto3" json:"date_from,omitempty"`
-	DateTo             string                 `protobuf:"bytes,7,opt,name=date_to,json=dateTo,proto3" json:"date_to,omitempty"`
-	IdentificationMode string                 `protobuf:"bytes,8,opt,name=identification_mode,json=identificationMode,proto3" json:"identification_mode,omitempty"`
-	PricingModel       string                 `protobuf:"bytes,9,opt,name=pricing_model,json=pricingModel,proto3" json:"pricing_model,omitempty"`
-	SlotCount          int32                  `protobuf:"varint,10,opt,name=slot_count,json=slotCount,proto3" json:"slot_count,omitempty"`
-	Discount           int32                  `protobuf:"varint,11,opt,name=discount,proto3" json:"discount,omitempty"`
-	StopFactors        []string               `protobuf:"bytes,12,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
-	Segments           []*SegmentWithOrder    `protobuf:"bytes,13,rep,name=segments,proto3" json:"segments,omitempty"`
-	FixedPrices        map[int32]int64        `protobuf:"bytes,14,rep,name=fixed_prices,json=fixedPrices,proto3" json:"fixed_prices,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // position -> price
-	Poll               *PromotionPoll         `protobuf:"bytes,15,opt,name=poll,proto3" json:"poll,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Promotions    []*SinglePromotion     `protobuf:"bytes,1,rep,name=promotions,proto3" json:"promotions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetPromotionResponse) Reset() {
@@ -290,105 +268,163 @@ func (*GetPromotionResponse) Descriptor() ([]byte, []int) {
 	return file_admin_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetPromotionResponse) GetId() int64 {
+func (x *GetPromotionResponse) GetPromotions() []*SinglePromotion {
+	if x != nil {
+		return x.Promotions
+	}
+	return nil
+}
+
+type SinglePromotion struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name               string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description        string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Theme              string                 `protobuf:"bytes,4,opt,name=theme,proto3" json:"theme,omitempty"`
+	Status             string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	DateFrom           string                 `protobuf:"bytes,6,opt,name=date_from,json=dateFrom,proto3" json:"date_from,omitempty"`
+	DateTo             string                 `protobuf:"bytes,7,opt,name=date_to,json=dateTo,proto3" json:"date_to,omitempty"`
+	IdentificationMode string                 `protobuf:"bytes,8,opt,name=identification_mode,json=identificationMode,proto3" json:"identification_mode,omitempty"`
+	PricingModel       string                 `protobuf:"bytes,9,opt,name=pricing_model,json=pricingModel,proto3" json:"pricing_model,omitempty"`
+	SlotCount          int32                  `protobuf:"varint,10,opt,name=slot_count,json=slotCount,proto3" json:"slot_count,omitempty"`
+	Discount           int32                  `protobuf:"varint,11,opt,name=discount,proto3" json:"discount,omitempty"`
+	StopFactors        []string               `protobuf:"bytes,12,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
+	Segments           []*SegmentWithOrder    `protobuf:"bytes,13,rep,name=segments,proto3" json:"segments,omitempty"`
+	FixedPrices        map[int32]int64        `protobuf:"bytes,14,rep,name=fixed_prices,json=fixedPrices,proto3" json:"fixed_prices,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // position -> price
+	Poll               *PromotionPoll         `protobuf:"bytes,15,opt,name=poll,proto3" json:"poll,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *SinglePromotion) Reset() {
+	*x = SinglePromotion{}
+	mi := &file_admin_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SinglePromotion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SinglePromotion) ProtoMessage() {}
+
+func (x *SinglePromotion) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SinglePromotion.ProtoReflect.Descriptor instead.
+func (*SinglePromotion) Descriptor() ([]byte, []int) {
+	return file_admin_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SinglePromotion) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *GetPromotionResponse) GetName() string {
+func (x *SinglePromotion) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetDescription() string {
+func (x *SinglePromotion) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetTheme() string {
+func (x *SinglePromotion) GetTheme() string {
 	if x != nil {
 		return x.Theme
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetStatus() string {
+func (x *SinglePromotion) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetDateFrom() string {
+func (x *SinglePromotion) GetDateFrom() string {
 	if x != nil {
 		return x.DateFrom
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetDateTo() string {
+func (x *SinglePromotion) GetDateTo() string {
 	if x != nil {
 		return x.DateTo
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetIdentificationMode() string {
+func (x *SinglePromotion) GetIdentificationMode() string {
 	if x != nil {
 		return x.IdentificationMode
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetPricingModel() string {
+func (x *SinglePromotion) GetPricingModel() string {
 	if x != nil {
 		return x.PricingModel
 	}
 	return ""
 }
 
-func (x *GetPromotionResponse) GetSlotCount() int32 {
+func (x *SinglePromotion) GetSlotCount() int32 {
 	if x != nil {
 		return x.SlotCount
 	}
 	return 0
 }
 
-func (x *GetPromotionResponse) GetDiscount() int32 {
+func (x *SinglePromotion) GetDiscount() int32 {
 	if x != nil {
 		return x.Discount
 	}
 	return 0
 }
 
-func (x *GetPromotionResponse) GetStopFactors() []string {
+func (x *SinglePromotion) GetStopFactors() []string {
 	if x != nil {
 		return x.StopFactors
 	}
 	return nil
 }
 
-func (x *GetPromotionResponse) GetSegments() []*SegmentWithOrder {
+func (x *SinglePromotion) GetSegments() []*SegmentWithOrder {
 	if x != nil {
 		return x.Segments
 	}
 	return nil
 }
 
-func (x *GetPromotionResponse) GetFixedPrices() map[int32]int64 {
+func (x *SinglePromotion) GetFixedPrices() map[int32]int64 {
 	if x != nil {
 		return x.FixedPrices
 	}
 	return nil
 }
 
-func (x *GetPromotionResponse) GetPoll() *PromotionPoll {
+func (x *SinglePromotion) GetPoll() *PromotionPoll {
 	if x != nil {
 		return x.Poll
 	}
@@ -407,7 +443,7 @@ type SegmentWithOrder struct {
 
 func (x *SegmentWithOrder) Reset() {
 	*x = SegmentWithOrder{}
-	mi := &file_admin_proto_msgTypes[4]
+	mi := &file_admin_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -419,7 +455,7 @@ func (x *SegmentWithOrder) String() string {
 func (*SegmentWithOrder) ProtoMessage() {}
 
 func (x *SegmentWithOrder) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[4]
+	mi := &file_admin_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -432,7 +468,7 @@ func (x *SegmentWithOrder) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SegmentWithOrder.ProtoReflect.Descriptor instead.
 func (*SegmentWithOrder) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{4}
+	return file_admin_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SegmentWithOrder) GetId() int64 {
@@ -473,7 +509,7 @@ type PromotionPoll struct {
 
 func (x *PromotionPoll) Reset() {
 	*x = PromotionPoll{}
-	mi := &file_admin_proto_msgTypes[5]
+	mi := &file_admin_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -485,7 +521,7 @@ func (x *PromotionPoll) String() string {
 func (*PromotionPoll) ProtoMessage() {}
 
 func (x *PromotionPoll) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[5]
+	mi := &file_admin_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -498,7 +534,7 @@ func (x *PromotionPoll) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromotionPoll.ProtoReflect.Descriptor instead.
 func (*PromotionPoll) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{5}
+	return file_admin_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PromotionPoll) GetQuestions() []*PollQuestionAdmin {
@@ -526,7 +562,7 @@ type PollQuestionAdmin struct {
 
 func (x *PollQuestionAdmin) Reset() {
 	*x = PollQuestionAdmin{}
-	mi := &file_admin_proto_msgTypes[6]
+	mi := &file_admin_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +574,7 @@ func (x *PollQuestionAdmin) String() string {
 func (*PollQuestionAdmin) ProtoMessage() {}
 
 func (x *PollQuestionAdmin) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[6]
+	mi := &file_admin_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +587,7 @@ func (x *PollQuestionAdmin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollQuestionAdmin.ProtoReflect.Descriptor instead.
 func (*PollQuestionAdmin) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{6}
+	return file_admin_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PollQuestionAdmin) GetId() int64 {
@@ -586,7 +622,7 @@ type PollOptionAdmin struct {
 
 func (x *PollOptionAdmin) Reset() {
 	*x = PollOptionAdmin{}
-	mi := &file_admin_proto_msgTypes[7]
+	mi := &file_admin_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +634,7 @@ func (x *PollOptionAdmin) String() string {
 func (*PollOptionAdmin) ProtoMessage() {}
 
 func (x *PollOptionAdmin) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[7]
+	mi := &file_admin_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +647,7 @@ func (x *PollOptionAdmin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollOptionAdmin.ProtoReflect.Descriptor instead.
 func (*PollOptionAdmin) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{7}
+	return file_admin_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *PollOptionAdmin) GetId() int64 {
@@ -647,7 +683,7 @@ type AnswerTreeNode struct {
 
 func (x *AnswerTreeNode) Reset() {
 	*x = AnswerTreeNode{}
-	mi := &file_admin_proto_msgTypes[8]
+	mi := &file_admin_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +695,7 @@ func (x *AnswerTreeNode) String() string {
 func (*AnswerTreeNode) ProtoMessage() {}
 
 func (x *AnswerTreeNode) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[8]
+	mi := &file_admin_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +708,7 @@ func (x *AnswerTreeNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnswerTreeNode.ProtoReflect.Descriptor instead.
 func (*AnswerTreeNode) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{8}
+	return file_admin_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AnswerTreeNode) GetNodeId() string {
@@ -723,7 +759,7 @@ type UpdatePromotionRequest struct {
 
 func (x *UpdatePromotionRequest) Reset() {
 	*x = UpdatePromotionRequest{}
-	mi := &file_admin_proto_msgTypes[9]
+	mi := &file_admin_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -735,7 +771,7 @@ func (x *UpdatePromotionRequest) String() string {
 func (*UpdatePromotionRequest) ProtoMessage() {}
 
 func (x *UpdatePromotionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[9]
+	mi := &file_admin_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -748,7 +784,7 @@ func (x *UpdatePromotionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePromotionRequest.ProtoReflect.Descriptor instead.
 func (*UpdatePromotionRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{9}
+	return file_admin_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdatePromotionRequest) GetId() int64 {
@@ -836,7 +872,7 @@ type UpdatePromotionResponse struct {
 
 func (x *UpdatePromotionResponse) Reset() {
 	*x = UpdatePromotionResponse{}
-	mi := &file_admin_proto_msgTypes[10]
+	mi := &file_admin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -848,7 +884,7 @@ func (x *UpdatePromotionResponse) String() string {
 func (*UpdatePromotionResponse) ProtoMessage() {}
 
 func (x *UpdatePromotionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[10]
+	mi := &file_admin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -861,7 +897,7 @@ func (x *UpdatePromotionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePromotionResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePromotionResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{10}
+	return file_admin_proto_rawDescGZIP(), []int{11}
 }
 
 // DELETE /admin/promotions/{id}
@@ -874,7 +910,7 @@ type DeletePromotionRequest struct {
 
 func (x *DeletePromotionRequest) Reset() {
 	*x = DeletePromotionRequest{}
-	mi := &file_admin_proto_msgTypes[11]
+	mi := &file_admin_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -886,7 +922,7 @@ func (x *DeletePromotionRequest) String() string {
 func (*DeletePromotionRequest) ProtoMessage() {}
 
 func (x *DeletePromotionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[11]
+	mi := &file_admin_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -899,7 +935,7 @@ func (x *DeletePromotionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePromotionRequest.ProtoReflect.Descriptor instead.
 func (*DeletePromotionRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{11}
+	return file_admin_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeletePromotionRequest) GetId() int64 {
@@ -917,7 +953,7 @@ type DeletePromotionResponse struct {
 
 func (x *DeletePromotionResponse) Reset() {
 	*x = DeletePromotionResponse{}
-	mi := &file_admin_proto_msgTypes[12]
+	mi := &file_admin_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -929,7 +965,7 @@ func (x *DeletePromotionResponse) String() string {
 func (*DeletePromotionResponse) ProtoMessage() {}
 
 func (x *DeletePromotionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[12]
+	mi := &file_admin_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -942,7 +978,7 @@ func (x *DeletePromotionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePromotionResponse.ProtoReflect.Descriptor instead.
 func (*DeletePromotionResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{12}
+	return file_admin_proto_rawDescGZIP(), []int{13}
 }
 
 // PUT /admin/promotions/{id}/fixed-prices
@@ -956,7 +992,7 @@ type SetFixedPricesRequest struct {
 
 func (x *SetFixedPricesRequest) Reset() {
 	*x = SetFixedPricesRequest{}
-	mi := &file_admin_proto_msgTypes[13]
+	mi := &file_admin_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -968,7 +1004,7 @@ func (x *SetFixedPricesRequest) String() string {
 func (*SetFixedPricesRequest) ProtoMessage() {}
 
 func (x *SetFixedPricesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[13]
+	mi := &file_admin_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -981,7 +1017,7 @@ func (x *SetFixedPricesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFixedPricesRequest.ProtoReflect.Descriptor instead.
 func (*SetFixedPricesRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{13}
+	return file_admin_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SetFixedPricesRequest) GetPromotionId() int64 {
@@ -1008,7 +1044,7 @@ type FixedPriceEntry struct {
 
 func (x *FixedPriceEntry) Reset() {
 	*x = FixedPriceEntry{}
-	mi := &file_admin_proto_msgTypes[14]
+	mi := &file_admin_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1020,7 +1056,7 @@ func (x *FixedPriceEntry) String() string {
 func (*FixedPriceEntry) ProtoMessage() {}
 
 func (x *FixedPriceEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[14]
+	mi := &file_admin_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1033,7 +1069,7 @@ func (x *FixedPriceEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FixedPriceEntry.ProtoReflect.Descriptor instead.
 func (*FixedPriceEntry) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{14}
+	return file_admin_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *FixedPriceEntry) GetPosition() int32 {
@@ -1058,7 +1094,7 @@ type SetFixedPricesResponse struct {
 
 func (x *SetFixedPricesResponse) Reset() {
 	*x = SetFixedPricesResponse{}
-	mi := &file_admin_proto_msgTypes[15]
+	mi := &file_admin_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1070,7 +1106,7 @@ func (x *SetFixedPricesResponse) String() string {
 func (*SetFixedPricesResponse) ProtoMessage() {}
 
 func (x *SetFixedPricesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[15]
+	mi := &file_admin_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1083,7 +1119,7 @@ func (x *SetFixedPricesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFixedPricesResponse.ProtoReflect.Descriptor instead.
 func (*SetFixedPricesResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{15}
+	return file_admin_proto_rawDescGZIP(), []int{16}
 }
 
 // PUT /admin/promotions/{id}/status
@@ -1097,7 +1133,7 @@ type ChangeStatusRequest struct {
 
 func (x *ChangeStatusRequest) Reset() {
 	*x = ChangeStatusRequest{}
-	mi := &file_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1109,7 +1145,7 @@ func (x *ChangeStatusRequest) String() string {
 func (*ChangeStatusRequest) ProtoMessage() {}
 
 func (x *ChangeStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[16]
+	mi := &file_admin_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1122,7 +1158,7 @@ func (x *ChangeStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeStatusRequest.ProtoReflect.Descriptor instead.
 func (*ChangeStatusRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{16}
+	return file_admin_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ChangeStatusRequest) GetPromotionId() int64 {
@@ -1147,7 +1183,7 @@ type ChangeStatusResponse struct {
 
 func (x *ChangeStatusResponse) Reset() {
 	*x = ChangeStatusResponse{}
-	mi := &file_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1159,7 +1195,7 @@ func (x *ChangeStatusResponse) String() string {
 func (*ChangeStatusResponse) ProtoMessage() {}
 
 func (x *ChangeStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[17]
+	mi := &file_admin_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1172,7 +1208,7 @@ func (x *ChangeStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeStatusResponse.ProtoReflect.Descriptor instead.
 func (*ChangeStatusResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{17}
+	return file_admin_proto_rawDescGZIP(), []int{18}
 }
 
 // POST /horoscope/products — ручная установка товара в слот
@@ -1187,7 +1223,7 @@ type SetSlotProductRequest struct {
 
 func (x *SetSlotProductRequest) Reset() {
 	*x = SetSlotProductRequest{}
-	mi := &file_admin_proto_msgTypes[18]
+	mi := &file_admin_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1199,7 +1235,7 @@ func (x *SetSlotProductRequest) String() string {
 func (*SetSlotProductRequest) ProtoMessage() {}
 
 func (x *SetSlotProductRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[18]
+	mi := &file_admin_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1212,7 +1248,7 @@ func (x *SetSlotProductRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetSlotProductRequest.ProtoReflect.Descriptor instead.
 func (*SetSlotProductRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{18}
+	return file_admin_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SetSlotProductRequest) GetSegmentId() int64 {
@@ -1244,7 +1280,7 @@ type SetSlotProductResponse struct {
 
 func (x *SetSlotProductResponse) Reset() {
 	*x = SetSlotProductResponse{}
-	mi := &file_admin_proto_msgTypes[19]
+	mi := &file_admin_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1256,7 +1292,7 @@ func (x *SetSlotProductResponse) String() string {
 func (*SetSlotProductResponse) ProtoMessage() {}
 
 func (x *SetSlotProductResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[19]
+	mi := &file_admin_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1269,7 +1305,7 @@ func (x *SetSlotProductResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetSlotProductResponse.ProtoReflect.Descriptor instead.
 func (*SetSlotProductResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{19}
+	return file_admin_proto_rawDescGZIP(), []int{20}
 }
 
 // --- Segment Admin ---
@@ -1285,7 +1321,7 @@ type GenerateSegmentsRequest struct {
 
 func (x *GenerateSegmentsRequest) Reset() {
 	*x = GenerateSegmentsRequest{}
-	mi := &file_admin_proto_msgTypes[20]
+	mi := &file_admin_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1297,7 +1333,7 @@ func (x *GenerateSegmentsRequest) String() string {
 func (*GenerateSegmentsRequest) ProtoMessage() {}
 
 func (x *GenerateSegmentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[20]
+	mi := &file_admin_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1346,7 @@ func (x *GenerateSegmentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateSegmentsRequest.ProtoReflect.Descriptor instead.
 func (*GenerateSegmentsRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{20}
+	return file_admin_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GenerateSegmentsRequest) GetPromotionId() int64 {
@@ -1343,7 +1379,7 @@ type GenerateSegmentsResponse struct {
 
 func (x *GenerateSegmentsResponse) Reset() {
 	*x = GenerateSegmentsResponse{}
-	mi := &file_admin_proto_msgTypes[21]
+	mi := &file_admin_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1391,7 @@ func (x *GenerateSegmentsResponse) String() string {
 func (*GenerateSegmentsResponse) ProtoMessage() {}
 
 func (x *GenerateSegmentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[21]
+	mi := &file_admin_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1404,7 @@ func (x *GenerateSegmentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateSegmentsResponse.ProtoReflect.Descriptor instead.
 func (*GenerateSegmentsResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{21}
+	return file_admin_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GenerateSegmentsResponse) GetSegments() []*common.Segment {
@@ -1391,7 +1427,7 @@ type CreateSegmentRequest struct {
 
 func (x *CreateSegmentRequest) Reset() {
 	*x = CreateSegmentRequest{}
-	mi := &file_admin_proto_msgTypes[22]
+	mi := &file_admin_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1403,7 +1439,7 @@ func (x *CreateSegmentRequest) String() string {
 func (*CreateSegmentRequest) ProtoMessage() {}
 
 func (x *CreateSegmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[22]
+	mi := &file_admin_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1416,7 +1452,7 @@ func (x *CreateSegmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSegmentRequest.ProtoReflect.Descriptor instead.
 func (*CreateSegmentRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{22}
+	return file_admin_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CreateSegmentRequest) GetPromotionId() int64 {
@@ -1458,7 +1494,7 @@ type CreateSegmentResponse struct {
 
 func (x *CreateSegmentResponse) Reset() {
 	*x = CreateSegmentResponse{}
-	mi := &file_admin_proto_msgTypes[23]
+	mi := &file_admin_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1470,7 +1506,7 @@ func (x *CreateSegmentResponse) String() string {
 func (*CreateSegmentResponse) ProtoMessage() {}
 
 func (x *CreateSegmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[23]
+	mi := &file_admin_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1483,7 +1519,7 @@ func (x *CreateSegmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSegmentResponse.ProtoReflect.Descriptor instead.
 func (*CreateSegmentResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{23}
+	return file_admin_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CreateSegmentResponse) GetId() int64 {
@@ -1521,7 +1557,7 @@ type UpdateSegmentRequest struct {
 
 func (x *UpdateSegmentRequest) Reset() {
 	*x = UpdateSegmentRequest{}
-	mi := &file_admin_proto_msgTypes[24]
+	mi := &file_admin_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1533,7 +1569,7 @@ func (x *UpdateSegmentRequest) String() string {
 func (*UpdateSegmentRequest) ProtoMessage() {}
 
 func (x *UpdateSegmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[24]
+	mi := &file_admin_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1546,7 +1582,7 @@ func (x *UpdateSegmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSegmentRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSegmentRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{24}
+	return file_admin_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UpdateSegmentRequest) GetPromotionId() int64 {
@@ -1592,7 +1628,7 @@ type UpdateSegmentResponse struct {
 
 func (x *UpdateSegmentResponse) Reset() {
 	*x = UpdateSegmentResponse{}
-	mi := &file_admin_proto_msgTypes[25]
+	mi := &file_admin_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1604,7 +1640,7 @@ func (x *UpdateSegmentResponse) String() string {
 func (*UpdateSegmentResponse) ProtoMessage() {}
 
 func (x *UpdateSegmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[25]
+	mi := &file_admin_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1617,7 +1653,7 @@ func (x *UpdateSegmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSegmentResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSegmentResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{25}
+	return file_admin_proto_rawDescGZIP(), []int{26}
 }
 
 // DELETE /admin/promotions/{id}/segments/{segmentId}
@@ -1631,7 +1667,7 @@ type DeleteSegmentRequest struct {
 
 func (x *DeleteSegmentRequest) Reset() {
 	*x = DeleteSegmentRequest{}
-	mi := &file_admin_proto_msgTypes[26]
+	mi := &file_admin_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1643,7 +1679,7 @@ func (x *DeleteSegmentRequest) String() string {
 func (*DeleteSegmentRequest) ProtoMessage() {}
 
 func (x *DeleteSegmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[26]
+	mi := &file_admin_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1656,7 +1692,7 @@ func (x *DeleteSegmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSegmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSegmentRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{26}
+	return file_admin_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *DeleteSegmentRequest) GetPromotionId() int64 {
@@ -1681,7 +1717,7 @@ type DeleteSegmentResponse struct {
 
 func (x *DeleteSegmentResponse) Reset() {
 	*x = DeleteSegmentResponse{}
-	mi := &file_admin_proto_msgTypes[27]
+	mi := &file_admin_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1693,7 +1729,7 @@ func (x *DeleteSegmentResponse) String() string {
 func (*DeleteSegmentResponse) ProtoMessage() {}
 
 func (x *DeleteSegmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[27]
+	mi := &file_admin_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1706,7 +1742,7 @@ func (x *DeleteSegmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSegmentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSegmentResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{27}
+	return file_admin_proto_rawDescGZIP(), []int{28}
 }
 
 // POST /admin/promotions/{id}/segments/shuffle-categories
@@ -1719,7 +1755,7 @@ type ShuffleSegmentCategoriesRequest struct {
 
 func (x *ShuffleSegmentCategoriesRequest) Reset() {
 	*x = ShuffleSegmentCategoriesRequest{}
-	mi := &file_admin_proto_msgTypes[28]
+	mi := &file_admin_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1731,7 +1767,7 @@ func (x *ShuffleSegmentCategoriesRequest) String() string {
 func (*ShuffleSegmentCategoriesRequest) ProtoMessage() {}
 
 func (x *ShuffleSegmentCategoriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[28]
+	mi := &file_admin_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1744,7 +1780,7 @@ func (x *ShuffleSegmentCategoriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShuffleSegmentCategoriesRequest.ProtoReflect.Descriptor instead.
 func (*ShuffleSegmentCategoriesRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{28}
+	return file_admin_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ShuffleSegmentCategoriesRequest) GetPromotionId() int64 {
@@ -1762,7 +1798,7 @@ type ShuffleSegmentCategoriesResponse struct {
 
 func (x *ShuffleSegmentCategoriesResponse) Reset() {
 	*x = ShuffleSegmentCategoriesResponse{}
-	mi := &file_admin_proto_msgTypes[29]
+	mi := &file_admin_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1774,7 +1810,7 @@ func (x *ShuffleSegmentCategoriesResponse) String() string {
 func (*ShuffleSegmentCategoriesResponse) ProtoMessage() {}
 
 func (x *ShuffleSegmentCategoriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[29]
+	mi := &file_admin_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1787,7 +1823,7 @@ func (x *ShuffleSegmentCategoriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShuffleSegmentCategoriesResponse.ProtoReflect.Descriptor instead.
 func (*ShuffleSegmentCategoriesResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{29}
+	return file_admin_proto_rawDescGZIP(), []int{30}
 }
 
 // --- Poll Admin ---
@@ -1802,7 +1838,7 @@ type GeneratePollRequest struct {
 
 func (x *GeneratePollRequest) Reset() {
 	*x = GeneratePollRequest{}
-	mi := &file_admin_proto_msgTypes[30]
+	mi := &file_admin_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1814,7 +1850,7 @@ func (x *GeneratePollRequest) String() string {
 func (*GeneratePollRequest) ProtoMessage() {}
 
 func (x *GeneratePollRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[30]
+	mi := &file_admin_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +1863,7 @@ func (x *GeneratePollRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeneratePollRequest.ProtoReflect.Descriptor instead.
 func (*GeneratePollRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{30}
+	return file_admin_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GeneratePollRequest) GetPromotionId() int64 {
@@ -1854,7 +1890,7 @@ type GeneratePollResponse struct {
 
 func (x *GeneratePollResponse) Reset() {
 	*x = GeneratePollResponse{}
-	mi := &file_admin_proto_msgTypes[31]
+	mi := &file_admin_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1866,7 +1902,7 @@ func (x *GeneratePollResponse) String() string {
 func (*GeneratePollResponse) ProtoMessage() {}
 
 func (x *GeneratePollResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[31]
+	mi := &file_admin_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1879,7 +1915,7 @@ func (x *GeneratePollResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeneratePollResponse.ProtoReflect.Descriptor instead.
 func (*GeneratePollResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{31}
+	return file_admin_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GeneratePollResponse) GetQuestions() []*PollQuestionAdmin {
@@ -1907,7 +1943,7 @@ type SetPollQuestionsRequest struct {
 
 func (x *SetPollQuestionsRequest) Reset() {
 	*x = SetPollQuestionsRequest{}
-	mi := &file_admin_proto_msgTypes[32]
+	mi := &file_admin_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1919,7 +1955,7 @@ func (x *SetPollQuestionsRequest) String() string {
 func (*SetPollQuestionsRequest) ProtoMessage() {}
 
 func (x *SetPollQuestionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[32]
+	mi := &file_admin_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1932,7 +1968,7 @@ func (x *SetPollQuestionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPollQuestionsRequest.ProtoReflect.Descriptor instead.
 func (*SetPollQuestionsRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{32}
+	return file_admin_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SetPollQuestionsRequest) GetPromotionId() int64 {
@@ -1959,7 +1995,7 @@ type SetQuestionInput struct {
 
 func (x *SetQuestionInput) Reset() {
 	*x = SetQuestionInput{}
-	mi := &file_admin_proto_msgTypes[33]
+	mi := &file_admin_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1971,7 +2007,7 @@ func (x *SetQuestionInput) String() string {
 func (*SetQuestionInput) ProtoMessage() {}
 
 func (x *SetQuestionInput) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[33]
+	mi := &file_admin_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1984,7 +2020,7 @@ func (x *SetQuestionInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetQuestionInput.ProtoReflect.Descriptor instead.
 func (*SetQuestionInput) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{33}
+	return file_admin_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SetQuestionInput) GetText() string {
@@ -2011,7 +2047,7 @@ type SetOptionInput struct {
 
 func (x *SetOptionInput) Reset() {
 	*x = SetOptionInput{}
-	mi := &file_admin_proto_msgTypes[34]
+	mi := &file_admin_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2023,7 +2059,7 @@ func (x *SetOptionInput) String() string {
 func (*SetOptionInput) ProtoMessage() {}
 
 func (x *SetOptionInput) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[34]
+	mi := &file_admin_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2036,7 +2072,7 @@ func (x *SetOptionInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetOptionInput.ProtoReflect.Descriptor instead.
 func (*SetOptionInput) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{34}
+	return file_admin_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SetOptionInput) GetText() string {
@@ -2061,7 +2097,7 @@ type SetPollQuestionsResponse struct {
 
 func (x *SetPollQuestionsResponse) Reset() {
 	*x = SetPollQuestionsResponse{}
-	mi := &file_admin_proto_msgTypes[35]
+	mi := &file_admin_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2073,7 +2109,7 @@ func (x *SetPollQuestionsResponse) String() string {
 func (*SetPollQuestionsResponse) ProtoMessage() {}
 
 func (x *SetPollQuestionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[35]
+	mi := &file_admin_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2086,7 +2122,7 @@ func (x *SetPollQuestionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPollQuestionsResponse.ProtoReflect.Descriptor instead.
 func (*SetPollQuestionsResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{35}
+	return file_admin_proto_rawDescGZIP(), []int{36}
 }
 
 // POST /admin/promotions/{id}/poll/answer-tree
@@ -2100,7 +2136,7 @@ type SetAnswerTreeRequest struct {
 
 func (x *SetAnswerTreeRequest) Reset() {
 	*x = SetAnswerTreeRequest{}
-	mi := &file_admin_proto_msgTypes[36]
+	mi := &file_admin_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2112,7 +2148,7 @@ func (x *SetAnswerTreeRequest) String() string {
 func (*SetAnswerTreeRequest) ProtoMessage() {}
 
 func (x *SetAnswerTreeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[36]
+	mi := &file_admin_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2125,7 +2161,7 @@ func (x *SetAnswerTreeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAnswerTreeRequest.ProtoReflect.Descriptor instead.
 func (*SetAnswerTreeRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{36}
+	return file_admin_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *SetAnswerTreeRequest) GetPromotionId() int64 {
@@ -2150,7 +2186,7 @@ type SetAnswerTreeResponse struct {
 
 func (x *SetAnswerTreeResponse) Reset() {
 	*x = SetAnswerTreeResponse{}
-	mi := &file_admin_proto_msgTypes[37]
+	mi := &file_admin_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2162,7 +2198,7 @@ func (x *SetAnswerTreeResponse) String() string {
 func (*SetAnswerTreeResponse) ProtoMessage() {}
 
 func (x *SetAnswerTreeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[37]
+	mi := &file_admin_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2175,7 +2211,7 @@ func (x *SetAnswerTreeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAnswerTreeResponse.ProtoReflect.Descriptor instead.
 func (*SetAnswerTreeResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{37}
+	return file_admin_proto_rawDescGZIP(), []int{38}
 }
 
 // --- Moderation ---
@@ -2190,7 +2226,7 @@ type GetModerationApplicationsRequest struct {
 
 func (x *GetModerationApplicationsRequest) Reset() {
 	*x = GetModerationApplicationsRequest{}
-	mi := &file_admin_proto_msgTypes[38]
+	mi := &file_admin_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2202,7 +2238,7 @@ func (x *GetModerationApplicationsRequest) String() string {
 func (*GetModerationApplicationsRequest) ProtoMessage() {}
 
 func (x *GetModerationApplicationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[38]
+	mi := &file_admin_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2215,7 +2251,7 @@ func (x *GetModerationApplicationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModerationApplicationsRequest.ProtoReflect.Descriptor instead.
 func (*GetModerationApplicationsRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{38}
+	return file_admin_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetModerationApplicationsRequest) GetPromotionId() int64 {
@@ -2249,7 +2285,7 @@ type ModerationApplication struct {
 
 func (x *ModerationApplication) Reset() {
 	*x = ModerationApplication{}
-	mi := &file_admin_proto_msgTypes[39]
+	mi := &file_admin_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2261,7 +2297,7 @@ func (x *ModerationApplication) String() string {
 func (*ModerationApplication) ProtoMessage() {}
 
 func (x *ModerationApplication) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[39]
+	mi := &file_admin_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2274,7 +2310,7 @@ func (x *ModerationApplication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModerationApplication.ProtoReflect.Descriptor instead.
 func (*ModerationApplication) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{39}
+	return file_admin_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ModerationApplication) GetId() int64 {
@@ -2349,7 +2385,7 @@ type GetModerationApplicationsResponse struct {
 
 func (x *GetModerationApplicationsResponse) Reset() {
 	*x = GetModerationApplicationsResponse{}
-	mi := &file_admin_proto_msgTypes[40]
+	mi := &file_admin_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2361,7 +2397,7 @@ func (x *GetModerationApplicationsResponse) String() string {
 func (*GetModerationApplicationsResponse) ProtoMessage() {}
 
 func (x *GetModerationApplicationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[40]
+	mi := &file_admin_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2374,7 +2410,7 @@ func (x *GetModerationApplicationsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetModerationApplicationsResponse.ProtoReflect.Descriptor instead.
 func (*GetModerationApplicationsResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{40}
+	return file_admin_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GetModerationApplicationsResponse) GetApplications() []*ModerationApplication {
@@ -2394,7 +2430,7 @@ type ApproveModerationRequest struct {
 
 func (x *ApproveModerationRequest) Reset() {
 	*x = ApproveModerationRequest{}
-	mi := &file_admin_proto_msgTypes[41]
+	mi := &file_admin_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2406,7 +2442,7 @@ func (x *ApproveModerationRequest) String() string {
 func (*ApproveModerationRequest) ProtoMessage() {}
 
 func (x *ApproveModerationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[41]
+	mi := &file_admin_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2419,7 +2455,7 @@ func (x *ApproveModerationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApproveModerationRequest.ProtoReflect.Descriptor instead.
 func (*ApproveModerationRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{41}
+	return file_admin_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ApproveModerationRequest) GetApplicationId() int64 {
@@ -2437,7 +2473,7 @@ type ApproveModerationResponse struct {
 
 func (x *ApproveModerationResponse) Reset() {
 	*x = ApproveModerationResponse{}
-	mi := &file_admin_proto_msgTypes[42]
+	mi := &file_admin_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2449,7 +2485,7 @@ func (x *ApproveModerationResponse) String() string {
 func (*ApproveModerationResponse) ProtoMessage() {}
 
 func (x *ApproveModerationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[42]
+	mi := &file_admin_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2462,7 +2498,7 @@ func (x *ApproveModerationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApproveModerationResponse.ProtoReflect.Descriptor instead.
 func (*ApproveModerationResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{42}
+	return file_admin_proto_rawDescGZIP(), []int{43}
 }
 
 // POST /admin/moderation/{applicationId}/reject
@@ -2476,7 +2512,7 @@ type RejectModerationRequest struct {
 
 func (x *RejectModerationRequest) Reset() {
 	*x = RejectModerationRequest{}
-	mi := &file_admin_proto_msgTypes[43]
+	mi := &file_admin_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2488,7 +2524,7 @@ func (x *RejectModerationRequest) String() string {
 func (*RejectModerationRequest) ProtoMessage() {}
 
 func (x *RejectModerationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[43]
+	mi := &file_admin_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2501,7 +2537,7 @@ func (x *RejectModerationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RejectModerationRequest.ProtoReflect.Descriptor instead.
 func (*RejectModerationRequest) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{43}
+	return file_admin_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *RejectModerationRequest) GetApplicationId() int64 {
@@ -2526,7 +2562,7 @@ type RejectModerationResponse struct {
 
 func (x *RejectModerationResponse) Reset() {
 	*x = RejectModerationResponse{}
-	mi := &file_admin_proto_msgTypes[44]
+	mi := &file_admin_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2538,7 +2574,7 @@ func (x *RejectModerationResponse) String() string {
 func (*RejectModerationResponse) ProtoMessage() {}
 
 func (x *RejectModerationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_proto_msgTypes[44]
+	mi := &file_admin_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2551,7 +2587,7 @@ func (x *RejectModerationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RejectModerationResponse.ProtoReflect.Descriptor instead.
 func (*RejectModerationResponse) Descriptor() ([]byte, []int) {
-	return file_admin_proto_rawDescGZIP(), []int{44}
+	return file_admin_proto_rawDescGZIP(), []int{45}
 }
 
 var File_admin_proto protoreflect.FileDescriptor
@@ -2574,10 +2610,13 @@ const file_admin_proto_rawDesc = "" +
 	" \x03(\tR\vstopFactors\"A\n" +
 	"\x17CreatePromotionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\"%\n" +
-	"\x13GetPromotionRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"\x88\x05\n" +
-	"\x14GetPromotionResponse\x12\x0e\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"\x15\n" +
+	"\x13GetPromotionRequest\"Z\n" +
+	"\x14GetPromotionResponse\x12B\n" +
+	"\n" +
+	"promotions\x18\x01 \x03(\v2\".wildberries.admin.SinglePromotionR\n" +
+	"promotions\"\xfe\x04\n" +
+	"\x0fSinglePromotion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
@@ -2592,8 +2631,8 @@ const file_admin_proto_rawDesc = "" +
 	" \x01(\x05R\tslotCount\x12\x1a\n" +
 	"\bdiscount\x18\v \x01(\x05R\bdiscount\x12!\n" +
 	"\fstop_factors\x18\f \x03(\tR\vstopFactors\x12?\n" +
-	"\bsegments\x18\r \x03(\v2#.wildberries.admin.SegmentWithOrderR\bsegments\x12[\n" +
-	"\ffixed_prices\x18\x0e \x03(\v28.wildberries.admin.GetPromotionResponse.FixedPricesEntryR\vfixedPrices\x124\n" +
+	"\bsegments\x18\r \x03(\v2#.wildberries.admin.SegmentWithOrderR\bsegments\x12V\n" +
+	"\ffixed_prices\x18\x0e \x03(\v23.wildberries.admin.SinglePromotion.FixedPricesEntryR\vfixedPrices\x124\n" +
 	"\x04poll\x18\x0f \x01(\v2 .wildberries.admin.PromotionPollR\x04poll\x1a>\n" +
 	"\x10FixedPricesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
@@ -2747,14 +2786,14 @@ const file_admin_proto_rawDesc = "" +
 	"\x17RejectModerationRequest\x12%\n" +
 	"\x0eapplication_id\x18\x01 \x01(\x03R\rapplicationId\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\"\x1a\n" +
-	"\x18RejectModerationResponse2\xb1\x0f\n" +
+	"\x18RejectModerationResponse2\xa7\x0f\n" +
 	"\x15PromotionAdminService\x12\xa1\x02\n" +
 	"\x0fCreatePromotion\x12).wildberries.admin.CreatePromotionRequest\x1a*.wildberries.admin.CreatePromotionResponse\"\xb6\x01\x92A\x96\x01\n" +
 	"\n" +
-	"Promotions\x12$Создать новую акцию\x1aQСоздает новую акцию с заданными параметрами*\x0fCreatePromotion\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/admin/promotions\x12\x94\x02\n" +
-	"\fGetPromotion\x12&.wildberries.admin.GetPromotionRequest\x1a'.wildberries.admin.GetPromotionResponse\"\xb2\x01\x92A\x90\x01\n" +
+	"Promotions\x12$Создать новую акцию\x1aQСоздает новую акцию с заданными параметрами*\x0fCreatePromotion\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/admin/promotions\x12\x8a\x02\n" +
+	"\rGetPromotions\x12&.wildberries.admin.GetPromotionRequest\x1a'.wildberries.admin.GetPromotionResponse\"\xa7\x01\x92A\x8a\x01\n" +
 	"\n" +
-	"Promotions\x125Получить информацию об акции\x1a=Получает информацию об акции по ID*\fGetPromotion\x82\xd3\xe4\x93\x02\x18\x12\x16/admin/promotions/{id}\x12\xfb\x01\n" +
+	"Promotions\x125Получить информацию об акции\x1a7Получает информацию об акциях*\fGetPromotion\x82\xd3\xe4\x93\x02\x13\x12\x11/admin/promotions\x12\xfb\x01\n" +
 	"\x0fUpdatePromotion\x12).wildberries.admin.UpdatePromotionRequest\x1a*.wildberries.admin.UpdatePromotionResponse\"\x90\x01\x92Al\n" +
 	"\n" +
 	"Promotions\x12\x1bОбновить акцию\x1a0Обновляет параметры акции*\x0fUpdatePromotion\x82\xd3\xe4\x93\x02\x1b:\x01*2\x16/admin/promotions/{id}\x12\xe6\x01\n" +
@@ -2797,8 +2836,8 @@ const file_admin_proto_rawDesc = "" +
 	"Moderation\x12\x1dОдобрить заявку\x1a7Одобрение заявки на модерацию*\aApprove\x82\xd3\xe4\x93\x02/:\x01*\"*/admin/moderation/{application_id}/approve\x12\x8b\x02\n" +
 	"\x06Reject\x12*.wildberries.admin.RejectModerationRequest\x1a+.wildberries.admin.RejectModerationResponse\"\xa7\x01\x92Ap\n" +
 	"\n" +
-	"Moderation\x12\x1fОтклонить заявку\x1a9Отклонение заявки на модерацию*\x06Reject\x82\xd3\xe4\x93\x02.:\x01*\")/admin/moderation/{application_id}/rejectB\xab\x01\x92A\x82\x01\x12I\n" +
-	"\x1fАдминская панель\x12\x1fАдминская панель2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ#wildberries/backend/pkg/admin;adminb\x06proto3"
+	"Moderation\x12\x1fОтклонить заявку\x1a9Отклонение заявки на модерацию*\x06Reject\x82\xd3\xe4\x93\x02.:\x01*\")/admin/moderation/{application_id}/rejectB\xa3\x01\x92A\x82\x01\x12I\n" +
+	"\x1fАдминская панель\x12\x1fАдминская панель2\x051.0.0\x1a\x0elocalhost:8080*\x01\x012\x10application/json:\x10application/jsonZ\x1bwildberries/pkg/admin;adminb\x06proto3"
 
 var (
 	file_admin_proto_rawDescOnce sync.Once
@@ -2812,112 +2851,114 @@ func file_admin_proto_rawDescGZIP() []byte {
 	return file_admin_proto_rawDescData
 }
 
-var file_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_admin_proto_goTypes = []any{
 	(*CreatePromotionRequest)(nil),            // 0: wildberries.admin.CreatePromotionRequest
 	(*CreatePromotionResponse)(nil),           // 1: wildberries.admin.CreatePromotionResponse
 	(*GetPromotionRequest)(nil),               // 2: wildberries.admin.GetPromotionRequest
 	(*GetPromotionResponse)(nil),              // 3: wildberries.admin.GetPromotionResponse
-	(*SegmentWithOrder)(nil),                  // 4: wildberries.admin.SegmentWithOrder
-	(*PromotionPoll)(nil),                     // 5: wildberries.admin.PromotionPoll
-	(*PollQuestionAdmin)(nil),                 // 6: wildberries.admin.PollQuestionAdmin
-	(*PollOptionAdmin)(nil),                   // 7: wildberries.admin.PollOptionAdmin
-	(*AnswerTreeNode)(nil),                    // 8: wildberries.admin.AnswerTreeNode
-	(*UpdatePromotionRequest)(nil),            // 9: wildberries.admin.UpdatePromotionRequest
-	(*UpdatePromotionResponse)(nil),           // 10: wildberries.admin.UpdatePromotionResponse
-	(*DeletePromotionRequest)(nil),            // 11: wildberries.admin.DeletePromotionRequest
-	(*DeletePromotionResponse)(nil),           // 12: wildberries.admin.DeletePromotionResponse
-	(*SetFixedPricesRequest)(nil),             // 13: wildberries.admin.SetFixedPricesRequest
-	(*FixedPriceEntry)(nil),                   // 14: wildberries.admin.FixedPriceEntry
-	(*SetFixedPricesResponse)(nil),            // 15: wildberries.admin.SetFixedPricesResponse
-	(*ChangeStatusRequest)(nil),               // 16: wildberries.admin.ChangeStatusRequest
-	(*ChangeStatusResponse)(nil),              // 17: wildberries.admin.ChangeStatusResponse
-	(*SetSlotProductRequest)(nil),             // 18: wildberries.admin.SetSlotProductRequest
-	(*SetSlotProductResponse)(nil),            // 19: wildberries.admin.SetSlotProductResponse
-	(*GenerateSegmentsRequest)(nil),           // 20: wildberries.admin.GenerateSegmentsRequest
-	(*GenerateSegmentsResponse)(nil),          // 21: wildberries.admin.GenerateSegmentsResponse
-	(*CreateSegmentRequest)(nil),              // 22: wildberries.admin.CreateSegmentRequest
-	(*CreateSegmentResponse)(nil),             // 23: wildberries.admin.CreateSegmentResponse
-	(*UpdateSegmentRequest)(nil),              // 24: wildberries.admin.UpdateSegmentRequest
-	(*UpdateSegmentResponse)(nil),             // 25: wildberries.admin.UpdateSegmentResponse
-	(*DeleteSegmentRequest)(nil),              // 26: wildberries.admin.DeleteSegmentRequest
-	(*DeleteSegmentResponse)(nil),             // 27: wildberries.admin.DeleteSegmentResponse
-	(*ShuffleSegmentCategoriesRequest)(nil),   // 28: wildberries.admin.ShuffleSegmentCategoriesRequest
-	(*ShuffleSegmentCategoriesResponse)(nil),  // 29: wildberries.admin.ShuffleSegmentCategoriesResponse
-	(*GeneratePollRequest)(nil),               // 30: wildberries.admin.GeneratePollRequest
-	(*GeneratePollResponse)(nil),              // 31: wildberries.admin.GeneratePollResponse
-	(*SetPollQuestionsRequest)(nil),           // 32: wildberries.admin.SetPollQuestionsRequest
-	(*SetQuestionInput)(nil),                  // 33: wildberries.admin.SetQuestionInput
-	(*SetOptionInput)(nil),                    // 34: wildberries.admin.SetOptionInput
-	(*SetPollQuestionsResponse)(nil),          // 35: wildberries.admin.SetPollQuestionsResponse
-	(*SetAnswerTreeRequest)(nil),              // 36: wildberries.admin.SetAnswerTreeRequest
-	(*SetAnswerTreeResponse)(nil),             // 37: wildberries.admin.SetAnswerTreeResponse
-	(*GetModerationApplicationsRequest)(nil),  // 38: wildberries.admin.GetModerationApplicationsRequest
-	(*ModerationApplication)(nil),             // 39: wildberries.admin.ModerationApplication
-	(*GetModerationApplicationsResponse)(nil), // 40: wildberries.admin.GetModerationApplicationsResponse
-	(*ApproveModerationRequest)(nil),          // 41: wildberries.admin.ApproveModerationRequest
-	(*ApproveModerationResponse)(nil),         // 42: wildberries.admin.ApproveModerationResponse
-	(*RejectModerationRequest)(nil),           // 43: wildberries.admin.RejectModerationRequest
-	(*RejectModerationResponse)(nil),          // 44: wildberries.admin.RejectModerationResponse
-	nil,                                       // 45: wildberries.admin.GetPromotionResponse.FixedPricesEntry
-	(*common.Segment)(nil),                    // 46: wildberries.common.Segment
+	(*SinglePromotion)(nil),                   // 4: wildberries.admin.SinglePromotion
+	(*SegmentWithOrder)(nil),                  // 5: wildberries.admin.SegmentWithOrder
+	(*PromotionPoll)(nil),                     // 6: wildberries.admin.PromotionPoll
+	(*PollQuestionAdmin)(nil),                 // 7: wildberries.admin.PollQuestionAdmin
+	(*PollOptionAdmin)(nil),                   // 8: wildberries.admin.PollOptionAdmin
+	(*AnswerTreeNode)(nil),                    // 9: wildberries.admin.AnswerTreeNode
+	(*UpdatePromotionRequest)(nil),            // 10: wildberries.admin.UpdatePromotionRequest
+	(*UpdatePromotionResponse)(nil),           // 11: wildberries.admin.UpdatePromotionResponse
+	(*DeletePromotionRequest)(nil),            // 12: wildberries.admin.DeletePromotionRequest
+	(*DeletePromotionResponse)(nil),           // 13: wildberries.admin.DeletePromotionResponse
+	(*SetFixedPricesRequest)(nil),             // 14: wildberries.admin.SetFixedPricesRequest
+	(*FixedPriceEntry)(nil),                   // 15: wildberries.admin.FixedPriceEntry
+	(*SetFixedPricesResponse)(nil),            // 16: wildberries.admin.SetFixedPricesResponse
+	(*ChangeStatusRequest)(nil),               // 17: wildberries.admin.ChangeStatusRequest
+	(*ChangeStatusResponse)(nil),              // 18: wildberries.admin.ChangeStatusResponse
+	(*SetSlotProductRequest)(nil),             // 19: wildberries.admin.SetSlotProductRequest
+	(*SetSlotProductResponse)(nil),            // 20: wildberries.admin.SetSlotProductResponse
+	(*GenerateSegmentsRequest)(nil),           // 21: wildberries.admin.GenerateSegmentsRequest
+	(*GenerateSegmentsResponse)(nil),          // 22: wildberries.admin.GenerateSegmentsResponse
+	(*CreateSegmentRequest)(nil),              // 23: wildberries.admin.CreateSegmentRequest
+	(*CreateSegmentResponse)(nil),             // 24: wildberries.admin.CreateSegmentResponse
+	(*UpdateSegmentRequest)(nil),              // 25: wildberries.admin.UpdateSegmentRequest
+	(*UpdateSegmentResponse)(nil),             // 26: wildberries.admin.UpdateSegmentResponse
+	(*DeleteSegmentRequest)(nil),              // 27: wildberries.admin.DeleteSegmentRequest
+	(*DeleteSegmentResponse)(nil),             // 28: wildberries.admin.DeleteSegmentResponse
+	(*ShuffleSegmentCategoriesRequest)(nil),   // 29: wildberries.admin.ShuffleSegmentCategoriesRequest
+	(*ShuffleSegmentCategoriesResponse)(nil),  // 30: wildberries.admin.ShuffleSegmentCategoriesResponse
+	(*GeneratePollRequest)(nil),               // 31: wildberries.admin.GeneratePollRequest
+	(*GeneratePollResponse)(nil),              // 32: wildberries.admin.GeneratePollResponse
+	(*SetPollQuestionsRequest)(nil),           // 33: wildberries.admin.SetPollQuestionsRequest
+	(*SetQuestionInput)(nil),                  // 34: wildberries.admin.SetQuestionInput
+	(*SetOptionInput)(nil),                    // 35: wildberries.admin.SetOptionInput
+	(*SetPollQuestionsResponse)(nil),          // 36: wildberries.admin.SetPollQuestionsResponse
+	(*SetAnswerTreeRequest)(nil),              // 37: wildberries.admin.SetAnswerTreeRequest
+	(*SetAnswerTreeResponse)(nil),             // 38: wildberries.admin.SetAnswerTreeResponse
+	(*GetModerationApplicationsRequest)(nil),  // 39: wildberries.admin.GetModerationApplicationsRequest
+	(*ModerationApplication)(nil),             // 40: wildberries.admin.ModerationApplication
+	(*GetModerationApplicationsResponse)(nil), // 41: wildberries.admin.GetModerationApplicationsResponse
+	(*ApproveModerationRequest)(nil),          // 42: wildberries.admin.ApproveModerationRequest
+	(*ApproveModerationResponse)(nil),         // 43: wildberries.admin.ApproveModerationResponse
+	(*RejectModerationRequest)(nil),           // 44: wildberries.admin.RejectModerationRequest
+	(*RejectModerationResponse)(nil),          // 45: wildberries.admin.RejectModerationResponse
+	nil,                                       // 46: wildberries.admin.SinglePromotion.FixedPricesEntry
+	(*common.Segment)(nil),                    // 47: wildberries.common.Segment
 }
 var file_admin_proto_depIdxs = []int32{
-	4,  // 0: wildberries.admin.GetPromotionResponse.segments:type_name -> wildberries.admin.SegmentWithOrder
-	45, // 1: wildberries.admin.GetPromotionResponse.fixed_prices:type_name -> wildberries.admin.GetPromotionResponse.FixedPricesEntry
-	5,  // 2: wildberries.admin.GetPromotionResponse.poll:type_name -> wildberries.admin.PromotionPoll
-	6,  // 3: wildberries.admin.PromotionPoll.questions:type_name -> wildberries.admin.PollQuestionAdmin
-	8,  // 4: wildberries.admin.PromotionPoll.answer_tree:type_name -> wildberries.admin.AnswerTreeNode
-	7,  // 5: wildberries.admin.PollQuestionAdmin.options:type_name -> wildberries.admin.PollOptionAdmin
-	14, // 6: wildberries.admin.SetFixedPricesRequest.prices:type_name -> wildberries.admin.FixedPriceEntry
-	46, // 7: wildberries.admin.GenerateSegmentsResponse.segments:type_name -> wildberries.common.Segment
-	6,  // 8: wildberries.admin.GeneratePollResponse.questions:type_name -> wildberries.admin.PollQuestionAdmin
-	8,  // 9: wildberries.admin.GeneratePollResponse.answer_tree:type_name -> wildberries.admin.AnswerTreeNode
-	33, // 10: wildberries.admin.SetPollQuestionsRequest.questions:type_name -> wildberries.admin.SetQuestionInput
-	34, // 11: wildberries.admin.SetQuestionInput.options:type_name -> wildberries.admin.SetOptionInput
-	8,  // 12: wildberries.admin.SetAnswerTreeRequest.nodes:type_name -> wildberries.admin.AnswerTreeNode
-	39, // 13: wildberries.admin.GetModerationApplicationsResponse.applications:type_name -> wildberries.admin.ModerationApplication
-	0,  // 14: wildberries.admin.PromotionAdminService.CreatePromotion:input_type -> wildberries.admin.CreatePromotionRequest
-	2,  // 15: wildberries.admin.PromotionAdminService.GetPromotion:input_type -> wildberries.admin.GetPromotionRequest
-	9,  // 16: wildberries.admin.PromotionAdminService.UpdatePromotion:input_type -> wildberries.admin.UpdatePromotionRequest
-	11, // 17: wildberries.admin.PromotionAdminService.DeletePromotion:input_type -> wildberries.admin.DeletePromotionRequest
-	13, // 18: wildberries.admin.PromotionAdminService.SetFixedPrices:input_type -> wildberries.admin.SetFixedPricesRequest
-	16, // 19: wildberries.admin.PromotionAdminService.ChangeStatus:input_type -> wildberries.admin.ChangeStatusRequest
-	18, // 20: wildberries.admin.PromotionAdminService.SetSlotProduct:input_type -> wildberries.admin.SetSlotProductRequest
-	20, // 21: wildberries.admin.SegmentAdminService.GenerateSegments:input_type -> wildberries.admin.GenerateSegmentsRequest
-	22, // 22: wildberries.admin.SegmentAdminService.CreateSegment:input_type -> wildberries.admin.CreateSegmentRequest
-	24, // 23: wildberries.admin.SegmentAdminService.UpdateSegment:input_type -> wildberries.admin.UpdateSegmentRequest
-	26, // 24: wildberries.admin.SegmentAdminService.DeleteSegment:input_type -> wildberries.admin.DeleteSegmentRequest
-	28, // 25: wildberries.admin.SegmentAdminService.ShuffleSegmentCategories:input_type -> wildberries.admin.ShuffleSegmentCategoriesRequest
-	30, // 26: wildberries.admin.PollAdminService.GeneratePoll:input_type -> wildberries.admin.GeneratePollRequest
-	32, // 27: wildberries.admin.PollAdminService.SetPollQuestions:input_type -> wildberries.admin.SetPollQuestionsRequest
-	36, // 28: wildberries.admin.PollAdminService.SetAnswerTree:input_type -> wildberries.admin.SetAnswerTreeRequest
-	38, // 29: wildberries.admin.ModerationService.GetApplications:input_type -> wildberries.admin.GetModerationApplicationsRequest
-	41, // 30: wildberries.admin.ModerationService.Approve:input_type -> wildberries.admin.ApproveModerationRequest
-	43, // 31: wildberries.admin.ModerationService.Reject:input_type -> wildberries.admin.RejectModerationRequest
-	1,  // 32: wildberries.admin.PromotionAdminService.CreatePromotion:output_type -> wildberries.admin.CreatePromotionResponse
-	3,  // 33: wildberries.admin.PromotionAdminService.GetPromotion:output_type -> wildberries.admin.GetPromotionResponse
-	10, // 34: wildberries.admin.PromotionAdminService.UpdatePromotion:output_type -> wildberries.admin.UpdatePromotionResponse
-	12, // 35: wildberries.admin.PromotionAdminService.DeletePromotion:output_type -> wildberries.admin.DeletePromotionResponse
-	15, // 36: wildberries.admin.PromotionAdminService.SetFixedPrices:output_type -> wildberries.admin.SetFixedPricesResponse
-	17, // 37: wildberries.admin.PromotionAdminService.ChangeStatus:output_type -> wildberries.admin.ChangeStatusResponse
-	19, // 38: wildberries.admin.PromotionAdminService.SetSlotProduct:output_type -> wildberries.admin.SetSlotProductResponse
-	21, // 39: wildberries.admin.SegmentAdminService.GenerateSegments:output_type -> wildberries.admin.GenerateSegmentsResponse
-	23, // 40: wildberries.admin.SegmentAdminService.CreateSegment:output_type -> wildberries.admin.CreateSegmentResponse
-	25, // 41: wildberries.admin.SegmentAdminService.UpdateSegment:output_type -> wildberries.admin.UpdateSegmentResponse
-	27, // 42: wildberries.admin.SegmentAdminService.DeleteSegment:output_type -> wildberries.admin.DeleteSegmentResponse
-	29, // 43: wildberries.admin.SegmentAdminService.ShuffleSegmentCategories:output_type -> wildberries.admin.ShuffleSegmentCategoriesResponse
-	31, // 44: wildberries.admin.PollAdminService.GeneratePoll:output_type -> wildberries.admin.GeneratePollResponse
-	35, // 45: wildberries.admin.PollAdminService.SetPollQuestions:output_type -> wildberries.admin.SetPollQuestionsResponse
-	37, // 46: wildberries.admin.PollAdminService.SetAnswerTree:output_type -> wildberries.admin.SetAnswerTreeResponse
-	40, // 47: wildberries.admin.ModerationService.GetApplications:output_type -> wildberries.admin.GetModerationApplicationsResponse
-	42, // 48: wildberries.admin.ModerationService.Approve:output_type -> wildberries.admin.ApproveModerationResponse
-	44, // 49: wildberries.admin.ModerationService.Reject:output_type -> wildberries.admin.RejectModerationResponse
-	32, // [32:50] is the sub-list for method output_type
-	14, // [14:32] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	4,  // 0: wildberries.admin.GetPromotionResponse.promotions:type_name -> wildberries.admin.SinglePromotion
+	5,  // 1: wildberries.admin.SinglePromotion.segments:type_name -> wildberries.admin.SegmentWithOrder
+	46, // 2: wildberries.admin.SinglePromotion.fixed_prices:type_name -> wildberries.admin.SinglePromotion.FixedPricesEntry
+	6,  // 3: wildberries.admin.SinglePromotion.poll:type_name -> wildberries.admin.PromotionPoll
+	7,  // 4: wildberries.admin.PromotionPoll.questions:type_name -> wildberries.admin.PollQuestionAdmin
+	9,  // 5: wildberries.admin.PromotionPoll.answer_tree:type_name -> wildberries.admin.AnswerTreeNode
+	8,  // 6: wildberries.admin.PollQuestionAdmin.options:type_name -> wildberries.admin.PollOptionAdmin
+	15, // 7: wildberries.admin.SetFixedPricesRequest.prices:type_name -> wildberries.admin.FixedPriceEntry
+	47, // 8: wildberries.admin.GenerateSegmentsResponse.segments:type_name -> wildberries.common.Segment
+	7,  // 9: wildberries.admin.GeneratePollResponse.questions:type_name -> wildberries.admin.PollQuestionAdmin
+	9,  // 10: wildberries.admin.GeneratePollResponse.answer_tree:type_name -> wildberries.admin.AnswerTreeNode
+	34, // 11: wildberries.admin.SetPollQuestionsRequest.questions:type_name -> wildberries.admin.SetQuestionInput
+	35, // 12: wildberries.admin.SetQuestionInput.options:type_name -> wildberries.admin.SetOptionInput
+	9,  // 13: wildberries.admin.SetAnswerTreeRequest.nodes:type_name -> wildberries.admin.AnswerTreeNode
+	40, // 14: wildberries.admin.GetModerationApplicationsResponse.applications:type_name -> wildberries.admin.ModerationApplication
+	0,  // 15: wildberries.admin.PromotionAdminService.CreatePromotion:input_type -> wildberries.admin.CreatePromotionRequest
+	2,  // 16: wildberries.admin.PromotionAdminService.GetPromotions:input_type -> wildberries.admin.GetPromotionRequest
+	10, // 17: wildberries.admin.PromotionAdminService.UpdatePromotion:input_type -> wildberries.admin.UpdatePromotionRequest
+	12, // 18: wildberries.admin.PromotionAdminService.DeletePromotion:input_type -> wildberries.admin.DeletePromotionRequest
+	14, // 19: wildberries.admin.PromotionAdminService.SetFixedPrices:input_type -> wildberries.admin.SetFixedPricesRequest
+	17, // 20: wildberries.admin.PromotionAdminService.ChangeStatus:input_type -> wildberries.admin.ChangeStatusRequest
+	19, // 21: wildberries.admin.PromotionAdminService.SetSlotProduct:input_type -> wildberries.admin.SetSlotProductRequest
+	21, // 22: wildberries.admin.SegmentAdminService.GenerateSegments:input_type -> wildberries.admin.GenerateSegmentsRequest
+	23, // 23: wildberries.admin.SegmentAdminService.CreateSegment:input_type -> wildberries.admin.CreateSegmentRequest
+	25, // 24: wildberries.admin.SegmentAdminService.UpdateSegment:input_type -> wildberries.admin.UpdateSegmentRequest
+	27, // 25: wildberries.admin.SegmentAdminService.DeleteSegment:input_type -> wildberries.admin.DeleteSegmentRequest
+	29, // 26: wildberries.admin.SegmentAdminService.ShuffleSegmentCategories:input_type -> wildberries.admin.ShuffleSegmentCategoriesRequest
+	31, // 27: wildberries.admin.PollAdminService.GeneratePoll:input_type -> wildberries.admin.GeneratePollRequest
+	33, // 28: wildberries.admin.PollAdminService.SetPollQuestions:input_type -> wildberries.admin.SetPollQuestionsRequest
+	37, // 29: wildberries.admin.PollAdminService.SetAnswerTree:input_type -> wildberries.admin.SetAnswerTreeRequest
+	39, // 30: wildberries.admin.ModerationService.GetApplications:input_type -> wildberries.admin.GetModerationApplicationsRequest
+	42, // 31: wildberries.admin.ModerationService.Approve:input_type -> wildberries.admin.ApproveModerationRequest
+	44, // 32: wildberries.admin.ModerationService.Reject:input_type -> wildberries.admin.RejectModerationRequest
+	1,  // 33: wildberries.admin.PromotionAdminService.CreatePromotion:output_type -> wildberries.admin.CreatePromotionResponse
+	3,  // 34: wildberries.admin.PromotionAdminService.GetPromotions:output_type -> wildberries.admin.GetPromotionResponse
+	11, // 35: wildberries.admin.PromotionAdminService.UpdatePromotion:output_type -> wildberries.admin.UpdatePromotionResponse
+	13, // 36: wildberries.admin.PromotionAdminService.DeletePromotion:output_type -> wildberries.admin.DeletePromotionResponse
+	16, // 37: wildberries.admin.PromotionAdminService.SetFixedPrices:output_type -> wildberries.admin.SetFixedPricesResponse
+	18, // 38: wildberries.admin.PromotionAdminService.ChangeStatus:output_type -> wildberries.admin.ChangeStatusResponse
+	20, // 39: wildberries.admin.PromotionAdminService.SetSlotProduct:output_type -> wildberries.admin.SetSlotProductResponse
+	22, // 40: wildberries.admin.SegmentAdminService.GenerateSegments:output_type -> wildberries.admin.GenerateSegmentsResponse
+	24, // 41: wildberries.admin.SegmentAdminService.CreateSegment:output_type -> wildberries.admin.CreateSegmentResponse
+	26, // 42: wildberries.admin.SegmentAdminService.UpdateSegment:output_type -> wildberries.admin.UpdateSegmentResponse
+	28, // 43: wildberries.admin.SegmentAdminService.DeleteSegment:output_type -> wildberries.admin.DeleteSegmentResponse
+	30, // 44: wildberries.admin.SegmentAdminService.ShuffleSegmentCategories:output_type -> wildberries.admin.ShuffleSegmentCategoriesResponse
+	32, // 45: wildberries.admin.PollAdminService.GeneratePoll:output_type -> wildberries.admin.GeneratePollResponse
+	36, // 46: wildberries.admin.PollAdminService.SetPollQuestions:output_type -> wildberries.admin.SetPollQuestionsResponse
+	38, // 47: wildberries.admin.PollAdminService.SetAnswerTree:output_type -> wildberries.admin.SetAnswerTreeResponse
+	41, // 48: wildberries.admin.ModerationService.GetApplications:output_type -> wildberries.admin.GetModerationApplicationsResponse
+	43, // 49: wildberries.admin.ModerationService.Approve:output_type -> wildberries.admin.ApproveModerationResponse
+	45, // 50: wildberries.admin.ModerationService.Reject:output_type -> wildberries.admin.RejectModerationResponse
+	33, // [33:51] is the sub-list for method output_type
+	15, // [15:33] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_admin_proto_init() }
@@ -2925,15 +2966,15 @@ func file_admin_proto_init() {
 	if File_admin_proto != nil {
 		return
 	}
-	file_admin_proto_msgTypes[9].OneofWrappers = []any{}
-	file_admin_proto_msgTypes[24].OneofWrappers = []any{}
+	file_admin_proto_msgTypes[10].OneofWrappers = []any{}
+	file_admin_proto_msgTypes[25].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_proto_rawDesc), len(file_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   46,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

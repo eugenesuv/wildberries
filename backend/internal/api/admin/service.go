@@ -3,11 +3,18 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
+	"sort"
 
-	"wildberries/backend/internal/entity"
-	"wildberries/backend/internal/service/promotion"
-	desc "wildberries/backend/pkg/admin"
+	"github.com/jackc/pgx/v5"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
+
+	"wildberries/internal/entity"
+	"wildberries/internal/repository"
+	"wildberries/internal/service/promotion"
+	desc "wildberries/pkg/admin"
 )
 
 // Service handles admin API requests
@@ -51,41 +58,76 @@ func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotion
 	}, nil
 }
 
-// GetPromotion gets a promotion by ID
-func (s *Service) GetPromotion(ctx context.Context, req *desc.GetPromotionRequest) (*desc.GetPromotionResponse, error) {
-	promo, err := s.promotionService.GetPromotion(ctx, req.Id)
+// GetPromotions gets a promotions
+func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionRequest) (*desc.GetPromotionResponse, error) {
+	promos, err := s.promotionService.ListPromotions(ctx)
 	if err != nil {
 		return nil, err
 	}
-	resp := &desc.GetPromotionResponse{
-		Id:                 promo.ID,
-		Name:               promo.Name,
-		Description:        promo.Description,
-		Theme:              promo.Theme,
-		Status:             promo.Status.String(),
-		DateFrom:           promo.DateFrom,
-		DateTo:             promo.DateTo,
-		IdentificationMode: promo.IdentificationMode.APIString(),
-		PricingModel:       promo.PricingModel.APIString(),
-		SlotCount:          int32(promo.SlotCount),
-		Discount:           int32(promo.Discount),
-		StopFactors:        promo.StopFactors.Factors,
-	}
-	// Segments, FixedPrices, Poll filled by service if needed
-	segments, err := s.promotionService.GetPromotionSegments(ctx, req.Id)
-	if err == nil && len(segments) > 0 {
-		resp.Segments = make([]*desc.SegmentWithOrder, len(segments))
-		for i, seg := range segments {
-			resp.Segments[i] = &desc.SegmentWithOrder{
-				Id:           seg.ID,
-				Name:         seg.Name,
-				CategoryName: seg.CategoryName,
-				OrderIndex:   seg.OrderIndex,
+	resp := &desc.GetPromotionResponse{}
+	for _, promo := range promos {
+		res := &desc.SinglePromotion{
+			Id:                 promo.ID,
+			Name:               promo.Name,
+			Description:        promo.Description,
+			Theme:              promo.Theme,
+			Status:             promo.Status.String(),
+			DateFrom:           promo.DateFrom,
+			DateTo:             promo.DateTo,
+			IdentificationMode: promo.IdentificationMode.APIString(),
+			PricingModel:       promo.PricingModel.APIString(),
+			SlotCount:          int32(promo.SlotCount),
+			Discount:           int32(promo.Discount),
+			StopFactors:        promo.StopFactors.Factors,
+		}
+		// Segments, FixedPrices, Poll filled by service if needed
+		segments, err := s.promotionService.GetPromotionSegments(ctx, promo.ID)
+		if err == nil && len(segments) > 0 {
+			res.Segments = make([]*desc.SegmentWithOrder, len(segments))
+			for i, seg := range segments {
+				res.Segments[i] = &desc.SegmentWithOrder{
+					Id:           seg.ID,
+					Name:         seg.Name,
+					CategoryName: seg.CategoryName,
+					OrderIndex:   seg.OrderIndex,
+				}
 			}
 		}
-	}
-	if promo.FixedPrices != nil {
-		resp.FixedPrices = promo.FixedPrices
+		if promo.FixedPrices != nil {
+			res.FixedPrices = promo.FixedPrices
+		}
+		pollData, err := s.promotionService.GetPromotionPoll(ctx, promo.ID)
+		if err == nil && pollData != nil {
+			res.Poll = &desc.PromotionPoll{}
+			optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+			for _, opt := range pollData.Options {
+				optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+					Id:    opt.ID,
+					Text:  opt.Text,
+					Value: opt.Value,
+				})
+			}
+			for _, q := range pollData.Questions {
+				res.Poll.Questions = append(res.Poll.Questions, &desc.PollQuestionAdmin{
+					Id:      q.ID,
+					Text:    q.Text,
+					Options: optByQuestion[q.ID],
+				})
+			}
+			for _, n := range pollData.AnswerTree {
+				parent := ""
+				if n.ParentNodeID != nil {
+					parent = *n.ParentNodeID
+				}
+				res.Poll.AnswerTree = append(res.Poll.AnswerTree, &desc.AnswerTreeNode{
+					NodeId:       n.NodeID,
+					ParentNodeId: parent,
+					Label:        n.Label,
+					Value:        n.Value,
+				})
+			}
+		}
+		resp.Promotions = append(resp.Promotions, res)
 	}
 	return resp, nil
 }
@@ -160,9 +202,44 @@ func (s *Service) ChangeStatus(ctx context.Context, req *desc.ChangeStatusReques
 	status := entity.ParsePromotionStatus(req.Status)
 	err := s.promotionService.ChangeStatus(ctx, req.PromotionId, status)
 	if err != nil {
-		return nil, err
+		return nil, mapChangeStatusError(err)
 	}
 	return &desc.ChangeStatusResponse{}, nil
+}
+
+func mapChangeStatusError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var validationErr *promotion.ChangeStatusValidationError
+	if errors.As(err, &validationErr) {
+		return grpcstatus.Error(codes.InvalidArgument, validationErr.Error())
+	}
+
+	var conflictErr *promotion.ChangeStatusConflictError
+	if errors.As(err, &conflictErr) {
+		return grpcstatus.Error(codes.Aborted, conflictErr.Error())
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return grpcstatus.Error(codes.NotFound, "promotion not found")
+	}
+
+	return err
+}
+
+func mapModerationDecisionError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, repository.ErrNotFound) || errors.Is(err, pgx.ErrNoRows) {
+		return grpcstatus.Error(codes.NotFound, err.Error())
+	}
+	if errors.Is(err, repository.ErrConflict) {
+		return grpcstatus.Error(codes.Aborted, err.Error())
+	}
+	return err
 }
 
 // SetSlotProduct sets product in slot (WB curation)
@@ -229,6 +306,84 @@ func (s *Service) ShuffleSegmentCategories(ctx context.Context, req *desc.Shuffl
 	return &desc.ShuffleSegmentCategoriesResponse{}, nil
 }
 
+// --- PollAdminService ---
+
+func (s *Service) GeneratePoll(ctx context.Context, req *desc.GeneratePollRequest) (*desc.GeneratePollResponse, error) {
+	// MVP fallback: return current stored poll state, no AI generation.
+	pollData, err := s.promotionService.GetPromotionPoll(ctx, req.PromotionId)
+	if err != nil {
+		return nil, err
+	}
+	resp := &desc.GeneratePollResponse{}
+	if pollData == nil {
+		return resp, nil
+	}
+	if req.Type == "questions" || req.Type == "" {
+		optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+		for _, opt := range pollData.Options {
+			optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+				Id:    opt.ID,
+				Text:  opt.Text,
+				Value: opt.Value,
+			})
+		}
+		for _, q := range pollData.Questions {
+			resp.Questions = append(resp.Questions, &desc.PollQuestionAdmin{
+				Id:      q.ID,
+				Text:    q.Text,
+				Options: optByQuestion[q.ID],
+			})
+		}
+	}
+	if req.Type == "answer_tree" || req.Type == "" {
+		for _, n := range pollData.AnswerTree {
+			parent := ""
+			if n.ParentNodeID != nil {
+				parent = *n.ParentNodeID
+			}
+			resp.AnswerTree = append(resp.AnswerTree, &desc.AnswerTreeNode{
+				NodeId:       n.NodeID,
+				ParentNodeId: parent,
+				Label:        n.Label,
+				Value:        n.Value,
+			})
+		}
+	}
+	return resp, nil
+}
+
+func (s *Service) SetPollQuestions(ctx context.Context, req *desc.SetPollQuestionsRequest) (*desc.SetPollQuestionsResponse, error) {
+	input := make([]repository.PollQuestionInput, 0, len(req.Questions))
+	for _, q := range req.Questions {
+		item := repository.PollQuestionInput{Text: q.Text}
+		for _, opt := range q.Options {
+			item.Options = append(item.Options, struct{ Text, Value string }{Text: opt.Text, Value: opt.Value})
+		}
+		input = append(input, item)
+	}
+	if err := s.promotionService.SavePollQuestions(ctx, req.PromotionId, input); err != nil {
+		return nil, err
+	}
+	return &desc.SetPollQuestionsResponse{}, nil
+}
+
+func (s *Service) SetAnswerTree(ctx context.Context, req *desc.SetAnswerTreeRequest) (*desc.SetAnswerTreeResponse, error) {
+	nodes := make([]repository.PollAnswerTreeInput, 0, len(req.Nodes))
+	for _, n := range req.Nodes {
+		nodes = append(nodes, repository.PollAnswerTreeInput{
+			NodeID:       n.NodeId,
+			ParentNodeID: n.ParentNodeId,
+			Label:        n.Label,
+			Value:        n.Value,
+		})
+	}
+	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].NodeID < nodes[j].NodeID })
+	if err := s.promotionService.SaveAnswerTree(ctx, req.PromotionId, nodes); err != nil {
+		return nil, err
+	}
+	return &desc.SetAnswerTreeResponse{}, nil
+}
+
 // --- ModerationService ---
 
 // GetApplications returns moderation applications
@@ -262,7 +417,7 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 func (s *Service) Approve(ctx context.Context, req *desc.ApproveModerationRequest) (*desc.ApproveModerationResponse, error) {
 	err := s.promotionService.ApproveModeration(ctx, req.ApplicationId, nil)
 	if err != nil {
-		return nil, err
+		return nil, mapModerationDecisionError(err)
 	}
 	return &desc.ApproveModerationResponse{}, nil
 }
@@ -271,7 +426,7 @@ func (s *Service) Approve(ctx context.Context, req *desc.ApproveModerationReques
 func (s *Service) Reject(ctx context.Context, req *desc.RejectModerationRequest) (*desc.RejectModerationResponse, error) {
 	err := s.promotionService.RejectModeration(ctx, req.ApplicationId, req.Reason, nil)
 	if err != nil {
-		return nil, err
+		return nil, mapModerationDecisionError(err)
 	}
 	return &desc.RejectModerationResponse{}, nil
 }

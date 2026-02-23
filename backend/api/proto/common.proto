@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package wildberries.common;
 
-option go_package = "wildberries/backend/pkg/common;common";
+option go_package = "wildberries/pkg/common;common";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 

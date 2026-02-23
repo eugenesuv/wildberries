@@ -15,7 +15,7 @@ func NewSegmentPostgres(pool *pgxpool.Pool) *SegmentPostgres {
 }
 
 func (r *SegmentPostgres) ByPromotionID(ctx context.Context, promotionID int64) ([]*SegmentRow, error) {
-	rows, err := r.pool.Query(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at, updated_at
+	rows, err := r.pool.Query(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at::text, updated_at::text
 		FROM public.segment WHERE promotion_id = $1 ORDER BY order_index, id`, promotionID)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (r *SegmentPostgres) ByPromotionID(ctx context.Context, promotionID int64) 
 
 func (r *SegmentPostgres) GetByID(ctx context.Context, id int64) (*SegmentRow, error) {
 	var row SegmentRow
-	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at, updated_at
+	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at::text, updated_at::text
 		FROM public.segment WHERE id = $1`, id).
 		Scan(&row.ID, &row.PromotionID, &row.Name, &row.CategoryID, &row.CategoryName, &row.Color, &row.OrderIndex, &row.Text, &row.CreatedAt, &row.UpdatedAt)
 	if err != nil {
@@ -46,7 +46,7 @@ func (r *SegmentPostgres) GetByID(ctx context.Context, id int64) (*SegmentRow, e
 
 func (r *SegmentPostgres) GetByPromoAndSegment(ctx context.Context, promotionID, segmentID int64) (*SegmentRow, error) {
 	var row SegmentRow
-	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at, updated_at
+	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, name, category_id, category_name, color, order_index, text, created_at::text, updated_at::text
 		FROM public.segment WHERE promotion_id = $1 AND id = $2`, promotionID, segmentID).
 		Scan(&row.ID, &row.PromotionID, &row.Name, &row.CategoryID, &row.CategoryName, &row.Color, &row.OrderIndex, &row.Text, &row.CreatedAt, &row.UpdatedAt)
 	if err != nil {

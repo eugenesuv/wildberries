@@ -17,7 +17,7 @@ func NewProductPostgres(pool *pgxpool.Pool) *ProductPostgres {
 
 func (r *ProductPostgres) GetByID(ctx context.Context, id int64) (*ProductRow, error) {
 	var row ProductRow
-	err := r.pool.QueryRow(ctx, `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at, updated_at, deleted_at
+	err := r.pool.QueryRow(ctx, `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
 		FROM public.product WHERE id = $1 AND deleted_at IS NULL`, id).
 		Scan(&row.ID, &row.SellerID, &row.NmID, &row.CategoryID, &row.CategoryName, &row.Name, &row.Image, &row.Price, &row.Discount, &row.CreatedAt, &row.UpdatedAt, &row.DeletedAt)
 	if err != nil {
@@ -31,7 +31,7 @@ func (r *ProductPostgres) GetByIDs(ctx context.Context, ids []int64, filters Pro
 		return nil, nil
 	}
 	// Simple implementation: query by ids
-	rows, err := r.pool.Query(ctx, `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at, updated_at, deleted_at
+	rows, err := r.pool.Query(ctx, `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
 		FROM public.product WHERE id = ANY($1) AND deleted_at IS NULL`, ids)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, cate
 	if offset < 0 {
 		offset = 0
 	}
-	q := `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at, updated_at, deleted_at
+	q := `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
 		FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
 	countQ := `SELECT count(*) FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
 	args := []interface{}{sellerID}

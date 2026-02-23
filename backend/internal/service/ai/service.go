@@ -3,7 +3,7 @@ package ai
 import (
 	"context"
 
-	"wildberries/backend/internal/entity"
+	"wildberries/internal/entity"
 )
 
 // Service handles AI business logic
@@ -18,30 +18,75 @@ func New() *Service {
 
 // GenerateThemes generates themes
 func (s *Service) GenerateThemes(ctx context.Context) ([]*entity.ThemeItem, error) {
-	// Implementation would go here
-	return nil, nil
+	// TODO
+	return []*entity.ThemeItem{
+		{
+			Value: "TestValue1",
+			Label: "TestLabel1",
+		},
+		{
+			Value: "TestValue2",
+			Label: "TestLabel2",
+		},
+		{
+			Value: "TestValue3",
+			Label: "TestLabel3",
+		},
+	}, nil
 }
 
 // GenerateSegments generates segments
 func (s *Service) GenerateSegments(ctx context.Context, theme string, limit int) ([]*entity.SegmentSuggestion, error) {
-	// Implementation would go here
-	return nil, nil
+	// TODO
+	return []*entity.SegmentSuggestion{
+		{
+			Name:         "Name",
+			CategoryName: "CategoryName",
+		},
+	}, nil
 }
 
 // GenerateQuestions generates questions
 func (s *Service) GenerateQuestions(ctx context.Context, theme string) ([]*entity.QuestionSuggestion, error) {
-	// Implementation would go here
-	return nil, nil
+	// TODO
+	return []*entity.QuestionSuggestion{
+		{
+			Text: "Test Question",
+			Options: []*entity.OptionSuggestion{
+				{
+					Text:  "Opt1",
+					Value: "1",
+				},
+				{
+					Text:  "Opt2",
+					Value: "2",
+				},
+			},
+		},
+	}, nil
 }
 
 // GenerateAnswerTree generates answer tree
 func (s *Service) GenerateAnswerTree(ctx context.Context, theme string) ([]*entity.AnswerTreeNode, error) {
-	// Implementation would go here
-	return nil, nil
+	// TODO
+	return []*entity.AnswerTreeNode{
+		{
+			NodeID:       "0",
+			ParentNodeID: "",
+			Label:        "Label1",
+			Value:        "Value1",
+		},
+		{
+			NodeID:       "1",
+			ParentNodeID: "0",
+			Label:        "Label2",
+			Value:        "Value2",
+		},
+	}, nil
 }
 
 // GetText gets text
 func (s *Service) GetText(ctx context.Context, params map[string]string, segmentID int64) (string, error) {
-	// Implementation would go here
-	return "", nil
+	// TODO
+	return "THIS IS A TEST TEXT FROM AI.", nil
 }

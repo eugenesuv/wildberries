@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/rs/cors"
-	"wildberries/backend/internal/app"
-	"wildberries/backend/internal/config"
+	"wildberries/internal/app"
+	"wildberries/internal/config"
 )
 
 func main() {

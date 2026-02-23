@@ -1,6 +1,14 @@
 package repository
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+	ErrNotFound = errors.New("repository: not found")
+	ErrConflict = errors.New("repository: conflict")
+)
 
 // PromotionRow — строка promotion из БД
 type PromotionRow struct {
@@ -91,6 +99,7 @@ type ModerationRow struct {
 type PromotionRepository interface {
 	GetByID(ctx context.Context, id int64) (*PromotionRow, error)
 	GetActive(ctx context.Context) (*PromotionRow, error)
+	ListAll(ctx context.Context) ([]*PromotionRow, error)
 	Create(ctx context.Context, row *PromotionRow) (int64, error)
 	Update(ctx context.Context, row *PromotionRow) error
 	SoftDelete(ctx context.Context, id int64) error
@@ -140,6 +149,7 @@ type ModerationRepository interface {
 	GetByID(ctx context.Context, id int64) (*ModerationRow, error)
 	Create(ctx context.Context, row *ModerationRow) (int64, error)
 	SetStatus(ctx context.Context, id int64, status string, moderatorID *int64) error
+	ResolveApplication(ctx context.Context, id int64, status string, moderatorID *int64) error
 }
 
 // PollQuestionRow, PollOptionRow, PollAnswerTreeRow — для опроса идентификации

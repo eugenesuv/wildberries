@@ -8,10 +8,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"wildberries/backend/pkg/admin"
-	"wildberries/backend/pkg/ai"
-	"wildberries/backend/pkg/buyer"
-	"wildberries/backend/pkg/seller"
+	"wildberries/pkg/admin"
+	"wildberries/pkg/ai"
+	"wildberries/pkg/buyer"
+	"wildberries/pkg/seller"
 )
 
 // StartGRPCServer starts the gRPC server with all services

@@ -1,65 +1,129 @@
-# wildberries
+# Wildberries Monorepo
 
-## gRPC Gateway and Swagger Support
+Локальный запуск backend + frontend для разработки.
 
-This project now includes support for gRPC Gateway and Swagger/OpenAPI documentation for all protobuf services.
+## Структура
 
-### Changes Made:
+- `backend` — Go backend (gRPC + HTTP gateway, Postgres, Swagger UI)
+- `wb_front` — Vite/React frontend
 
-1. **Added gRPC Gateway and Swagger imports** to all proto files:
-   - Added `import "google/api/annotations.proto";`
-   - Added `import "grpc/gateway/runtime/metadata.proto";`
+## Требования
 
-2. **Added HTTP annotations** to all service methods to enable REST endpoints:
-   - All services now have proper HTTP mapping annotations
-   - Methods mapped to appropriate REST endpoints
+- Docker + Docker Compose
+- Go (для `goose`, если миграции запускаются локально)
+- `psql` (PostgreSQL client)
+- Node.js + npm
 
-3. **Updated dependencies** in go.mod:
-   - Added `google.golang.org/genproto/googleapis/api` 
-   - Added `google.golang.org/grpc`
-   - Added `github.com/grpc-ecosystem/grpc-gateway/v2`
+## Быстрый старт (рекомендуется)
 
-4. **Generated files**:
-   - Protocol buffer Go files (`*.pb.go`)
-   - gRPC service files (`*_grpc.pb.go`)
-   - gRPC Gateway files (`*_gateway.pb.go`)
-   - Swagger/OpenAPI specification files (`*.swagger.json`)
+Этот вариант запускает backend, DB и Swagger в Docker, а frontend локально.
 
-### How to Generate Protobuf Files:
-
-To generate the protobuf files, run:
+1. Поднять backend-инфраструктуру и сервер:
 
 ```bash
-# Install required protoc plugins
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.19.0
-
-# The Makefile shows the commands that would be executed:
-# make proto-gen
-# make proto-gen-admin
-# make proto-gen-ai
-# make proto-gen-buyer
-# make proto-gen-seller
-
-# For manual execution, use the protoc command directly with proper include paths:
-# protoc -I. -I/opt/homebrew/Cellar/protobuf/32.0_1/include --go_out=. --go-grpc_out=. --grpc-gateway_out=. --swagger_out=. api/proto/*.proto
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose up -d --build
 ```
 
-**Note**: The Makefile is designed to show the commands needed for protobuf generation. Due to system-specific include paths, you may need to adjust the include paths based on your installation. Common paths to check:
-1. `/opt/homebrew/Cellar/protobuf/32.0_1/include` (macOS Homebrew)
-2. `/usr/local/include` (macOS default)
-3. `/usr/include` (Linux systems)
+2. Применить миграции:
 
-If you encounter issues with the Makefile commands, please run the protoc commands directly with the appropriate include paths for your system.
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+```
 
-The generated files will be placed in the respective proto directories under `api/proto/`.
+3. Загрузить dev seed-данные (товары для seller flow):
 
-### Available Endpoints:
+```bash
+psql "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" \
+  -f /Users/eugenesuvorov/Study/wildberris/wildberries/backend/docs/dev_seed_products.sql
+```
 
-All gRPC services are now accessible via REST endpoints:
-- Admin services: `/admin/...`
-- AI services: `/ai/...`
-- Buyer services: `/promotions/...`, `/identification/...`
-- Seller services: `/products/...`, `/seller/...`, `/seller/bets/...`
+4. Если backend-контейнер стартовал до миграций и завершился с ошибкой, перезапустить:
 
-Swagger UI will be available at `/swagger/` endpoint when the server is running.
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose restart server
+```
+
+5. Запустить frontend:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_front
+npm ci
+VITE_API_BASE_URL=/api VITE_SELLER_ID=1 npm run dev
+```
+
+## Куда заходить
+
+- Frontend: `http://localhost:5173`
+- Backend HTTP API: `http://localhost:8080`
+- Swagger UI: `http://localhost:7003`
+
+## Альтернатива: backend локально через Go
+
+Если нужно запускать backend не в контейнере:
+
+1. Поднять только БД и Swagger:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose up -d db swagger-ui
+```
+
+2. Запустить backend локально:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable \
+HTTP_PORT=8080 GRPC_PORT=7002 go run ./cmd/server
+```
+
+Важно: не запускать одновременно Docker-контейнер `server` и локальный `go run` (конфликт портов `8080` и `7002`).
+
+## Пауза / возобновление (локально)
+
+### Если backend/db/swagger запущены через Docker
+
+Поставить на паузу (контейнеры остановятся, данные в volume сохранятся):
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose stop
+```
+
+Возобновить:
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose start
+```
+
+### Если backend запущен через `go run`, frontend через `npm run dev`, а БД локально (fallback)
+
+- В терминале с backend (`go run ./cmd/server`) нажать `Ctrl+C`
+- В терминале с frontend (`npm run dev`) нажать `Ctrl+C`
+- Если поднимали локальный Postgres через `pg_ctl`, остановить:
+
+```bash
+/opt/homebrew/opt/postgresql@18/bin/pg_ctl -D /tmp/wb-e1-pg stop
+```
+
+Повторный запуск:
+
+- backend: снова выполнить команду `go run` из раздела выше
+- frontend: снова выполнить `npm run dev`
+- local Postgres (если использовался): `pg_ctl ... start` с тем же каталогом данных
+
+## Полная остановка (Docker)
+
+```bash
+cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+docker compose down
+```
+
+## Полезные заметки
+
+- Vite proxy уже настроен: `/api` -> `http://localhost:8080`
+- Для локального `go run` backend обязательно задавать `DATABASE_DSN`, иначе backend попробует подключиться к `db:5432`
+- Подробный runbook: `backend/docs/runbook_локальный_запуск_генерация_акций.md`
