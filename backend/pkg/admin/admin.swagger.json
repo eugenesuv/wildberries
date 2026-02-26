@@ -113,6 +113,28 @@
       }
     },
     "/admin/promotions": {
+      "get": {
+        "summary": "Получить информацию об акции",
+        "description": "Получает информацию об акциях",
+        "operationId": "GetPromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGetPromotionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Promotions"
+        ]
+      },
       "post": {
         "summary": "Создать новую акцию",
         "description": "Создает новую акцию с заданными параметрами",
@@ -147,37 +169,6 @@
       }
     },
     "/admin/promotions/{id}": {
-      "get": {
-        "summary": "Получить информацию об акции",
-        "description": "Получает информацию об акции по ID",
-        "operationId": "GetPromotion",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/adminGetPromotionResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "Promotions"
-        ]
-      },
       "delete": {
         "summary": "Удалить акцию",
         "description": "Удаляет акцию по ID",
@@ -1063,65 +1054,12 @@
     "adminGetPromotionResponse": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "theme": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
-        },
-        "dateFrom": {
-          "type": "string"
-        },
-        "dateTo": {
-          "type": "string"
-        },
-        "identificationMode": {
-          "type": "string"
-        },
-        "pricingModel": {
-          "type": "string"
-        },
-        "slotCount": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "discount": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "stopFactors": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "segments": {
+        "promotions": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/adminSegmentWithOrder"
+            "$ref": "#/definitions/adminSinglePromotion"
           }
-        },
-        "fixedPrices": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string",
-            "format": "int64"
-          },
-          "title": "position -\u003e price"
-        },
-        "poll": {
-          "$ref": "#/definitions/adminPromotionPoll"
         }
       }
     },
@@ -1300,6 +1238,71 @@
     },
     "adminShuffleSegmentCategoriesResponse": {
       "type": "object"
+    },
+    "adminSinglePromotion": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "identificationMode": {
+          "type": "string"
+        },
+        "pricingModel": {
+          "type": "string"
+        },
+        "slotCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "discount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopFactors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/adminSegmentWithOrder"
+          }
+        },
+        "fixedPrices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "int64"
+          },
+          "title": "position -\u003e price"
+        },
+        "poll": {
+          "$ref": "#/definitions/adminPromotionPoll"
+        }
+      }
     },
     "adminUpdatePromotionResponse": {
       "type": "object"

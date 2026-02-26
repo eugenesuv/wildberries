@@ -85,15 +85,15 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	gwmux := runtime.NewServeMux()
 
 	app := &App{
-		cfg:       cfg,
-		pool:      pool,
+		cfg:              cfg,
+		pool:             pool,
 		promotionService: promotionService,
 		sellerService:    sellerService,
-		adminAPI:  adminAPIService,
-		buyerAPI:  buyerAPIService,
-		sellerAPI: sellerAPIService,
-		aiAPI:     aiAPIService,
-		gwmux:     gwmux,
+		adminAPI:         adminAPIService,
+		buyerAPI:         buyerAPIService,
+		sellerAPI:        sellerAPIService,
+		aiAPI:            aiAPIService,
+		gwmux:            gwmux,
 	}
 
 	return app, nil
@@ -159,9 +159,9 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 }
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if a.serveCustomHTTP(w, r) {
-		return
-	}
+	//if a.serveCustomHTTP(w, r) {
+	//	return
+	//}
 	// Delegate to gRPC gateway
 	a.gwmux.ServeHTTP(w, r)
 }

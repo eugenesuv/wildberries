@@ -58,72 +58,76 @@ func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotion
 	}, nil
 }
 
-// GetPromotion gets a promotion by ID
-func (s *Service) GetPromotion(ctx context.Context, req *desc.GetPromotionRequest) (*desc.GetPromotionResponse, error) {
-	promo, err := s.promotionService.GetPromotion(ctx, req.Id)
+// GetPromotions gets a promotions
+func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionRequest) (*desc.GetPromotionResponse, error) {
+	promos, err := s.promotionService.ListPromotions(ctx)
 	if err != nil {
 		return nil, err
 	}
-	resp := &desc.GetPromotionResponse{
-		Id:                 promo.ID,
-		Name:               promo.Name,
-		Description:        promo.Description,
-		Theme:              promo.Theme,
-		Status:             promo.Status.String(),
-		DateFrom:           promo.DateFrom,
-		DateTo:             promo.DateTo,
-		IdentificationMode: promo.IdentificationMode.APIString(),
-		PricingModel:       promo.PricingModel.APIString(),
-		SlotCount:          int32(promo.SlotCount),
-		Discount:           int32(promo.Discount),
-		StopFactors:        promo.StopFactors.Factors,
-	}
-	// Segments, FixedPrices, Poll filled by service if needed
-	segments, err := s.promotionService.GetPromotionSegments(ctx, req.Id)
-	if err == nil && len(segments) > 0 {
-		resp.Segments = make([]*desc.SegmentWithOrder, len(segments))
-		for i, seg := range segments {
-			resp.Segments[i] = &desc.SegmentWithOrder{
-				Id:           seg.ID,
-				Name:         seg.Name,
-				CategoryName: seg.CategoryName,
-				OrderIndex:   seg.OrderIndex,
+	resp := &desc.GetPromotionResponse{}
+	for _, promo := range promos {
+		res := &desc.SinglePromotion{
+			Id:                 promo.ID,
+			Name:               promo.Name,
+			Description:        promo.Description,
+			Theme:              promo.Theme,
+			Status:             promo.Status.String(),
+			DateFrom:           promo.DateFrom,
+			DateTo:             promo.DateTo,
+			IdentificationMode: promo.IdentificationMode.APIString(),
+			PricingModel:       promo.PricingModel.APIString(),
+			SlotCount:          int32(promo.SlotCount),
+			Discount:           int32(promo.Discount),
+			StopFactors:        promo.StopFactors.Factors,
+		}
+		// Segments, FixedPrices, Poll filled by service if needed
+		segments, err := s.promotionService.GetPromotionSegments(ctx, promo.ID)
+		if err == nil && len(segments) > 0 {
+			res.Segments = make([]*desc.SegmentWithOrder, len(segments))
+			for i, seg := range segments {
+				res.Segments[i] = &desc.SegmentWithOrder{
+					Id:           seg.ID,
+					Name:         seg.Name,
+					CategoryName: seg.CategoryName,
+					OrderIndex:   seg.OrderIndex,
+				}
 			}
 		}
-	}
-	if promo.FixedPrices != nil {
-		resp.FixedPrices = promo.FixedPrices
-	}
-	pollData, err := s.promotionService.GetPromotionPoll(ctx, req.Id)
-	if err == nil && pollData != nil {
-		resp.Poll = &desc.PromotionPoll{}
-		optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
-		for _, opt := range pollData.Options {
-			optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
-				Id:    opt.ID,
-				Text:  opt.Text,
-				Value: opt.Value,
-			})
+		if promo.FixedPrices != nil {
+			res.FixedPrices = promo.FixedPrices
 		}
-		for _, q := range pollData.Questions {
-			resp.Poll.Questions = append(resp.Poll.Questions, &desc.PollQuestionAdmin{
-				Id:      q.ID,
-				Text:    q.Text,
-				Options: optByQuestion[q.ID],
-			})
-		}
-		for _, n := range pollData.AnswerTree {
-			parent := ""
-			if n.ParentNodeID != nil {
-				parent = *n.ParentNodeID
+		pollData, err := s.promotionService.GetPromotionPoll(ctx, promo.ID)
+		if err == nil && pollData != nil {
+			res.Poll = &desc.PromotionPoll{}
+			optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+			for _, opt := range pollData.Options {
+				optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+					Id:    opt.ID,
+					Text:  opt.Text,
+					Value: opt.Value,
+				})
 			}
-			resp.Poll.AnswerTree = append(resp.Poll.AnswerTree, &desc.AnswerTreeNode{
-				NodeId:       n.NodeID,
-				ParentNodeId: parent,
-				Label:        n.Label,
-				Value:        n.Value,
-			})
+			for _, q := range pollData.Questions {
+				res.Poll.Questions = append(res.Poll.Questions, &desc.PollQuestionAdmin{
+					Id:      q.ID,
+					Text:    q.Text,
+					Options: optByQuestion[q.ID],
+				})
+			}
+			for _, n := range pollData.AnswerTree {
+				parent := ""
+				if n.ParentNodeID != nil {
+					parent = *n.ParentNodeID
+				}
+				res.Poll.AnswerTree = append(res.Poll.AnswerTree, &desc.AnswerTreeNode{
+					NodeId:       n.NodeID,
+					ParentNodeId: parent,
+					Label:        n.Label,
+					Value:        n.Value,
+				})
+			}
 		}
+		resp.Promotions = append(resp.Promotions, res)
 	}
 	return resp, nil
 }
