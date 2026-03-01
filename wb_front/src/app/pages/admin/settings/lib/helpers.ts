@@ -2,7 +2,7 @@ import { TestAnswerNode, TestQuestion, Theme } from "../types";
 
 export const shuffleArray = <T>(array: T[]): T[] => {
     const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
+    for (let i = newArray.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
         [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
@@ -31,36 +31,57 @@ export const generateSegments = (theme: string): string[] => {
     return (pools[theme] ?? ["Сегмент A", "Сегмент B"]).slice(0, 4);
 };
 
-export const generateQuestions = (theme: string): TestQuestion[] => {
+export const generateQuestions = (_theme: string): TestQuestion[] => {
     return [
         { question: "Что вам ближе по духу?", options: ["Смелость", "Мудрость", "Трудолюбие"] },
-        { question: "Выберите цвет", options: ["Красный", "Синий", "Зелёный"] },
+        { question: "Выберите цвет", options: ["Красный", "Синий", "Зеленый"] },
     ];
 };
 
 export const generateAnswerTree = (): TestAnswerNode[] => {
     return [
         {
-            label: "Корень",
-            value: "root",
-            next: [
-                {
-                    label: "Вариант 1",
-                    value: "v1",
-                    next: [
-                        { label: "A", value: "a" },
-                        { label: "B", value: "b" },
-                    ],
-                },
-                {
-                    label: "Вариант 2",
-                    value: "v2",
-                    next: [
-                        { label: "C", value: "c" },
-                        { label: "D", value: "d" },
-                    ],
-                },
-            ],
+            id: "seed-q0-o0",
+            questionIndex: 0,
+            optionIndex: 0,
+            targetType: "question",
+            targetValue: "1",
+        },
+        {
+            id: "seed-q0-o1",
+            questionIndex: 0,
+            optionIndex: 1,
+            targetType: "question",
+            targetValue: "1",
+        },
+        {
+            id: "seed-q0-o2",
+            questionIndex: 0,
+            optionIndex: 2,
+            targetType: "question",
+            targetValue: "1",
+        },
+        {
+            id: "seed-q1-o0",
+            questionIndex: 1,
+            optionIndex: 0,
+            targetType: "segment",
+            targetValue: "segment-1",
+        },
+        {
+            id: "seed-q1-o1",
+            questionIndex: 1,
+            optionIndex: 1,
+            targetType: "segment",
+            targetValue: "segment-2",
+        },
+        {
+            id: "seed-q1-o2",
+            questionIndex: 1,
+            optionIndex: 2,
+            targetType: "segment",
+            targetValue: "segment-3",
         },
     ];
 };
+

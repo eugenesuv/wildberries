@@ -48,8 +48,8 @@ export function SegmentsCard({
                     <div className="text-sm text-muted-foreground">Сегментов нет. Добавьте первый сегмент.</div>
                 )}
                 <div className="space-y-3">
-                    {settings.segments.map((seg) => (
-                        <div key={seg} className="flex items-center gap-2">
+                    {settings.segments.map((seg, index) => (
+                        <div key={`segment-${index}`} className="flex items-center gap-2">
                             <Input
                                 value={seg}
                                 onChange={(e) => onUpdateSegment(seg, e.target.value)}
