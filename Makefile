@@ -32,9 +32,10 @@ endif
 # Paths
 # =====================
 ROOT := $(CURDIR)
-OUT_PATH := $(ROOT)/pkg
-LOCAL_BIN := $(ROOT)/bin
-VENDOR := $(ROOT)/vendor.protogen
+BACKEND_PATH := $(ROOT)/backend
+OUT_PATH := $(BACKEND_PATH)/pkg
+LOCAL_BIN := $(BACKEND_PATH)/bin
+VENDOR := $(BACKEND_PATH)/vendor.protogen
 
 PROTOC := protoc
 PROTOC_GEN_GO := $(LOCAL_BIN)/protoc-gen-go$(EXE)
@@ -51,17 +52,44 @@ docker-up:
 docker-down:
 	docker compose down
 
+docker-build:
+	docker compose build
+
+docker-logs:
+	docker compose logs -f
+
+# =====================
+# Backend services
+# =====================
+backend-run:
+	cd $(BACKEND_PATH) && go run cmd/server/main.go
+
+backend-build:
+	cd $(BACKEND_PATH) && go build -o bin/server cmd/server/main.go
+
+# =====================
+# Frontend services
+# =====================
+frontend-install:
+	cd $(ROOT)/wb_front && npm install
+
+frontend-run:
+	cd $(ROOT)/wb_front && npm run dev
+
+frontend-build:
+	cd $(ROOT)/wb_front && npm run build
+
 # =====================
 # Migrations
 # =====================
 migrations-up:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+	cd $(BACKEND_PATH) && goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 
 migrations-down:
-	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
+	cd $(BACKEND_PATH) && goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
 
 migrations-new:
-	goose create -dir ./migrations rename sql
+	cd $(BACKEND_PATH) && goose create -dir ./migrations rename sql
 
 # =====================
 # Binary deps (idempotent)
@@ -104,7 +132,7 @@ generate: bin-deps vendor-proto
 	$(call gen,common)
 
 define gen
-	$(PROTOC) \
+	cd $(BACKEND_PATH) && $(PROTOC) \
 		--proto_path=api/proto \
 		--proto_path=$(VENDOR) \
 		--plugin=protoc-gen-go=$(PROTOC_GEN_GO) \
@@ -177,3 +205,26 @@ else
 		rm -rf tmp-validate ; \
 	fi
 endif
+
+# =====================
+# Help
+# =====================
+help:
+	@echo "Available commands:"
+	@echo "  docker-up        - Start all containers"
+	@echo "  docker-down      - Stop all containers"
+	@echo "  docker-build     - Build all containers"
+	@echo "  docker-logs      - Follow logs"
+	@echo "  backend-run      - Run backend locally"
+	@echo "  backend-build    - Build backend binary"
+	@echo "  frontend-install - Install frontend dependencies"
+	@echo "  frontend-run     - Run frontend locally"
+	@echo "  frontend-build   - Build frontend"
+	@echo "  migrations-up    - Run migrations"
+	@echo "  migrations-down  - Rollback migrations"
+	@echo "  migrations-new   - Create new migration"
+	@echo "  generate         - Generate protobuf files"
+	@echo "  bin-deps         - Install binary dependencies"
+	@echo "  vendor-proto     - Vendor proto files"
+
+.PHONY: docker-up docker-down docker-build docker-logs backend-run backend-build frontend-install frontend-run frontend-build migrations-up migrations-down migrations-new generate bin-deps vendor-proto help
