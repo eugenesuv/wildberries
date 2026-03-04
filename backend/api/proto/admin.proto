@@ -43,9 +43,9 @@ message CreatePromotionResponse {
 }
 
 // GET /admin/promotions/
-message GetPromotionRequest {}
+message GetPromotionsRequest {}
 
-message GetPromotionResponse {
+message GetPromotionsResponse {
   repeated SinglePromotion promotions = 1;
 }
 
@@ -110,7 +110,9 @@ message UpdatePromotionRequest {
   optional string pricing_model = 8;
   optional int32 slot_count = 9;
   optional int32 discount = 10;
-  repeated string stop_factors = 11;
+  optional int64 minPrice = 11;
+  optional int64 bidStep = 12;
+  repeated string stop_factors = 13;
 }
 
 message UpdatePromotionResponse {}
@@ -121,6 +123,24 @@ message DeletePromotionRequest {
 }
 
 message DeletePromotionResponse {}
+
+// GET /admin/promotions/{id}
+message GetPromotionRequest {
+  int64 id = 1;
+}
+
+// GET /admin/promotions/{id}/auction-params
+message GetAuctionParamsRequest {
+  int64 id = 1;
+}
+
+message GetAuctionParamsResponse {
+  int64 id = 1;
+  int64 minPrice = 2;
+  int64 bidStep = 3;
+  string DateFrom = 4;
+  string DateTo = 5;
+}
 
 // PUT /admin/promotions/{id}/fixed-prices
 message SetFixedPricesRequest {
@@ -294,15 +314,15 @@ service PromotionAdminService {
       operation_id: "CreatePromotion";
     };
   }
-  rpc GetPromotions(GetPromotionRequest) returns (GetPromotionResponse) {
+  rpc GetPromotions(GetPromotionsRequest) returns (GetPromotionsResponse) {
     option (google.api.http) = {
       get: "/admin/promotions"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Получить информацию об акции";
+      summary: "Получить информацию об акциях";
       description: "Получает информацию об акциях";
       tags: "Promotions";
-      operation_id: "GetPromotion";
+      operation_id: "GetPromotions";
     };
   }
   rpc UpdatePromotion(UpdatePromotionRequest) returns (UpdatePromotionResponse) {
@@ -317,6 +337,17 @@ service PromotionAdminService {
       operation_id: "UpdatePromotion";
     };
   }
+  rpc GetPromotion(GetPromotionRequest) returns (SinglePromotion) {
+    option (google.api.http) = {
+      get: "/admin/promotions/{id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить информацию об акции";
+      description: "Получает информацию об акции по ID";
+      tags: "Promotions";
+      operation_id: "GetPromotion";
+    };
+  }
   rpc DeletePromotion(DeletePromotionRequest) returns (DeletePromotionResponse) {
     option (google.api.http) = {
       delete: "/admin/promotions/{id}"
@@ -326,6 +357,17 @@ service PromotionAdminService {
       description: "Удаляет акцию по ID";
       tags: "Promotions";
       operation_id: "DeletePromotion";
+    };
+  }
+  rpc GetAuctionParams(GetAuctionParamsRequest) returns (GetAuctionParamsResponse) {
+    option (google.api.http) = {
+      get: "/admin/promotions/{id}/auction-params"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить параметры аукциона акции";
+      description: "Получает параметры аукциона акции по ID";
+      tags: "Promotions";
+      operation_id: "GetAuctionParams";
     };
   }
   rpc SetFixedPrices(SetFixedPricesRequest) returns (SetFixedPricesResponse) {

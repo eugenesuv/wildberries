@@ -111,6 +111,22 @@ func (s *Service) GetPromotion(ctx context.Context, id int64) (*entity.Promotion
 	return rowToPromotion(row)
 }
 
+// GetAuctionParams gets a auction params of promotion by ID
+func (s *Service) GetAuctionParams(ctx context.Context, id int64) (*entity.Auction, error) {
+	auction, err := s.auctionRepo.GetByPromotionID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.Auction{
+		ID:          auction.ID,
+		PromotionID: id,
+		MinPrice:    auction.MinPrice,
+		BidStep:     auction.BidStep,
+		DateFrom:    auction.DateFrom,
+		DateTo:      auction.DateTo,
+	}, nil
+}
+
 // ListPromotions returns all non-deleted promotions.
 func (s *Service) ListPromotions(ctx context.Context) ([]*entity.Promotion, error) {
 	rows, err := s.promotionRepo.ListAll(ctx)
@@ -392,26 +408,43 @@ func (s *Service) ensureAuctionForReadyToStart(ctx context.Context, promo *entit
 		return newChangeStatusValidationError("auction parameters are not configured")
 	}
 
-	auctionID, _, _, _, _, err := s.auctionRepo.GetByPromotionID(ctx, promo.ID)
+	auction, err := s.auctionRepo.GetByPromotionID(ctx, promo.ID)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
 			return err
 		}
-		auctionID, err = s.auctionRepo.Create(ctx, promo.ID, promo.DateFrom, promo.DateTo, *promo.MinPrice, *promo.BidStep)
+		auctionID, err := s.auctionRepo.Create(ctx, promo.ID, promo.DateFrom, promo.DateTo, *promo.MinPrice, *promo.BidStep)
 		if err != nil {
 			return err
 		}
+
+		slots, err := s.slotRepo.ByPromotionID(ctx, promo.ID)
+		if err != nil {
+			return err
+		}
+
+		for _, slot := range slots {
+			if slot.PricingType != "auction" || slot.AuctionID != nil {
+				continue
+			}
+			slot.AuctionID = &auctionID
+			if err := s.slotRepo.Update(ctx, slot); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
 	slots, err := s.slotRepo.ByPromotionID(ctx, promo.ID)
 	if err != nil {
 		return err
 	}
+
 	for _, slot := range slots {
 		if slot.PricingType != "auction" || slot.AuctionID != nil {
 			continue
 		}
-		slot.AuctionID = &auctionID
+		slot.AuctionID = &auction.ID
 		if err := s.slotRepo.Update(ctx, slot); err != nil {
 			return err
 		}

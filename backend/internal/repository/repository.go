@@ -198,9 +198,18 @@ type PollAnswerTreeInput struct {
 	Value        string
 }
 
+type AuctionRow struct {
+	ID          int64
+	PromotionID int64
+	DateFrom    string
+	DateTo      string
+	MinPrice    int64
+	BidStep     int64
+}
+
 // AuctionRepository — один аукцион на акцию
 type AuctionRepository interface {
-	GetByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error)
+	GetByPromotionID(ctx context.Context, promotionID int64) (*AuctionRow, error)
 	Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
 }
 

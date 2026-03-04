@@ -14,11 +14,21 @@ func NewAuctionPostgres(pool *pgxpool.Pool) *AuctionPostgres {
 	return &AuctionPostgres{pool: pool}
 }
 
-func (r *AuctionPostgres) GetByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error) {
-	err = r.pool.QueryRow(ctx, `SELECT id, min_price, bid_step, date_from::text, date_to::text
+func (r *AuctionPostgres) GetByPromotionID(ctx context.Context, promotionID int64) (*AuctionRow, error) {
+	var row AuctionRow
+	err := r.pool.QueryRow(ctx, `SELECT id, min_price, bid_step, date_from::text, date_to::text
 		FROM public.auction WHERE promotion_id = $1 AND deleted_at IS NULL`,
-		promotionID).Scan(&id, &minPrice, &bidStep, &dateFrom, &dateTo)
-	return id, minPrice, bidStep, dateFrom, dateTo, err
+		promotionID).Scan(
+		&row.ID,
+		&row.MinPrice,
+		&row.BidStep,
+		&row.DateFrom,
+		&row.DateTo,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &row, nil
 }
 
 func (r *AuctionPostgres) Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error) {

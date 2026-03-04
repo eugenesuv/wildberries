@@ -114,14 +114,14 @@
     },
     "/admin/promotions": {
       "get": {
-        "summary": "Получить информацию об акции",
+        "summary": "Получить информацию об акциях",
         "description": "Получает информацию об акциях",
-        "operationId": "GetPromotion",
+        "operationId": "GetPromotions",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/adminGetPromotionResponse"
+              "$ref": "#/definitions/adminGetPromotionsResponse"
             }
           },
           "default": {
@@ -169,6 +169,37 @@
       }
     },
     "/admin/promotions/{id}": {
+      "get": {
+        "summary": "Получить информацию об акции",
+        "description": "Получает информацию об акции по ID",
+        "operationId": "GetPromotion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSinglePromotion"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      },
       "delete": {
         "summary": "Удалить акцию",
         "description": "Удаляет акцию по ID",
@@ -233,6 +264,39 @@
             "schema": {
               "$ref": "#/definitions/PromotionAdminServiceUpdatePromotionBody"
             }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
+    "/admin/promotions/{id}/auction-params": {
+      "get": {
+        "summary": "Получить параметры аукциона акции",
+        "description": "Получает параметры аукциона акции по ID",
+        "operationId": "GetAuctionParams",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminGetAuctionParamsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -834,6 +898,14 @@
           "type": "integer",
           "format": "int32"
         },
+        "minPrice": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bidStep": {
+          "type": "string",
+          "format": "int64"
+        },
         "stopFactors": {
           "type": "array",
           "items": {
@@ -1039,6 +1111,29 @@
         }
       }
     },
+    "adminGetAuctionParamsResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "minPrice": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bidStep": {
+          "type": "string",
+          "format": "int64"
+        },
+        "DateFrom": {
+          "type": "string"
+        },
+        "DateTo": {
+          "type": "string"
+        }
+      }
+    },
     "adminGetModerationApplicationsResponse": {
       "type": "object",
       "properties": {
@@ -1051,7 +1146,7 @@
         }
       }
     },
-    "adminGetPromotionResponse": {
+    "adminGetPromotionsResponse": {
       "type": "object",
       "properties": {
         "promotions": {

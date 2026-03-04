@@ -43,7 +43,9 @@ const normalizeOptionValue = (value: string, qIndex: number, optIndex: number) =
     return normalized || `q${qIndex + 1}_opt${optIndex + 1}`;
 };
 
-const flattenAnswerTree = (nodes: any[]): Array<{ nodeId: string; parentNodeId: string; label: string; value: string }> => {
+const flattenAnswerTree = (
+    nodes: any[],
+): Array<{ nodeId: string; parentNodeId: string; label: string; value: string }> => {
     if (!Array.isArray(nodes) || nodes.length === 0) {
         return [];
     }
@@ -467,6 +469,8 @@ export const useActionSettings = () => {
                 pricingModel: settings.pricingModel,
                 slotCount: settings.slotCount,
                 discount: settings.minDiscount, // compatibility mode: UI min/max -> backend single discount
+                minPrice: settings.auctionSettings?.minPrice,
+                bidStep: settings.auctionSettings?.bidStep,
                 stopFactors: settings.stopFactors,
             };
 
