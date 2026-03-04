@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/entities/ui/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/entities/ui/select";
 import { StatusFilter as Status } from "../../types";
 import { STATUS_FILTER_OPTIONS } from "../../constants";
 

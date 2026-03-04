@@ -1,0 +1,79 @@
+services:
+    backend:
+        container_name: backend
+        build:
+            context: ./backend
+            dockerfile: ./cmd/server/Dockerfile
+        ports:
+            - "7001:7001"
+            - "7002:7002"
+            - "8080:8080"
+        depends_on:
+            db:
+                condition: service_healthy
+                restart: true
+        networks:
+            - wb-network
+
+    frontend:
+        container_name: frontend
+        build:
+            context: ./wb_front
+            dockerfile: Dockerfile
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./wb_front:/app
+            - /app/node_modules
+        depends_on:
+            - backend
+        networks:
+            - wb-network
+        environment:
+            - VITE_API_BASE_URL=http://localhost:8080
+            - VITE_SELLER_ID=1
+
+    db:
+        container_name: db
+        image: postgres:17-alpine
+        ports:
+            - "5442:5432"
+        restart: always
+        volumes:
+            - postgresql_data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_DB=seller_promotions
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 15s
+            timeout: 15s
+            retries: 10
+            start_period: 5s
+        networks:
+            - wb-network
+
+    swagger-ui:
+        container_name: swagger-ui
+        image: swaggerapi/swagger-ui
+        ports:
+            - "7003:8080"
+        volumes:
+            - ./backend/pkg/admin/admin.swagger.json:/admin.swagger.json
+            - ./backend/pkg/ai/ai.swagger.json:/ai.swagger.json
+            - ./backend/pkg/buyer/buyer.swagger.json:/buyer.swagger.json
+            - ./backend/pkg/seller/seller.swagger.json:/seller.swagger.json
+            - ./backend/pkg/common/common.swagger.json:/common.swagger.json
+        environment:
+            - SWAGGER_JSON=/admin.swagger.json
+            - DEEP_LINKS=true
+        networks:
+            - wb-network
+
+networks:
+    wb-network:
+        driver: bridge
+
+volumes:
+    postgresql_data:

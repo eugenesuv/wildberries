@@ -188,11 +188,11 @@ func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID
 	var auctionMin, auctionStep int64
 	var auctionDateTo string
 	if len(slots) > 0 {
-		id, minPrice, bidStep, _, dateTo, err := s.auctionRepo.GetByPromotionID(ctx, slots[0].PromotionID)
-		if err == nil && id > 0 {
-			auctionMin = minPrice
-			auctionStep = bidStep
-			auctionDateTo = dateTo
+		auction, err := s.auctionRepo.GetByPromotionID(ctx, slots[0].PromotionID)
+		if err == nil && auction.ID > 0 {
+			auctionMin = auction.MinPrice
+			auctionStep = auction.BidStep
+			auctionDateTo = auction.DateTo
 		}
 	}
 
@@ -281,27 +281,27 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 	pricingModel := entity.ParsePricingModel(promoRow.PricingModel)
 
 	if pricingModel == entity.PricingModelAuction {
-		auctionID, minPrice, bidStep, _, _, err := s.auctionRepo.GetByPromotionID(ctx, slot.PromotionID)
+		auction, err := s.auctionRepo.GetByPromotionID(ctx, slot.PromotionID)
 		if err != nil {
 			return false, "", err
 		}
-		if auctionID == 0 {
+		if auction.ID == 0 {
 			return false, "auction not found", nil
 		}
 		currentBid, err := s.getTopBid(ctx, slotID)
 		if err != nil {
 			return false, "", err
 		}
-		minAllowedBid := nextAuctionBidMin(minPrice, bidStep, currentBid)
+		minAllowedBid := nextAuctionBidMin(auction.MinPrice, auction.BidStep, currentBid)
 		if amount < minAllowedBid {
 			return false, fmt.Sprintf("bid must be >= %d", minAllowedBid), nil
 		}
-		stepBase := minPrice
+		stepBase := auction.MinPrice
 		if currentBid > 0 {
 			stepBase = currentBid
 		}
-		if bidStep > 0 && amount > stepBase && (amount-stepBase)%bidStep != 0 {
-			return false, fmt.Sprintf("bid step is %d", bidStep), nil
+		if auction.BidStep > 0 && amount > stepBase && (amount-stepBase)%auction.BidStep != 0 {
+			return false, fmt.Sprintf("bid step is %d", auction.BidStep), nil
 		}
 		if productID <= 0 {
 			return false, "product_id required for bid", nil
@@ -313,7 +313,7 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 		if prod == nil || prod.SellerID != sellerID {
 			return false, "product not found or not yours", nil
 		}
-		_, err = s.betRepo.Create(ctx, auctionID, slotID, sellerID, productID, amount)
+		_, err = s.betRepo.Create(ctx, auction.ID, slotID, sellerID, productID, amount)
 		if err != nil {
 			return false, "", err
 		}

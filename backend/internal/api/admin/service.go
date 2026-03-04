@@ -58,13 +58,112 @@ func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotion
 	}, nil
 }
 
+// GetPromotion returns a single promotion by ID
+func (s *Service) GetPromotion(ctx context.Context, req *desc.GetPromotionRequest) (*desc.SinglePromotion, error) {
+	promo, err := s.promotionService.GetPromotion(ctx, req.Id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, grpcstatus.Error(codes.NotFound, "promotion not found")
+		}
+		return nil, err
+	}
+
+	resp := &desc.SinglePromotion{
+		Id:                 promo.ID,
+		Name:               promo.Name,
+		Description:        promo.Description,
+		Theme:              promo.Theme,
+		Status:             promo.Status.String(),
+		DateFrom:           promo.DateFrom,
+		DateTo:             promo.DateTo,
+		IdentificationMode: promo.IdentificationMode.APIString(),
+		PricingModel:       promo.PricingModel.APIString(),
+		SlotCount:          int32(promo.SlotCount),
+		Discount:           int32(promo.Discount),
+		StopFactors:        promo.StopFactors.Factors,
+	}
+
+	// Load segments
+	segments, err := s.promotionService.GetPromotionSegments(ctx, promo.ID)
+	if err == nil && len(segments) > 0 {
+		resp.Segments = make([]*desc.SegmentWithOrder, len(segments))
+		for i, seg := range segments {
+			resp.Segments[i] = &desc.SegmentWithOrder{
+				Id:           seg.ID,
+				Name:         seg.Name,
+				CategoryName: seg.CategoryName,
+				OrderIndex:   seg.OrderIndex,
+			}
+		}
+	}
+
+	// Load fixed prices
+	if promo.FixedPrices != nil {
+		resp.FixedPrices = promo.FixedPrices
+	}
+
+	// Load poll data
+	pollData, err := s.promotionService.GetPromotionPoll(ctx, promo.ID)
+	if err == nil && pollData != nil {
+		resp.Poll = &desc.PromotionPoll{}
+
+		optByQuestion := make(map[int64][]*desc.PollOptionAdmin)
+		for _, opt := range pollData.Options {
+			optByQuestion[opt.QuestionID] = append(optByQuestion[opt.QuestionID], &desc.PollOptionAdmin{
+				Id:    opt.ID,
+				Text:  opt.Text,
+				Value: opt.Value,
+			})
+		}
+
+		for _, q := range pollData.Questions {
+			resp.Poll.Questions = append(resp.Poll.Questions, &desc.PollQuestionAdmin{
+				Id:      q.ID,
+				Text:    q.Text,
+				Options: optByQuestion[q.ID],
+			})
+		}
+
+		for _, n := range pollData.AnswerTree {
+			parent := ""
+			if n.ParentNodeID != nil {
+				parent = *n.ParentNodeID
+			}
+			resp.Poll.AnswerTree = append(resp.Poll.AnswerTree, &desc.AnswerTreeNode{
+				NodeId:       n.NodeID,
+				ParentNodeId: parent,
+				Label:        n.Label,
+				Value:        n.Value,
+			})
+		}
+	}
+
+	return resp, nil
+}
+
+// GetAuctionParams gets a auction params of promotion by ID
+func (s *Service) GetAuctionParams(ctx context.Context, req *desc.GetAuctionParamsRequest) (*desc.GetAuctionParamsResponse, error) {
+	auction, err := s.promotionService.GetAuctionParams(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	resp := &desc.GetAuctionParamsResponse{
+		Id:       auction.ID,
+		MinPrice: auction.MinPrice,
+		BidStep:  auction.BidStep,
+		DateFrom: auction.DateFrom,
+		DateTo:   auction.DateTo,
+	}
+	return resp, nil
+}
+
 // GetPromotions gets a promotions
-func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionRequest) (*desc.GetPromotionResponse, error) {
+func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionsRequest) (*desc.GetPromotionsResponse, error) {
 	promos, err := s.promotionService.ListPromotions(ctx)
 	if err != nil {
 		return nil, err
 	}
-	resp := &desc.GetPromotionResponse{}
+	resp := &desc.GetPromotionsResponse{}
 	for _, promo := range promos {
 		res := &desc.SinglePromotion{
 			Id:                 promo.ID,
@@ -164,6 +263,14 @@ func (s *Service) UpdatePromotion(ctx context.Context, req *desc.UpdatePromotion
 	}
 	if req.Discount != nil {
 		promo.Discount = int(*req.Discount)
+	}
+	if req.MinPrice != nil {
+		value := *req.MinPrice
+		promo.MinPrice = &value
+	}
+	if req.BidStep != nil {
+		value := *req.BidStep
+		promo.BidStep = &value
 	}
 	if len(req.StopFactors) > 0 {
 		promo.StopFactors = entity.StopFactors{Factors: req.StopFactors}
