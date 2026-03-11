@@ -20,6 +20,7 @@ export function AdminSettingsPage() {
         isStatusChanging,
         hasError,
         promotionStatus,
+        handleGenerateName,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,
@@ -74,6 +75,7 @@ export function AdminSettingsPage() {
                         settings={settings}
                         aiThemes={aiThemes}
                         onSettingsChange={setSettings}
+                        onGenerateName={handleGenerateName}
                         onGenerateDescription={handleGenerateDescription}
                         onGenerateThemes={handleGenerateThemes}
                     />

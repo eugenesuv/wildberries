@@ -14,6 +14,29 @@
 - `psql` (PostgreSQL client)
 - Node.js + npm
 
+## AI (Gemini) настройка секрета
+
+Ключ Gemini используется только на backend.
+
+1. Создать локальный файл `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env` (файл игнорируется git).
+2. Скопировать туда значения из `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.example`.
+3. Вставить ваш ключ в `GEMINI_API_KEY`.
+
+Пример:
+
+```bash
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_secret_key
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_API_BASE_URL=https://generativelanguage.googleapis.com
+```
+
+Рекомендации по безопасности:
+- не хранить ключ во frontend и не публиковать в репозитории;
+- не логировать значение ключа в runtime;
+- хранить prod/CI ключи в Secret Manager (GitHub Secrets / Vault);
+- ограничить API key в Google Cloud по API и при необходимости регулярно ротировать.
+
 ## Быстрый старт (рекомендуется)
 
 Этот вариант запускает backend, DB и Swagger в Docker, а frontend локально.
@@ -22,6 +45,7 @@
 
 ```bash
 cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
+# при необходимости: export $(cat .env | xargs)
 docker compose up -d --build
 ```
 
@@ -78,9 +102,10 @@ docker compose up -d db swagger-ui
 ```bash
 cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable \
+AI_PROVIDER=stub \
 HTTP_PORT=8080 GRPC_PORT=7002 go run ./cmd/server
 # windows
-set DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable && set HTTP_PORT=8080 && set GRPC_PORT=7002 && go run ./cmd/server
+set DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable && set AI_PROVIDER=stub && set HTTP_PORT=8080 && set GRPC_PORT=7002 && go run ./cmd/server
 ```
 
 Важно: не запускать одновременно Docker-контейнер `server` и локальный `go run` (конфликт портов `8080` и `7002`).
@@ -130,4 +155,5 @@ docker compose down
 
 - Vite proxy уже настроен: `/api` -> `http://localhost:8080`
 - Для локального `go run` backend обязательно задавать `DATABASE_DSN`, иначе backend попробует подключиться к `db:5432`
+- Для включения Gemini используйте `AI_PROVIDER=gemini` и задайте `GEMINI_API_KEY` только в backend окружении
 - Подробный runbook: `backend/docs/runbook_локальный_запуск_генерация_акций.md`

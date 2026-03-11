@@ -16,7 +16,7 @@ import {
     DEFAULT_FIXED_PRICE_SETTINGS,
     DEFAULT_TEST_QUESTION,
 } from "../constants";
-import { generateAnswerTree, generateQuestions, generateSegments, generateThemes } from "./helpers";
+import { generateAnswerTree } from "./helpers";
 
 const createEmptyTestQuestion = (): TestQuestion => ({
     question: DEFAULT_TEST_QUESTION.question,
@@ -81,6 +81,26 @@ const ensureUUID = (value: string): string => {
 
 const getLinkKey = (questionIndex: number, optionIndex: number) => `${questionIndex}:${optionIndex}`;
 
+const extractErrorMessage = (error: any, fallback: string): string => {
+    const message = error?.message;
+    return typeof message === "string" && message.trim() ? message : fallback;
+};
+
+const resolveSegmentTarget = (targetValue: string, segments: string[]): string => {
+    const normalized = String(targetValue || "").trim();
+    if (normalized && segments.includes(normalized)) {
+        return normalized;
+    }
+    const placeholderMatch = /^segment-(\d+)$/i.exec(normalized);
+    if (placeholderMatch) {
+        const segmentIndex = Number(placeholderMatch[1]) - 1;
+        if (Number.isInteger(segmentIndex) && segmentIndex >= 0 && segmentIndex < segments.length) {
+            return segments[segmentIndex] || "";
+        }
+    }
+    return "";
+};
+
 const clampStartQuestionIndex = (index: number, totalQuestions: number) => {
     if (totalQuestions <= 0) {
         return 0;
@@ -133,8 +153,8 @@ const normalizeTarget = (
         };
     }
 
-    const targetSegment = node.targetValue || "";
-    if (!targetSegment || !segments.includes(targetSegment)) {
+    const targetSegment = resolveSegmentTarget(node.targetValue, segments);
+    if (!targetSegment) {
         return {
             ...fallback,
             targetType: "segment",
@@ -409,66 +429,69 @@ export const useActionSettings = () => {
     };
 
     const handleGenerateDescription = async () => {
+        setHasError(null);
         try {
-            const resp = await aiClient.getText({ params: { theme: settings.theme } });
-            if (resp?.text) {
-                setNormalizedSettings((prev) => ({ ...prev, description: resp.text }));
-                return;
+            const resp = await aiClient.getText({
+                params: { theme: settings.theme, target: "promotion_description" },
+            });
+            const text = resp?.text?.trim();
+            if (!text) {
+                throw new Error("AI не вернул описание акции");
             }
-        } catch (error) {
-            // fallback below
+            setNormalizedSettings((prev) => ({ ...prev, description: text }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать описание акции"));
         }
+    };
 
-        setNormalizedSettings((prev) => ({
-            ...prev,
-            description:
-                "Персонализированная акция с подборкой товаров на основе сегментации покупателей. Увеличьте вовлеченность через тематическую подачу и релевантные товары.",
-        }));
+    const handleGenerateName = async () => {
+        setHasError(null);
+        try {
+            const resp = await aiClient.getText({
+                params: { theme: settings.theme, target: "promotion_name" },
+            });
+            const text = resp?.text?.trim();
+            if (!text) {
+                throw new Error("AI не вернул название акции");
+            }
+            setNormalizedSettings((prev) => ({ ...prev, name: text }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать название акции"));
+        }
     };
 
     const handleGenerateThemes = async () => {
+        setHasError(null);
         try {
             const resp = await aiClient.generateThemes();
             const themes = (resp.themes || []).map((theme) => ({ value: theme.value, label: theme.label }));
-            if (themes.length > 0) {
-                setAiThemes(themes);
-                setNormalizedSettings((prev) => ({ ...prev, theme: themes[0].value }));
-                return;
+            if (themes.length === 0) {
+                throw new Error("AI не вернул темы акции");
             }
-        } catch (error) {
-            // fallback below
-        }
-
-        const themes = generateThemes();
-        setAiThemes(themes);
-        if (themes[0]) {
+            setAiThemes(themes);
             setNormalizedSettings((prev) => ({ ...prev, theme: themes[0].value }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать темы акции"));
         }
     };
 
     const handleGenerateSegments = async () => {
+        setHasError(null);
         try {
             const resp = await aiClient.generateSegments({ theme: settings.theme, limit: 12 });
             const suggestions = resp.segments || [];
-            if (suggestions.length > 0) {
-                const categories: Record<string, string> = {};
-                const segments = suggestions.map((segment, index) => {
-                    categories[segment.name] = segment.categoryName || CATEGORIES[index % CATEGORIES.length];
-                    return segment.name;
-                });
-                setNormalizedSettings((prev) => ({ ...prev, segments, categories }));
-                return;
+            if (suggestions.length === 0) {
+                throw new Error("AI не вернул сегменты акции");
             }
-        } catch (error) {
-            // fallback below
+            const categories: Record<string, string> = {};
+            const segments = suggestions.map((segment, index) => {
+                categories[segment.name] = segment.categoryName || CATEGORIES[index % CATEGORIES.length];
+                return segment.name;
+            });
+            setNormalizedSettings((prev) => ({ ...prev, segments, categories }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать сегменты акции"));
         }
-
-        const segments = generateSegments(settings.theme);
-        const categories: Record<string, string> = {};
-        segments.forEach((segment, index) => {
-            categories[segment] = CATEGORIES[index % CATEGORIES.length];
-        });
-        setNormalizedSettings((prev) => ({ ...prev, segments, categories }));
     };
 
     const handleShuffleCategories = () => {
@@ -595,6 +618,7 @@ export const useActionSettings = () => {
     };
 
     const handleGenerateTestQuestions = async () => {
+        setHasError(null);
         try {
             const resp = await aiClient.generateQuestions({ theme: settings.theme });
             const questions =
@@ -602,48 +626,36 @@ export const useActionSettings = () => {
                     question: q.text,
                     options: (q.options || []).map((option) => option.text),
                 })) || [];
-            if (questions.length > 0) {
-                setNormalizedSettings((prev) => ({
-                    ...prev,
-                    testQuestions: questions,
-                    testAnswerTree: generateAnswerTree(),
-                    testStartQuestionIndex: 0,
-                }));
-                return;
+            if (questions.length === 0) {
+                throw new Error("AI не вернул тест-вопросы");
             }
-        } catch (error) {
-            // fallback below
+            setNormalizedSettings((prev) => ({
+                ...prev,
+                testQuestions: questions,
+                testAnswerTree: generateAnswerTree(),
+                testStartQuestionIndex: 0,
+            }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать тест-вопросы"));
         }
-
-        setNormalizedSettings((prev) => ({
-            ...prev,
-            testQuestions: generateQuestions(prev.theme),
-            testAnswerTree: generateAnswerTree(),
-            testStartQuestionIndex: 0,
-        }));
     };
 
     const handleGenerateAnswerTree = async () => {
+        setHasError(null);
         try {
             const resp = await aiClient.generateAnswerTree({ theme: settings.theme });
             const parsed = parsePersistedTree((resp.nodes || []) as any[]);
-            if (parsed.nodes.length > 0) {
-                setNormalizedSettings((prev) => ({
-                    ...prev,
-                    testAnswerTree: parsed.nodes,
-                    testStartQuestionIndex: parsed.startQuestionIndex,
-                }));
-                return;
+            if (parsed.nodes.length === 0) {
+                throw new Error("AI не вернул дерево ответов");
             }
-        } catch (error) {
-            // fallback below
+            setNormalizedSettings((prev) => ({
+                ...prev,
+                testAnswerTree: parsed.nodes,
+                testStartQuestionIndex: parsed.startQuestionIndex,
+            }));
+        } catch (error: any) {
+            setHasError(extractErrorMessage(error, "Не удалось сгенерировать дерево ответов"));
         }
-
-        setNormalizedSettings((prev) => ({
-            ...prev,
-            testAnswerTree: generateAnswerTree(),
-            testStartQuestionIndex: 0,
-        }));
     };
 
     const handleUpdateAnswerLink = (
@@ -819,6 +831,7 @@ export const useActionSettings = () => {
         isStatusChanging,
         hasError,
         promotionStatus,
+        handleGenerateName,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,

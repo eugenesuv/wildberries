@@ -41,12 +41,12 @@ func main() {
 	go func() {
 		corsHandler := cors.AllowAll().Handler(application)
 		log.Printf("HTTP server listening on port %d", cfg.HTTPPort)
-		server := &http.Server{
-			Addr:         ":" + strconv.Itoa(cfg.HTTPPort),
-			Handler:      corsHandler,
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
-		}
+			server := &http.Server{
+				Addr:         ":" + strconv.Itoa(cfg.HTTPPort),
+				Handler:      corsHandler,
+				ReadTimeout:  5 * time.Second,
+				WriteTimeout: 60 * time.Second,
+			}
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server error: %v", err)
 		}

@@ -73,7 +73,12 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo, pollRepo)
 	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo)
-	aiService := ai.New()
+	aiService := ai.New(ai.Config{
+		Provider:         cfg.AIProvider,
+		GeminiAPIKey:     cfg.GeminiAPIKey,
+		GeminiModel:      cfg.GeminiModel,
+		GeminiAPIBaseURL: cfg.GeminiAPIBaseURL,
+	})
 
 	// Create API services
 	adminAPIService := admin_api.New(promotionService)
@@ -159,9 +164,9 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 }
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//if a.serveCustomHTTP(w, r) {
-	//	return
-	//}
+	if a.serveCustomHTTP(w, r) {
+		return
+	}
 	// Delegate to gRPC gateway
 	a.gwmux.ServeHTTP(w, r)
 }
