@@ -34,6 +34,8 @@ export function AdminSettingsPage() {
         handleUpdateTestOption,
         handleGenerateTestQuestions,
         handleGenerateAnswerTree,
+        handleUpdateAnswerLink,
+        handleUpdateTestStartQuestion,
         handleToggleStopFactor,
         handleSave,
         handleChangeStatus,
@@ -98,13 +100,17 @@ export function AdminSettingsPage() {
                     {settings.identificationMode === "questions" && (
                         <TestQuestionsCard
                             questions={settings.testQuestions}
+                            segments={settings.segments}
                             answerTree={settings.testAnswerTree}
+                            startQuestionIndex={settings.testStartQuestionIndex}
                             onAddQuestion={handleAddTestQuestion}
                             onRemoveQuestion={handleRemoveTestQuestion}
                             onUpdateQuestion={handleUpdateTestQuestion}
                             onUpdateOption={handleUpdateTestOption}
                             onGenerateQuestions={handleGenerateTestQuestions}
                             onGenerateAnswerTree={handleGenerateAnswerTree}
+                            onUpdateAnswerLink={handleUpdateAnswerLink}
+                            onUpdateStartQuestion={handleUpdateTestStartQuestion}
                         />
                     )}
                 </motion.div>

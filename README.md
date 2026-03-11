@@ -52,6 +52,8 @@ docker compose restart server
 cd /Users/eugenesuvorov/Study/wildberris/wildberries/wb_front
 npm ci
 VITE_API_BASE_URL=/api VITE_SELLER_ID=1 npm run dev
+# windows
+set VITE_API_BASE_URL=/api && set VITE_SELLER_ID=1 && npm run dev
 ```
 
 ## Куда заходить
@@ -77,6 +79,8 @@ docker compose up -d db swagger-ui
 cd /Users/eugenesuvorov/Study/wildberris/wildberries/backend
 DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable \
 HTTP_PORT=8080 GRPC_PORT=7002 go run ./cmd/server
+# windows
+set DATABASE_DSN=postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable && set HTTP_PORT=8080 && set GRPC_PORT=7002 && go run ./cmd/server
 ```
 
 Важно: не запускать одновременно Docker-контейнер `server` и локальный `go run` (конфликт портов `8080` и `7002`).
