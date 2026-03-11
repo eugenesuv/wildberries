@@ -105,6 +105,11 @@ func (r *PromotionPostgres) SetStatus(ctx context.Context, id int64, status stri
 	return err
 }
 
+func (r *PromotionPostgres) SetAuctionParams(ctx context.Context, id int64, minPrice, bidStep int64) error {
+	_, err := r.pool.Exec(ctx, `UPDATE public.promotion SET min_price=$2, bid_step=$3, updated_at=now() WHERE id=$1`, id, minPrice, bidStep)
+	return err
+}
+
 var _ PromotionRepository = (*PromotionPostgres)(nil)
 
 func mustJSON(v interface{}) []byte {

@@ -105,6 +105,7 @@ type PromotionRepository interface {
 	SoftDelete(ctx context.Context, id int64) error
 	SetFixedPrices(ctx context.Context, id int64, prices []byte) error
 	SetStatus(ctx context.Context, id int64, status string) error
+	SetAuctionParams(ctx context.Context, id int64, minPrice, bidStep int64) error
 }
 
 // SegmentRepository — операции с segment
@@ -202,6 +203,7 @@ type PollAnswerTreeInput struct {
 type AuctionRepository interface {
 	GetByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error)
 	Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
+	Update(ctx context.Context, promotionID int64, minPrice, bidStep int64) error
 }
 
 type BetRepository interface {

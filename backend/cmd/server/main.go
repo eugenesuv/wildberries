@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/rs/cors"
+
 	"wildberries/internal/app"
 	"wildberries/internal/config"
 )

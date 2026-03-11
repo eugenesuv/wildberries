@@ -143,6 +143,15 @@ message ChangeStatusRequest {
 
 message ChangeStatusResponse {}
 
+// PUT /admin/promotions/{id}/auction-params
+message SetAuctionParamsRequest {
+  int64 promotion_id = 1;
+  int64 min_price = 2;
+  int64 bid_step = 3;
+}
+
+message SetAuctionParamsResponse {}
+
 // POST /horoscope/products — ручная установка товара в слот
 message SetSlotProductRequest {
   int64 segment_id = 1;
@@ -350,6 +359,18 @@ service PromotionAdminService {
       description: "Изменяет статус акции";
       tags: "Promotions";
       operation_id: "ChangeStatus";
+    };
+  }
+  rpc SetAuctionParams(SetAuctionParamsRequest) returns (SetAuctionParamsResponse) {
+    option (google.api.http) = {
+      put: "/admin/promotions/{promotion_id}/auction-params"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Установить параметры аукциона";
+      description: "Устанавливает min_price и bid_step для аукциона акции";
+      tags: "Promotions";
+      operation_id: "SetAuctionParams";
     };
   }
   rpc SetSlotProduct(SetSlotProductRequest) returns (SetSlotProductResponse) {

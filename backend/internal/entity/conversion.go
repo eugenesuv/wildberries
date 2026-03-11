@@ -44,7 +44,7 @@ func ParsePricingModel(s string) PricingModel {
 	}
 }
 
-// IdentificationModeAPI returns lowercase string for API (proto) responses.
+// APIString returns lowercase string for API (proto) responses.
 func (m IdentificationMode) APIString() string {
 	switch m {
 	case IdentificationModeQuestions:

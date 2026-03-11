@@ -3,8 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -159,9 +160,9 @@ func (a *App) SetupGatewayHandlers(ctx context.Context) error {
 }
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//if a.serveCustomHTTP(w, r) {
-	//	return
-	//}
+	// if a.serveCustomHTTP(w, r) {
+	// 	return
+	// }
 	// Delegate to gRPC gateway
 	a.gwmux.ServeHTTP(w, r)
 }
