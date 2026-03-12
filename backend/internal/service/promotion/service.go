@@ -21,8 +21,11 @@ type Service struct {
 	productRepo    repository.ProductRepository
 	moderationRepo repository.ModerationRepository
 	auctionRepo    repository.AuctionRepository
+	betRepo        repository.BetRepository
 	pollRepo       repository.PollRepository
 }
+
+var ErrSlotSegmentMismatch = errors.New("slot does not belong to segment")
 
 // ChangeStatusValidationError represents a bad status change request (HTTP 400).
 type ChangeStatusValidationError struct {
@@ -56,6 +59,7 @@ func New(
 	productRepo repository.ProductRepository,
 	moderationRepo repository.ModerationRepository,
 	auctionRepo repository.AuctionRepository,
+	betRepo repository.BetRepository,
 	pollRepo repository.PollRepository,
 ) *Service {
 	return &Service{
@@ -65,6 +69,7 @@ func New(
 		productRepo:    productRepo,
 		moderationRepo: moderationRepo,
 		auctionRepo:    auctionRepo,
+		betRepo:        betRepo,
 		pollRepo:       pollRepo,
 	}
 }
@@ -148,6 +153,48 @@ func (s *Service) GetPromotionSegments(ctx context.Context, promotionID int64) (
 	return out, nil
 }
 
+func (s *Service) GetSlotByID(ctx context.Context, slotID int64) (*repository.SlotRow, error) {
+	return s.slotRepo.GetByID(ctx, slotID)
+}
+
+func (s *Service) ResetAuctionState(ctx context.Context, promotionID int64) error {
+	if err := s.betRepo.DeleteByPromotion(ctx, promotionID); err != nil {
+		return err
+	}
+
+	slots, err := s.slotRepo.ByPromotionID(ctx, promotionID)
+	if err != nil {
+		return err
+	}
+	for _, slot := range slots {
+		if slot == nil || slot.PricingType != entity.PricingModelAuction.APIString() {
+			continue
+		}
+		slot.Status = "available"
+		slot.SellerID = nil
+		slot.ProductID = nil
+		slot.Price = nil
+		if err := s.slotRepo.Update(ctx, slot); err != nil {
+			return err
+		}
+	}
+
+	pendingRows, err := s.moderationRepo.ListByPromotion(ctx, promotionID, "pending")
+	if err != nil {
+		return err
+	}
+	for _, row := range pendingRows {
+		if row == nil {
+			continue
+		}
+		if err := s.moderationRepo.SetStatus(ctx, row.ID, "rejected", nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func ptrStr(s *string) string {
 	if s == nil {
 		return ""
@@ -214,6 +261,14 @@ func (s *Service) DeletePromotion(ctx context.Context, id int64) error {
 // SetFixedPrices sets fixed prices for positions 1..slot_count
 func (s *Service) SetFixedPrices(ctx context.Context, promotionID int64, prices map[int32]int64) error {
 	return s.promotionRepo.SetFixedPrices(ctx, promotionID, mustJSON(prices))
+}
+
+func (s *Service) GetAuctionByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error) {
+	return s.auctionRepo.GetByPromotionID(ctx, promotionID)
+}
+
+func (s *Service) UpsertAuction(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error) {
+	return s.auctionRepo.UpsertByPromotion(ctx, promotionID, dateFrom, dateTo, minPrice, bidStep)
 }
 
 func newChangeStatusValidationError(msg string) error {
@@ -443,6 +498,20 @@ func keySlot(segmentID int64, position int, pricingType string) string {
 
 // SetSlotProduct sets product in slot (WB curation); seller_id is left nil
 func (s *Service) SetSlotProduct(ctx context.Context, segmentID, slotID, productID int64) error {
+	segment, err := s.segmentRepo.GetByID(ctx, segmentID)
+	if err != nil {
+		return err
+	}
+
+	slot, err := s.slotRepo.GetByID(ctx, slotID)
+	if err != nil {
+		return err
+	}
+
+	if slot.SegmentID != segmentID || slot.PromotionID != segment.PromotionID {
+		return ErrSlotSegmentMismatch
+	}
+
 	var sid *int64 // nil = WB curation
 	return s.slotRepo.SetProduct(ctx, slotID, sid, productID, "occupied")
 }

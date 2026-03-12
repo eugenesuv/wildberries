@@ -34,7 +34,7 @@ export function PricingCard({ settings, onSettingsChange }: PricingCardProps) {
                 </RadioGroup>
 
                 {settings.pricingModel === "auction" && (
-                    <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                         <div>
                             <Label htmlFor="minPrice">Минимальная цена (₽)</Label>
                             <Input
@@ -65,6 +65,44 @@ export function PricingCard({ settings, onSettingsChange }: PricingCardProps) {
                                         auctionSettings: {
                                             ...settings.auctionSettings!,
                                             bidStep: Number(e.target.value),
+                                        },
+                                    })
+                                }
+                                className="mt-1"
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="durationHours">Длительность аукциона (ч)</Label>
+                            <Input
+                                id="durationHours"
+                                type="number"
+                                min={0}
+                                value={settings.auctionSettings?.durationHours}
+                                onChange={(e) =>
+                                    onSettingsChange({
+                                        ...settings,
+                                        auctionSettings: {
+                                            ...settings.auctionSettings!,
+                                            durationHours: Number(e.target.value),
+                                        },
+                                    })
+                                }
+                                className="mt-1"
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="durationMinutes">Длительность аукциона (мин, для теста)</Label>
+                            <Input
+                                id="durationMinutes"
+                                type="number"
+                                min={0}
+                                value={settings.auctionSettings?.durationMinutes}
+                                onChange={(e) =>
+                                    onSettingsChange({
+                                        ...settings,
+                                        auctionSettings: {
+                                            ...settings.auctionSettings!,
+                                            durationMinutes: Number(e.target.value),
                                         },
                                     })
                                 }

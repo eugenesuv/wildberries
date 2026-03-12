@@ -24,7 +24,24 @@ func (r *AuctionPostgres) GetByPromotionID(ctx context.Context, promotionID int6
 func (r *AuctionPostgres) Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error) {
 	var id int64
 	err := r.pool.QueryRow(ctx, `INSERT INTO public.auction (promotion_id, date_from, date_to, min_price, bid_step)
-		VALUES ($1,$2::timestamptz,$3::timestamptz,$4,$5) RETURNING id`,
+			VALUES ($1,$2::timestamptz,$3::timestamptz,$4,$5) RETURNING id`,
+		promotionID, dateFrom, dateTo, minPrice, bidStep).Scan(&id)
+	return id, err
+}
+
+func (r *AuctionPostgres) UpsertByPromotion(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error) {
+	var id int64
+	err := r.pool.QueryRow(ctx, `
+		INSERT INTO public.auction (promotion_id, date_from, date_to, min_price, bid_step)
+		VALUES ($1,$2::timestamptz,$3::timestamptz,$4,$5)
+		ON CONFLICT (promotion_id) DO UPDATE
+		SET date_from = EXCLUDED.date_from,
+			date_to = EXCLUDED.date_to,
+			min_price = EXCLUDED.min_price,
+			bid_step = EXCLUDED.bid_step,
+			updated_at = now(),
+			deleted_at = NULL
+		RETURNING id`,
 		promotionID, dateFrom, dateTo, minPrice, bidStep).Scan(&id)
 	return id, err
 }

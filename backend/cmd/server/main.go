@@ -40,10 +40,11 @@ func main() {
 	// Start HTTP server with gRPC gateway
 	go func() {
 		corsHandler := cors.AllowAll().Handler(application)
+		handler := withHTTPLogging(corsHandler)
 		log.Printf("HTTP server listening on port %d", cfg.HTTPPort)
 		server := &http.Server{
 			Addr:         ":" + strconv.Itoa(cfg.HTTPPort),
-			Handler:      corsHandler,
+			Handler:      handler,
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
 		}
@@ -57,4 +58,47 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutting down...")
+}
+
+type responseLogger struct {
+	http.ResponseWriter
+	statusCode int
+	bytes      int
+}
+
+func newResponseLogger(w http.ResponseWriter) *responseLogger {
+	return &responseLogger{
+		ResponseWriter: w,
+		statusCode:     http.StatusOK,
+	}
+}
+
+func (l *responseLogger) WriteHeader(code int) {
+	l.statusCode = code
+	l.ResponseWriter.WriteHeader(code)
+}
+
+func (l *responseLogger) Write(data []byte) (int, error) {
+	n, err := l.ResponseWriter.Write(data)
+	l.bytes += n
+	return n, err
+}
+
+func withHTTPLogging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		startedAt := time.Now()
+		logger := newResponseLogger(w)
+		next.ServeHTTP(logger, r)
+
+		duration := time.Since(startedAt)
+		log.Printf(
+			"http request method=%s path=%s status=%d bytes=%d duration=%s remote=%s",
+			r.Method,
+			r.URL.RequestURI(),
+			logger.statusCode,
+			logger.bytes,
+			duration,
+			r.RemoteAddr,
+		)
+	})
 }

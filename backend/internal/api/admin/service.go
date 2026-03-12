@@ -36,14 +36,25 @@ func New(promotionService *promotion.Service) *Service {
 // CreatePromotion creates a new promotion
 func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotionRequest) (*desc.CreatePromotionResponse, error) {
 	log.Println("create promotion")
+
+	identificationMode := entity.ParseIdentificationMode(req.IdentificationMode)
+	if identificationMode == entity.IdentificationModeUnspecified {
+		return nil, grpcstatus.Error(codes.InvalidArgument, "invalid identification_mode")
+	}
+
+	pricingModel := entity.ParsePricingModel(req.PricingModel)
+	if pricingModel == entity.PricingModelUnspecified {
+		return nil, grpcstatus.Error(codes.InvalidArgument, "invalid pricing_model")
+	}
+
 	promo := &entity.Promotion{
 		Name:               req.Name,
 		Description:        req.Description,
 		Theme:              req.Theme,
 		DateFrom:           req.DateFrom,
 		DateTo:             req.DateTo,
-		IdentificationMode: entity.ParseIdentificationMode(req.IdentificationMode),
-		PricingModel:       entity.ParsePricingModel(req.PricingModel),
+		IdentificationMode: identificationMode,
+		PricingModel:       pricingModel,
 		SlotCount:          int(req.SlotCount),
 		Discount:           int(req.Discount),
 		StopFactors:        entity.StopFactors{Factors: req.StopFactors},
@@ -246,6 +257,12 @@ func mapModerationDecisionError(err error) error {
 func (s *Service) SetSlotProduct(ctx context.Context, req *desc.SetSlotProductRequest) (*desc.SetSlotProductResponse, error) {
 	err := s.promotionService.SetSlotProduct(ctx, req.SegmentId, req.SlotId, req.ProductId)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, grpcstatus.Error(codes.NotFound, "slot or segment not found")
+		}
+		if errors.Is(err, promotion.ErrSlotSegmentMismatch) {
+			return nil, grpcstatus.Error(codes.InvalidArgument, err.Error())
+		}
 		return nil, err
 	}
 	return &desc.SetSlotProductResponse{}, nil
@@ -398,13 +415,17 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 		if len(r.StopFactors) > 0 {
 			_ = json.Unmarshal(r.StopFactors, &stopFactors)
 		}
+		applicationPrice := int64(0)
+		if slot, slotErr := s.promotionService.GetSlotByID(ctx, r.SlotID); slotErr == nil && slot != nil && slot.Price != nil {
+			applicationPrice = *slot.Price
+		}
 		out[i] = &desc.ModerationApplication{
 			Id:          r.ID,
 			SellerId:    r.SellerID,
 			SegmentId:   r.SegmentID,
 			SlotId:      r.SlotID,
 			ProductName: "", // would load from product
-			Price:       0,
+			Price:       applicationPrice,
 			Discount:    int32(r.Discount),
 			StopFactors: stopFactors,
 			Status:      r.Status,

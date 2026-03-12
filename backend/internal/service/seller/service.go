@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -118,6 +119,10 @@ func (s *Service) GetActionSegments(ctx context.Context, actionID int64) ([]*Act
 	if err != nil {
 		return nil, err
 	}
+	activePricingType, err := s.getPromotionPricingType(ctx, actionID)
+	if err != nil {
+		return nil, err
+	}
 	slots, err := s.slotRepo.ByPromotionID(ctx, actionID)
 	if err != nil {
 		return nil, err
@@ -125,6 +130,9 @@ func (s *Service) GetActionSegments(ctx context.Context, actionID int64) ([]*Act
 	type agg struct{ total, booked int64 }
 	aggBySeg := map[int64]*agg{}
 	for _, slot := range slots {
+		if activePricingType != "" && strings.ToLower(slot.PricingType) != activePricingType {
+			continue
+		}
 		a := aggBySeg[slot.SegmentID]
 		if a == nil {
 			a = &agg{}
@@ -180,21 +188,69 @@ type FixedSlotMarketItem struct {
 }
 
 func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID int64) (*SegmentSlotsMarket, error) {
-	_ = actionID
+	if _, err := s.segmentRepo.GetByPromoAndSegment(ctx, actionID, segmentID); err != nil {
+		return nil, err
+	}
+
+	activePricingType, err := s.getPromotionPricingType(ctx, actionID)
+	if err != nil {
+		return nil, err
+	}
+
 	slots, err := s.slotRepo.BySegmentID(ctx, segmentID, false)
 	if err != nil {
 		return nil, err
 	}
+	if activePricingType != "" {
+		filtered := make([]*repository.SlotRow, 0, len(slots))
+		for _, slot := range slots {
+			if strings.ToLower(slot.PricingType) != activePricingType {
+				continue
+			}
+			filtered = append(filtered, slot)
+		}
+		slots = filtered
+	}
+
 	var auctionMin, auctionStep int64
+	var auctionDateFrom string
 	var auctionDateTo string
-	if len(slots) > 0 {
-		id, minPrice, bidStep, _, dateTo, err := s.auctionRepo.GetByPromotionID(ctx, slots[0].PromotionID)
+	if activePricingType == "auction" && len(slots) > 0 {
+		id, minPrice, bidStep, dateFrom, dateTo, err := s.auctionRepo.GetByPromotionID(ctx, slots[0].PromotionID)
 		if err == nil && id > 0 {
 			auctionMin = minPrice
 			auctionStep = bidStep
+			auctionDateFrom = dateFrom
 			auctionDateTo = dateTo
+
+			if err := s.finalizeSegmentAuctionIfNeeded(ctx, slots[0].PromotionID, segmentID, dateFrom, dateTo); err != nil {
+				return nil, err
+			}
+			slots, err = s.slotRepo.BySegmentID(ctx, segmentID, false)
+			if err != nil {
+				return nil, err
+			}
+			if activePricingType != "" {
+				filtered := make([]*repository.SlotRow, 0, len(slots))
+				for _, slot := range slots {
+					if strings.ToLower(slot.PricingType) != activePricingType {
+						continue
+					}
+					filtered = append(filtered, slot)
+				}
+				slots = filtered
+			}
 		}
 	}
+
+	currentSegmentBid := int64(0)
+	if activePricingType == "auction" {
+		currentSegmentBid, err = s.getTopBidBySegment(ctx, actionID, segmentID, auctionDateFrom, auctionDateTo)
+		if err != nil {
+			return nil, err
+		}
+	}
+	minBid := nextAuctionBidMin(auctionMin, auctionStep, currentSegmentBid)
 
 	out := &SegmentSlotsMarket{
 		Auction: make([]AuctionSlotMarketItem, 0),
@@ -203,15 +259,10 @@ func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID
 	for _, slot := range slots {
 		switch strings.ToLower(slot.PricingType) {
 		case "auction":
-			currentBid, err := s.getTopBid(ctx, slot.ID)
-			if err != nil {
-				return nil, err
-			}
-			minBid := nextAuctionBidMin(auctionMin, auctionStep, currentBid)
 			out.Auction = append(out.Auction, AuctionSlotMarketItem{
 				SlotID:        slot.ID,
 				Position:      slot.Position,
-				CurrentBid:    currentBid,
+				CurrentBid:    currentSegmentBid,
 				MinBid:        minBid,
 				BidStep:       auctionStep,
 				TimeLeft:      formatTimeLeft(auctionDateTo),
@@ -233,17 +284,44 @@ func (s *Service) GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID
 	return out, nil
 }
 
+func (s *Service) getPromotionPricingType(ctx context.Context, promotionID int64) (string, error) {
+	promo, err := s.promotionRepo.GetByID(ctx, promotionID)
+	if err != nil {
+		return "", err
+	}
+	if promo == nil {
+		return "", errors.New("promotion not found")
+	}
+
+	pricingType := entity.ParsePricingModel(promo.PricingModel).APIString()
+	if pricingType == "unspecified" {
+		return "", nil
+	}
+	return pricingType, nil
+}
+
 // GetSellerBetsList gets seller bets/applications
 func (s *Service) GetSellerBetsList(ctx context.Context, sellerID int64, promotionID int64, status string) ([]*entity.SellerBet, error) {
-	slots, err := s.slotRepo.BySellerID(ctx, sellerID, &promotionID)
+	slots, err := s.slotRepo.ByPromotionID(ctx, promotionID)
 	if err != nil {
 		return nil, err
 	}
+
+	slotByID := make(map[int64]*repository.SlotRow, len(slots))
 	out := make([]*entity.SellerBet, 0, len(slots))
 	for _, slot := range slots {
+		slotByID[slot.ID] = slot
+
+		if strings.ToLower(slot.PricingType) == "auction" {
+			continue
+		}
+		if slot.SellerID == nil || *slot.SellerID != sellerID {
+			continue
+		}
 		if status != "" && slot.Status != status {
 			continue
 		}
+
 		item := &entity.SellerBet{
 			ID:          slot.ID,
 			SlotID:      slot.ID,
@@ -256,6 +334,30 @@ func (s *Service) GetSellerBetsList(ctx context.Context, sellerID int64, promoti
 		}
 		out = append(out, item)
 	}
+
+	auctionBets, err := s.betRepo.ListBestBySeller(ctx, sellerID, promotionID)
+	if err != nil {
+		return nil, err
+	}
+	for _, bet := range auctionBets {
+		slot := slotByID[bet.SlotID]
+		if slot == nil || strings.ToLower(slot.PricingType) != "auction" {
+			continue
+		}
+		if status != "" && slot.Status != status {
+			continue
+		}
+
+		out = append(out, &entity.SellerBet{
+			ID:          bet.ID,
+			SlotID:      slot.ID,
+			PromotionID: slot.PromotionID,
+			SegmentID:   slot.SegmentID,
+			Status:      slot.Status,
+			Bet:         bet.Bet,
+		})
+	}
+
 	return out, nil
 }
 
@@ -281,14 +383,22 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 	pricingModel := entity.ParsePricingModel(promoRow.PricingModel)
 
 	if pricingModel == entity.PricingModelAuction {
-		auctionID, minPrice, bidStep, _, _, err := s.auctionRepo.GetByPromotionID(ctx, slot.PromotionID)
+		auctionID, minPrice, bidStep, auctionDateFrom, auctionDateTo, err := s.auctionRepo.GetByPromotionID(ctx, slot.PromotionID)
 		if err != nil {
 			return false, "", err
 		}
 		if auctionID == 0 {
 			return false, "auction not found", nil
 		}
-		currentBid, err := s.getTopBid(ctx, slotID)
+
+		if auctionEnded(auctionDateTo) {
+			if err := s.finalizeSegmentAuctionIfNeeded(ctx, slot.PromotionID, slot.SegmentID, auctionDateFrom, auctionDateTo); err != nil {
+				return false, "", err
+			}
+			return false, "auction finished", nil
+		}
+
+		currentBid, err := s.getTopBidBySegment(ctx, slot.PromotionID, slot.SegmentID, auctionDateFrom, auctionDateTo)
 		if err != nil {
 			return false, "", err
 		}
@@ -315,6 +425,17 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 		}
 		_, err = s.betRepo.Create(ctx, auctionID, slotID, sellerID, productID, amount)
 		if err != nil {
+			return false, "", err
+		}
+
+		topSellerID, topProductID, _, err := s.betRepo.TopBySlot(ctx, slotID)
+		if err != nil {
+			return false, "", err
+		}
+		slot.SellerID = &topSellerID
+		slot.ProductID = &topProductID
+		slot.Status = "available"
+		if err := s.slotRepo.Update(ctx, slot); err != nil {
 			return false, "", err
 		}
 		return true, "ok", nil
@@ -361,6 +482,29 @@ func (s *Service) RemoveBet(ctx context.Context, sellerID, slotID int64) (bool, 
 	if slot == nil {
 		return false, errors.New("slot not found")
 	}
+	if slot.AuctionID != nil {
+		err = s.betRepo.DeleteBySlotAndSeller(ctx, slotID, sellerID)
+		if err != nil {
+			return false, err
+		}
+
+		topSellerID, topProductID, _, err := s.betRepo.TopBySlot(ctx, slotID)
+		if err == nil {
+			slot.Status = "available"
+			slot.SellerID = &topSellerID
+			slot.ProductID = &topProductID
+			return true, s.slotRepo.Update(ctx, slot)
+		}
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return false, err
+		}
+
+		slot.Status = "available"
+		slot.SellerID = nil
+		slot.ProductID = nil
+		return true, s.slotRepo.Update(ctx, slot)
+	}
+
 	if slot.SellerID == nil || *slot.SellerID != sellerID {
 		return false, errors.New("not your slot")
 	}
@@ -371,7 +515,7 @@ func (s *Service) RemoveBet(ctx context.Context, sellerID, slotID int64) (bool, 
 		slot.ProductID = nil
 		return true, s.slotRepo.Update(ctx, slot)
 	}
-	if slot.Status == "pending" || slot.AuctionID != nil {
+	if slot.Status == "pending" {
 		err = s.betRepo.DeleteBySlotAndSeller(ctx, slotID, sellerID)
 		if err != nil {
 			return false, err
@@ -388,13 +532,10 @@ func formatTimeLeft(dateTo string) string {
 	if dateTo == "" {
 		return ""
 	}
-	t, err := time.Parse(time.RFC3339, dateTo)
+
+	t, err := parseAuctionTime(dateTo)
 	if err != nil {
-		if parsed, err2 := time.Parse(time.RFC3339Nano, dateTo); err2 == nil {
-			t = parsed
-		} else {
-			return ""
-		}
+		return ""
 	}
 	d := time.Until(t)
 	if d < 0 {
@@ -403,6 +544,183 @@ func formatTimeLeft(dateTo string) string {
 	h := int(d.Hours())
 	m := int(d.Minutes()) % 60
 	return strconv.Itoa(h) + "ч " + strconv.Itoa(m) + "м"
+}
+
+func parseAuctionTime(value string) (time.Time, error) {
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02 15:04:05.999999999Z07:00",
+		"2006-01-02 15:04:05Z07:00",
+		"2006-01-02 15:04:05.999999999-07",
+		"2006-01-02 15:04:05-07",
+		"2006-01-02 15:04:05+00",
+		"2006-01-02 15:04:05",
+	}
+	for _, layout := range layouts {
+		if t, err := time.Parse(layout, value); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("unsupported auction time format: %q", value)
+}
+
+func auctionEnded(auctionDateTo string) bool {
+	if auctionDateTo == "" {
+		return false
+	}
+	auctionEndTime, err := parseAuctionTime(auctionDateTo)
+	if err != nil {
+		return false
+	}
+	return !time.Now().Before(auctionEndTime)
+}
+
+func (s *Service) getTopBidBySegment(ctx context.Context, promotionID, segmentID int64, auctionDateFrom, auctionDateTo string) (int64, error) {
+	activeBets, err := s.listActiveBetsBySegment(ctx, promotionID, segmentID, auctionDateFrom, auctionDateTo)
+	if err != nil {
+		return 0, err
+	}
+	if len(activeBets) == 0 {
+		return 0, nil
+	}
+	return activeBets[0].Bet, nil
+}
+
+func (s *Service) finalizeSegmentAuctionIfNeeded(ctx context.Context, promotionID, segmentID int64, auctionDateFrom, auctionDateTo string) error {
+	if !auctionEnded(auctionDateTo) {
+		return nil
+	}
+
+	slots, err := s.slotRepo.BySegmentID(ctx, segmentID, false)
+	if err != nil {
+		return err
+	}
+
+	auctionSlots := make([]*repository.SlotRow, 0)
+	for _, slot := range slots {
+		if strings.ToLower(slot.PricingType) == "auction" {
+			auctionSlots = append(auctionSlots, slot)
+		}
+	}
+	if len(auctionSlots) == 0 {
+		return nil
+	}
+
+	needsFinalize := false
+	for _, slot := range auctionSlots {
+		if slot.Status == "available" {
+			needsFinalize = true
+			break
+		}
+	}
+	if !needsFinalize {
+		return nil
+	}
+
+	sort.Slice(auctionSlots, func(i, j int) bool {
+		return auctionSlots[i].Position < auctionSlots[j].Position
+	})
+
+	activeBets, err := s.listActiveBetsBySegment(ctx, promotionID, segmentID, auctionDateFrom, auctionDateTo)
+	if err != nil {
+		return err
+	}
+	winners := make([]*repository.BetRow, 0, len(activeBets))
+	seenOffers := make(map[string]struct{}, len(activeBets))
+	for _, bet := range activeBets {
+		offerKey := fmt.Sprintf("%d:%d", bet.SellerID, bet.ProductID)
+		if _, exists := seenOffers[offerKey]; exists {
+			continue
+		}
+		seenOffers[offerKey] = struct{}{}
+		winners = append(winners, bet)
+		if len(winners) >= len(auctionSlots) {
+			break
+		}
+	}
+
+	for _, slot := range auctionSlots {
+		slot.Status = "rejected"
+		slot.SellerID = nil
+		slot.ProductID = nil
+		slot.Price = nil
+		if err := s.slotRepo.Update(ctx, slot); err != nil {
+			return err
+		}
+	}
+
+	for i, winner := range winners {
+		if i >= len(auctionSlots) {
+			break
+		}
+
+		slot := auctionSlots[i]
+		slot.Status = "moderation"
+		slot.SellerID = &winner.SellerID
+		slot.ProductID = &winner.ProductID
+		slotPrice := winner.Bet
+		slot.Price = &slotPrice
+		if err := s.slotRepo.Update(ctx, slot); err != nil {
+			return err
+		}
+
+		discount := 0
+		product, err := s.productRepo.GetByID(ctx, winner.ProductID)
+		if err != nil {
+			return err
+		}
+		if product != nil {
+			discount = product.Discount
+		}
+
+		row := &repository.ModerationRow{
+			PromotionID: promotionID,
+			SegmentID:   segmentID,
+			SlotID:      slot.ID,
+			SellerID:    winner.SellerID,
+			ProductID:   winner.ProductID,
+			Discount:    discount,
+			Status:      "pending",
+		}
+		if _, err := s.moderationRepo.Create(ctx, row); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) listActiveBetsBySegment(
+	ctx context.Context,
+	promotionID int64,
+	segmentID int64,
+	auctionDateFrom string,
+	auctionDateTo string,
+) ([]*repository.BetRow, error) {
+	bets, err := s.betRepo.ListBySegment(ctx, promotionID, segmentID, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	fromTime, fromErr := parseAuctionTime(auctionDateFrom)
+	toTime, toErr := parseAuctionTime(auctionDateTo)
+	if fromErr != nil || toErr != nil {
+		return bets, nil
+	}
+
+	active := make([]*repository.BetRow, 0, len(bets))
+	for _, bet := range bets {
+		betTime, err := parseAuctionTime(bet.CreatedAt)
+		if err != nil {
+			continue
+		}
+		if betTime.Before(fromTime) || betTime.After(toTime) {
+			continue
+		}
+		active = append(active, bet)
+	}
+	return active, nil
 }
 
 func (s *Service) getTopBid(ctx context.Context, slotID int64) (int64, error) {
