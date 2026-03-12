@@ -74,7 +74,12 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo, pollRepo)
 	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo)
-	aiService := ai.New()
+	aiService := ai.New(ai.Config{
+		Provider:         cfg.AIProvider,
+		GeminiAPIKey:     cfg.GeminiAPIKey,
+		GeminiModel:      cfg.GeminiModel,
+		GeminiAPIBaseURL: cfg.GeminiAPIBaseURL,
+	})
 
 	// Create API services
 	adminAPIService := admin_api.New(promotionService)

@@ -115,6 +115,10 @@ func (a *App) handleAdminGetAuctionParams(w http.ResponseWriter, r *http.Request
 	}
 	promo, err := a.promotionService.GetPromotion(r.Context(), id)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			writeJSONError(w, http.StatusNotFound, "promotion not found")
+			return
+		}
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -420,6 +424,10 @@ func (a *App) handleAdminSetAuctionParams(w http.ResponseWriter, r *http.Request
 	}
 	promo, err := a.promotionService.GetPromotion(r.Context(), id)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			writeJSONError(w, http.StatusNotFound, "promotion not found")
+			return
+		}
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

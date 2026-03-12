@@ -12,6 +12,7 @@ interface BasicInfoCardProps {
     settings: ActionSettings;
     aiThemes: Theme[];
     onSettingsChange: (settings: ActionSettings) => void;
+    onGenerateName: () => void;
     onGenerateDescription: () => void;
     onGenerateThemes: () => void;
 }
@@ -20,6 +21,7 @@ export function BasicInfoCard({
     settings,
     aiThemes,
     onSettingsChange,
+    onGenerateName,
     onGenerateDescription,
     onGenerateThemes,
 }: BasicInfoCardProps) {
@@ -30,13 +32,18 @@ export function BasicInfoCard({
             </CardHeader>
             <CardContent className="space-y-4">
                 <div>
-                    <Label htmlFor="name">Название акции</Label>
+                    <div className="flex items-center justify-between mb-1">
+                        <Label htmlFor="name">Название акции</Label>
+                        <Button variant="ghost" size="sm" onClick={onGenerateName}>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Сгенерировать AI
+                        </Button>
+                    </div>
                     <Input
                         id="name"
                         value={settings.name}
                         onChange={(e) => onSettingsChange({ ...settings, name: e.target.value })}
                         placeholder="Гороскопные Скидки - Январь 2026"
-                        className="mt-1"
                     />
                 </div>
 
