@@ -82,33 +82,31 @@ export const useHomePage = () => {
         setPendingSegmentPath(segment);
 
         try {
-            if (userSegment) {
-                navigateToSegment(segment);
-                } else {
-                if (!currentPromotionId) {
-                    setTestQuestions(TEST_QUESTIONS);
-                    setShowTestModal(true);
-                    return;
-                }
-
-                const response = await buyerClient.startIdentification({ promotionId: currentPromotionId });
-
-                if (response.method === "user_profile" && response.resultSegmentId) {
-                    const path = segmentPathById[response.resultSegmentId] || buildSegmentPath(currentPromotionId, response.resultSegmentId);
-                    if (rememberSegment) {
-                        setUserSegment(response.resultSegmentId);
-                        localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, response.resultSegmentId);
-                    }
-                    navigateToSegment(path);
-                    return;
-                }
-
-                const mappedQuestions = mapPollToTestQuestions(response.poll);
-                setTestQuestions(mappedQuestions.length > 0 ? mappedQuestions : TEST_QUESTIONS);
+            if (!currentPromotionId) {
+                setTestQuestions(TEST_QUESTIONS);
                 setCurrentQuestion(0);
                 setAnswers({});
                 setShowTestModal(true);
+                return;
             }
+
+            const response = await buyerClient.startIdentification({ promotionId: currentPromotionId });
+
+            if (response.method === "user_profile" && response.resultSegmentId) {
+                const path = segmentPathById[response.resultSegmentId] || buildSegmentPath(currentPromotionId, response.resultSegmentId);
+                if (rememberSegment) {
+                    setUserSegment(response.resultSegmentId);
+                    localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, response.resultSegmentId);
+                }
+                navigateToSegment(path);
+                return;
+            }
+
+            const mappedQuestions = mapPollToTestQuestions(response.poll);
+            setTestQuestions(mappedQuestions.length > 0 ? mappedQuestions : TEST_QUESTIONS);
+            setCurrentQuestion(0);
+            setAnswers({});
+            setShowTestModal(true);
         } catch (e) {
             setHasError("Не удалось загрузить персональные данные");
         } finally {

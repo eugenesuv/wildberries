@@ -33,6 +33,8 @@ export function AdminSettingsPage() {
         handleRemoveTestQuestion,
         handleUpdateTestQuestion,
         handleUpdateTestOption,
+        handleAddTestOption,
+        handleRemoveTestOption,
         handleGenerateTestQuestions,
         handleGenerateAnswerTree,
         handleUpdateAnswerLink,
@@ -109,6 +111,8 @@ export function AdminSettingsPage() {
                             onRemoveQuestion={handleRemoveTestQuestion}
                             onUpdateQuestion={handleUpdateTestQuestion}
                             onUpdateOption={handleUpdateTestOption}
+                            onAddOption={handleAddTestOption}
+                            onRemoveOption={handleRemoveTestOption}
                             onGenerateQuestions={handleGenerateTestQuestions}
                             onGenerateAnswerTree={handleGenerateAnswerTree}
                             onUpdateAnswerLink={handleUpdateAnswerLink}

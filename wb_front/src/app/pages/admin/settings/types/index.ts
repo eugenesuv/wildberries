@@ -20,6 +20,8 @@ export interface TestQuestion {
 export interface AuctionSettings {
     minPrice: number;
     bidStep: number;
+    durationHours: number;
+    durationMinutes: number;
 }
 
 export interface FixedPriceSettings {

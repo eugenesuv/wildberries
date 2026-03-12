@@ -68,6 +68,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		productRepo,
 		moderationRepo,
 		auctionRepo,
+		betRepo,
 		pollRepo,
 	)
 
@@ -167,7 +168,7 @@ func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if a.serveCustomHTTP(w, r) {
 		return
 	}
-	// Delegate to gRPC gateway
+
 	a.gwmux.ServeHTTP(w, r)
 }
 

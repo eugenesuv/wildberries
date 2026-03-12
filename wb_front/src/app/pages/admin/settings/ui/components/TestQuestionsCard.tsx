@@ -15,6 +15,8 @@ interface TestQuestionsCardProps {
     onRemoveQuestion: (index: number) => void;
     onUpdateQuestion: (index: number, question: string) => void;
     onUpdateOption: (qIndex: number, optIndex: number, value: string) => void;
+    onAddOption: (questionIndex: number) => void;
+    onRemoveOption: (questionIndex: number, optionIndex: number) => void;
     onGenerateQuestions: () => void;
     onGenerateAnswerTree: () => void;
     onUpdateAnswerLink: (
@@ -63,6 +65,8 @@ export function TestQuestionsCard({
     onRemoveQuestion,
     onUpdateQuestion,
     onUpdateOption,
+    onAddOption,
+    onRemoveOption,
     onGenerateQuestions,
     onGenerateAnswerTree,
     onUpdateAnswerLink,
@@ -367,7 +371,7 @@ export function TestQuestionsCard({
                                 const link = resolveLink(qIndex, oIndex);
                                 return (
                                     <div key={oIndex} className="rounded-md border bg-slate-50 p-3">
-                                        <div className="grid gap-2 md:grid-cols-[1.2fr_0.8fr_1fr]">
+                                        <div className="grid gap-2 md:grid-cols-[1.2fr_0.8fr_1fr_auto]">
                                             <Input
                                                 placeholder={`Вариант ${oIndex + 1}`}
                                                 value={option}
@@ -422,10 +426,27 @@ export function TestQuestionsCard({
                                                     ))}
                                                 </select>
                                             )}
+
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                disabled={question.options.length <= 2}
+                                                onClick={() => onRemoveOption(qIndex, oIndex)}
+                                                title="Удалить вариант"
+                                            >
+                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                            </Button>
                                         </div>
                                     </div>
                                 );
                             })}
+                            <div>
+                                <Button type="button" variant="outline" size="sm" onClick={() => onAddOption(qIndex)}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Добавить вариант
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 ))}

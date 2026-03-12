@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jackc/pgx/v5"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
+
 	"wildberries/internal/service/buyer"
 	desc "wildberries/pkg/buyer"
 	commonpb "wildberries/pkg/common"
@@ -70,6 +74,9 @@ func (s *Service) GetSegmentProducts(ctx context.Context, req *desc.GetSegmentPr
 	// Call service
 	items, total, completed, err := s.buyerService.GetSegmentProducts(ctx, req.PromotionId, req.SegmentId, filters)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, grpcstatus.Error(codes.NotFound, "segment not found for promotion")
+		}
 		return nil, err
 	}
 

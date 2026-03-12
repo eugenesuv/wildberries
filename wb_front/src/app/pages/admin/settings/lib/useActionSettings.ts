@@ -322,6 +322,12 @@ const fetchPromotionState = async (promotionId: number): Promise<LoadedPromotion
         auctionSettings: {
             minPrice: Number((auctionParams as any)?.minPrice || DEFAULT_AUCTION_SETTINGS.minPrice),
             bidStep: Number((auctionParams as any)?.bidStep || DEFAULT_AUCTION_SETTINGS.bidStep),
+            durationHours: Number((auctionParams as any)?.durationHours || DEFAULT_AUCTION_SETTINGS.durationHours),
+            durationMinutes: Number(
+                (auctionParams as any)?.durationMinutes ||
+                    ((auctionParams as any)?.durationHours ? Number((auctionParams as any)?.durationHours) * 60 : 0) ||
+                    DEFAULT_AUCTION_SETTINGS.durationMinutes,
+            ),
         },
         fixedPriceSettings: { priceByPosition: fixedPriceMap },
         slotCount: Number(promotion.slotCount || 10),
@@ -617,6 +623,34 @@ export const useActionSettings = () => {
         });
     };
 
+    const handleAddTestOption = (questionIndex: number) => {
+        setNormalizedSettings((prev) => {
+            const testQuestions = [...prev.testQuestions];
+            if (!testQuestions[questionIndex]) {
+                return prev;
+            }
+            testQuestions[questionIndex].options = [...(testQuestions[questionIndex].options || []), ""];
+            return { ...prev, testQuestions };
+        });
+    };
+
+    const handleRemoveTestOption = (questionIndex: number, optionIndex: number) => {
+        setNormalizedSettings((prev) => {
+            const testQuestions = [...prev.testQuestions];
+            const question = testQuestions[questionIndex];
+            if (!question) {
+                return prev;
+            }
+            const options = [...(question.options || [])];
+            if (options.length <= 2 || optionIndex < 0 || optionIndex >= options.length) {
+                return prev;
+            }
+            options.splice(optionIndex, 1);
+            question.options = options;
+            return { ...prev, testQuestions };
+        });
+    };
+
     const handleGenerateTestQuestions = async () => {
         setHasError(null);
         try {
@@ -778,6 +812,8 @@ export const useActionSettings = () => {
                 await adminClient.setAuctionParams(promotionId, {
                     minPrice: Number(settings.auctionSettings?.minPrice || 0),
                     bidStep: Number(settings.auctionSettings?.bidStep || 0),
+                    durationHours: Number(settings.auctionSettings?.durationHours || DEFAULT_AUCTION_SETTINGS.durationHours),
+                    durationMinutes: Number(settings.auctionSettings?.durationMinutes || 0),
                 });
             }
 
@@ -844,6 +880,8 @@ export const useActionSettings = () => {
         handleRemoveTestQuestion,
         handleUpdateTestQuestion,
         handleUpdateTestOption,
+        handleAddTestOption,
+        handleRemoveTestOption,
         handleGenerateTestQuestions,
         handleGenerateAnswerTree,
         handleUpdateAnswerLink,

@@ -6,16 +6,10 @@ import type {
 import type { Promotion, TestQuestion } from "../types";
 
 const PROMO_GRADIENTS = [
-    "from-yellow-500 via-orange-500 to-red-500",
-    "from-green-500 via-emerald-500 to-teal-500",
-    "from-pink-500 via-purple-500 to-indigo-500",
-    "from-sky-500 via-blue-500 to-cyan-500",
-];
-
-const buildSubtitleVariants = (segmentName: string, categoryName: string, theme: string): string[] => [
-    categoryName ? `Подборка по категории: ${categoryName}` : `Персональная подборка для сегмента ${segmentName}`,
-    theme ? `Тема акции: ${theme}` : "Актуальные предложения для вашего сегмента",
-    `Откройте товары для сегмента «${segmentName}»`,
+	"from-yellow-500 via-orange-500 to-red-500",
+	"from-green-500 via-emerald-500 to-teal-500",
+	"from-pink-500 via-purple-500 to-indigo-500",
+	"from-sky-500 via-blue-500 to-cyan-500",
 ];
 
 const mapQuestion = (question: BuyerPollQuestion, index: number): TestQuestion => ({
@@ -28,17 +22,28 @@ const mapQuestion = (question: BuyerPollQuestion, index: number): TestQuestion =
 });
 
 export const mapCurrentPromotionToCarousel = (promotion?: BuyerGetCurrentPromotionResponse | null): Promotion[] => {
-    if (!promotion?.id) {
-        return [];
-    }
+	if (!promotion?.id) {
+		return [];
+	}
 
-    return (promotion.segments || []).map((segment, index) => ({
-        id: Number(segment.id || index + 1),
-        segment: `${promotion.id}/${segment.id}`,
-        title: segment.text?.trim() || segment.name || `Сегмент ${index + 1}`,
-        subtitleVariants: buildSubtitleVariants(segment.name, segment.categoryName, promotion.theme),
-        gradient: PROMO_GRADIENTS[index % PROMO_GRADIENTS.length],
-    }));
+	const firstSegment = promotion.segments?.[0];
+	if (!firstSegment?.id) {
+		return [];
+	}
+
+	return [
+		{
+			id: Number(promotion.id),
+			segment: `${promotion.id}/${firstSegment.id}`,
+			title: promotion.name?.trim() || "Текущая акция",
+			subtitleVariants: [
+				promotion.description?.trim() || "Пройдите идентификацию и получите персональную подборку",
+				`Тема акции: ${promotion.theme || "без темы"}`,
+				"Откройте акцию и пройдите тест сегментации",
+			],
+			gradient: PROMO_GRADIENTS[0],
+		},
+	];
 };
 
 export const mapPollToTestQuestions = (poll?: BuyerPoll): TestQuestion[] => {
