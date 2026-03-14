@@ -3,7 +3,7 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- promotion: discount from admin (single field); min_price/bid_step for auction model
-CREATE TABLE "public"."promotion" (
+CREATE TABLE IF NOT EXISTS "public"."promotion" (
     "id" bigserial PRIMARY KEY,
     "name" text NOT NULL,
     "description" text NOT NULL,
@@ -24,15 +24,15 @@ CREATE TABLE "public"."promotion" (
     "deleted_at" timestamptz
 );
 
-CREATE INDEX idx_promotion_status ON "public"."promotion" ("status");
-CREATE INDEX idx_promotion_dates ON "public"."promotion" ("date_from", "date_to");
+CREATE INDEX IF NOT EXISTS idx_promotion_status ON "public"."promotion" ("status");
+CREATE INDEX IF NOT EXISTS idx_promotion_dates ON "public"."promotion" ("date_from", "date_to");
 
-CREATE TABLE "public"."zodiac" (
+CREATE TABLE IF NOT EXISTS "public"."zodiac" (
     "id" bigserial PRIMARY KEY,
     "name" text NOT NULL
 );
 
-CREATE TABLE "public"."product" (
+CREATE TABLE IF NOT EXISTS "public"."product" (
     "id" bigserial PRIMARY KEY,
     "seller_id" bigint NOT NULL,
     "nm_id" bigint NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE "public"."product" (
     "deleted_at" timestamptz
 );
 
-CREATE INDEX idx_product_seller ON "public"."product" ("seller_id");
+CREATE INDEX IF NOT EXISTS idx_product_seller ON "public"."product" ("seller_id");
 
-CREATE TABLE "public"."horoscope" (
+CREATE TABLE IF NOT EXISTS "public"."horoscope" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "zodiac_id" bigint NOT NULL REFERENCES "public"."zodiac" ("id"),
@@ -58,13 +58,13 @@ CREATE TABLE "public"."horoscope" (
     "category_id" bigint NOT NULL
 );
 
-CREATE TABLE "public"."horoscope_product" (
+CREATE TABLE IF NOT EXISTS "public"."horoscope_product" (
     "horoscope_id" bigint NOT NULL REFERENCES "public"."horoscope" ("id"),
     "product_id" bigint NOT NULL REFERENCES "public"."product" ("id"),
     PRIMARY KEY ("horoscope_id", "product_id")
 );
 
-CREATE TABLE "public"."segment" (
+CREATE TABLE IF NOT EXISTS "public"."segment" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "name" text NOT NULL,
@@ -77,9 +77,9 @@ CREATE TABLE "public"."segment" (
     "updated_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_segment_promotion ON "public"."segment" ("promotion_id");
+CREATE INDEX IF NOT EXISTS idx_segment_promotion ON "public"."segment" ("promotion_id");
 
-CREATE TABLE "public"."poll_question" (
+CREATE TABLE IF NOT EXISTS "public"."poll_question" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "text" text NOT NULL,
@@ -88,9 +88,9 @@ CREATE TABLE "public"."poll_question" (
     "updated_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_poll_question_promotion ON "public"."poll_question" ("promotion_id");
+CREATE INDEX IF NOT EXISTS idx_poll_question_promotion ON "public"."poll_question" ("promotion_id");
 
-CREATE TABLE "public"."poll_option" (
+CREATE TABLE IF NOT EXISTS "public"."poll_option" (
     "id" bigserial PRIMARY KEY,
     "question_id" bigint NOT NULL REFERENCES "public"."poll_question" ("id"),
     "text" text NOT NULL,
@@ -100,9 +100,9 @@ CREATE TABLE "public"."poll_option" (
     "updated_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_poll_option_question ON "public"."poll_option" ("question_id");
+CREATE INDEX IF NOT EXISTS idx_poll_option_question ON "public"."poll_option" ("question_id");
 
-CREATE TABLE "public"."poll_answer_tree" (
+CREATE TABLE IF NOT EXISTS "public"."poll_answer_tree" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "node_id" uuid NOT NULL,
@@ -112,10 +112,10 @@ CREATE TABLE "public"."poll_answer_tree" (
     "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_poll_answer_tree_promotion ON "public"."poll_answer_tree" ("promotion_id");
+CREATE INDEX IF NOT EXISTS idx_poll_answer_tree_promotion ON "public"."poll_answer_tree" ("promotion_id");
 
 -- auction: one per promotion (global auction for the promotion)
-CREATE TABLE "public"."auction" (
+CREATE TABLE IF NOT EXISTS "public"."auction" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "date_from" timestamptz NOT NULL,
@@ -127,10 +127,10 @@ CREATE TABLE "public"."auction" (
     "deleted_at" timestamptz
 );
 
-CREATE UNIQUE INDEX idx_auction_promotion ON "public"."auction" ("promotion_id");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_auction_promotion ON "public"."auction" ("promotion_id");
 
 -- slot: auction_id references the promotion's single auction
-CREATE TABLE "public"."slot" (
+CREATE TABLE IF NOT EXISTS "public"."slot" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "segment_id" bigint NOT NULL REFERENCES "public"."segment" ("id"),
@@ -145,12 +145,12 @@ CREATE TABLE "public"."slot" (
     "updated_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_slot_segment ON "public"."slot" ("segment_id");
-CREATE INDEX idx_slot_status ON "public"."slot" ("status");
-CREATE INDEX idx_slot_seller ON "public"."slot" ("seller_id");
+CREATE INDEX IF NOT EXISTS idx_slot_segment ON "public"."slot" ("segment_id");
+CREATE INDEX IF NOT EXISTS idx_slot_status ON "public"."slot" ("status");
+CREATE INDEX IF NOT EXISTS idx_slot_seller ON "public"."slot" ("seller_id");
 
 -- bet: bid for a specific slot in the promotion's auction
-CREATE TABLE "public"."bet" (
+CREATE TABLE IF NOT EXISTS "public"."bet" (
     "id" bigserial PRIMARY KEY,
     "auction_id" bigint NOT NULL REFERENCES "public"."auction" ("id"),
     "slot_id" bigint NOT NULL REFERENCES "public"."slot" ("id"),
@@ -161,10 +161,10 @@ CREATE TABLE "public"."bet" (
     "deleted_at" timestamptz
 );
 
-CREATE INDEX idx_bet_auction ON "public"."bet" ("auction_id");
-CREATE INDEX idx_bet_slot ON "public"."bet" ("slot_id");
+CREATE INDEX IF NOT EXISTS idx_bet_auction ON "public"."bet" ("auction_id");
+CREATE INDEX IF NOT EXISTS idx_bet_slot ON "public"."bet" ("slot_id");
 
-CREATE TABLE "public"."moderation" (
+CREATE TABLE IF NOT EXISTS "public"."moderation" (
     "id" bigserial PRIMARY KEY,
     "promotion_id" bigint NOT NULL REFERENCES "public"."promotion" ("id"),
     "segment_id" bigint NOT NULL REFERENCES "public"."segment" ("id"),
@@ -180,8 +180,8 @@ CREATE TABLE "public"."moderation" (
     "moderator_id" bigint
 );
 
-CREATE INDEX idx_moderation_promotion ON "public"."moderation" ("promotion_id");
-CREATE INDEX idx_moderation_status ON "public"."moderation" ("status");
+CREATE INDEX IF NOT EXISTS idx_moderation_promotion ON "public"."moderation" ("promotion_id");
+CREATE INDEX IF NOT EXISTS idx_moderation_status ON "public"."moderation" ("status");
 
 -- +goose StatementEnd
 

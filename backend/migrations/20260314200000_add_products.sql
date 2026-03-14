@@ -1,5 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
+DELETE FROM public.product
+WHERE nm_id IN (910001, 910002, 910003, 910004, 910005, 910006);
+
 INSERT INTO public.product (seller_id, nm_id, category_id, category_name, name, image, price, discount)
 VALUES
     (1, 910001, 101, 'Спорт и отдых', 'Фитнес-браслет SmartFit Pro', 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=400', 3990, 33),
