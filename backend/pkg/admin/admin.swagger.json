@@ -240,6 +240,47 @@
         ]
       }
     },
+    "/admin/promotions/{promotionId}/auction-params": {
+      "put": {
+        "summary": "Установить параметры аукциона",
+        "description": "Устанавливает min_price и bid_step для аукциона акции",
+        "operationId": "SetAuctionParams",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/adminSetAuctionParamsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PromotionAdminServiceSetAuctionParamsBody"
+            }
+          }
+        ],
+        "tags": [
+          "Promotions"
+        ]
+      }
+    },
     "/admin/promotions/{promotionId}/fixed-prices": {
       "put": {
         "summary": "Установить фиксированные цены",
@@ -789,6 +830,20 @@
       },
       "title": "PUT /admin/promotions/{id}/status"
     },
+    "PromotionAdminServiceSetAuctionParamsBody": {
+      "type": "object",
+      "properties": {
+        "minPrice": {
+          "type": "string",
+          "format": "int64"
+        },
+        "bidStep": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "PUT /admin/promotions/{id}/auction-params"
+    },
     "PromotionAdminServiceSetFixedPricesBody": {
       "type": "object",
       "properties": {
@@ -1180,6 +1235,9 @@
       }
     },
     "adminSetAnswerTreeResponse": {
+      "type": "object"
+    },
+    "adminSetAuctionParamsResponse": {
       "type": "object"
     },
     "adminSetFixedPricesResponse": {

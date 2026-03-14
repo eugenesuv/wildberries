@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
 
@@ -261,6 +262,22 @@ func (s *Service) DeletePromotion(ctx context.Context, id int64) error {
 // SetFixedPrices sets fixed prices for positions 1..slot_count
 func (s *Service) SetFixedPrices(ctx context.Context, promotionID int64, prices map[int32]int64) error {
 	return s.promotionRepo.SetFixedPrices(ctx, promotionID, mustJSON(prices))
+}
+
+// SetAuctionParams sets auction parameters (min_price, bid_step) for a promotion
+func (s *Service) SetAuctionParams(ctx context.Context, promotionID int64, minPrice, bidStep int64) error {
+	err := s.promotionRepo.SetAuctionParams(ctx, promotionID, minPrice, bidStep)
+	if err != nil {
+		return err
+	}
+	// Update auction table if it exists
+	_, _, _, _, _, err = s.auctionRepo.GetByPromotionID(ctx, promotionID)
+	if err != nil {
+		// If auction doesn't exist, we don't create it - just update promotion
+		// This is consistent with the behavior where auction is created on status change
+		return nil
+	}
+	return s.auctionRepo.Update(ctx, promotionID, minPrice, bidStep)
 }
 
 func (s *Service) GetAuctionByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error) {

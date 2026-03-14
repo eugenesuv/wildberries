@@ -3,8 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v5/pgxpool"

@@ -46,4 +46,10 @@ func (r *AuctionPostgres) UpsertByPromotion(ctx context.Context, promotionID int
 	return id, err
 }
 
+func (r *AuctionPostgres) Update(ctx context.Context, promotionID int64, minPrice, bidStep int64) error {
+	_, err := r.pool.Exec(ctx, `UPDATE public.auction SET min_price=$2, bid_step=$3, updated_at=now() WHERE promotion_id=$1`,
+		promotionID, minPrice, bidStep)
+	return err
+}
+
 var _ AuctionRepository = (*AuctionPostgres)(nil)

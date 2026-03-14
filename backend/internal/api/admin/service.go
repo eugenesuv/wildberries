@@ -218,6 +218,15 @@ func (s *Service) ChangeStatus(ctx context.Context, req *desc.ChangeStatusReques
 	return &desc.ChangeStatusResponse{}, nil
 }
 
+// SetAuctionParams sets auction parameters (min_price, bid_step) for a promotion
+func (s *Service) SetAuctionParams(ctx context.Context, req *desc.SetAuctionParamsRequest) (*desc.SetAuctionParamsResponse, error) {
+	err := s.promotionService.SetAuctionParams(ctx, req.PromotionId, req.MinPrice, req.BidStep)
+	if err != nil {
+		return nil, err
+	}
+	return &desc.SetAuctionParamsResponse{}, nil
+}
+
 func mapChangeStatusError(err error) error {
 	if err == nil {
 		return nil
