@@ -86,7 +86,12 @@ frontend-build:
 # Migrations
 # =====================
 migrations-up:
-	cd $(BACKEND_PATH) && goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+	@$(call MKDIR,$(LOCAL_BIN))
+ifeq ($(OS),Windows_NT)
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; goose -dir ./backend/migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up"
+else
+	GOBIN=$(LOCAL_BIN) goose -dir ./backend/migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+endif
 
 migrations-down:
 	cd $(BACKEND_PATH) && goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" down
