@@ -12,8 +12,8 @@
 
 - Backend поддерживает `AI_PROVIDER=stub|gemini` (`stub` — default).
 - Для реального AI нужно задать `AI_PROVIDER=gemini` и `GEMINI_API_KEY`.
-- Ключ хранить только в backend env (`backend/.env`, gitignored), никогда не прокидывать во frontend.
-- Шаблон переменных: `backend/.env.example`.
+- Ключ хранить только в backend env (`backend/.env.backend`, gitignored), никогда не прокидывать во frontend.
+- Шаблон переменных: `backend/.env.backend.example`.
 
 ## Порядок запуска (локально)
 

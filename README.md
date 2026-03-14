@@ -18,8 +18,8 @@
 
 Ключ Gemini используется только на backend.
 
-1. Создать локальный файл `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env` (файл игнорируется git).
-2. Скопировать туда значения из `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.example`.
+1. Создать локальный файл `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.backend` (файл игнорируется git).
+2. Скопировать туда значения из `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.backend.example`.
 3. Вставить ваш ключ в `GEMINI_API_KEY`.
 
 Пример:

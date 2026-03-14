@@ -19,6 +19,8 @@ codex-integration-context.local.md
 
 # Environment files (keep examples committed separately if needed)
 .env
+.env.backend
+.env.frontend
 .env.local
 .env.*.local
 
