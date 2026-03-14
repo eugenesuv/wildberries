@@ -3,6 +3,9 @@ package buyer
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"wildberries/internal/entity"
 	"wildberries/internal/repository"
@@ -85,6 +88,10 @@ func (s *Service) GetCurrentPromotion(ctx context.Context) (*entity.Promotion, e
 
 // GetSegmentProducts gets products for a segment (occupied slots); discount from WB or seller
 func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID int64, filters *ProductFilters) ([]*entity.ProductItem, int, bool, error) {
+	if _, err := s.segmentRepo.GetByPromoAndSegment(ctx, promotionID, segmentID); err != nil {
+		return nil, 0, false, err
+	}
+
 	slots, err := s.slotRepo.BySegmentID(ctx, segmentID, true)
 	if err != nil {
 		return nil, 0, false, err
@@ -222,17 +229,17 @@ func (s *Service) AnswerIdentification(ctx context.Context, promotionID, questio
 	}
 
 	var idx = -1
+	optionIdx := -1
 	for i, q := range questions {
 		if q.ID == questionID {
 			idx = i
-			valid := false
-			for _, opt := range q.Options {
+			for j, opt := range q.Options {
 				if opt.ID == optionID {
-					valid = true
+					optionIdx = j
 					break
 				}
 			}
-			if !valid {
+			if optionIdx == -1 {
 				return 0, 0, errors.New("invalid option for question")
 			}
 			break
@@ -241,6 +248,13 @@ func (s *Service) AnswerIdentification(ctx context.Context, promotionID, questio
 	if idx == -1 {
 		return 0, 0, errors.New("question not found")
 	}
+
+	if nextQuestionID, resultSegmentID, resolved, err := s.resolveAnswerTreeTransition(ctx, promotionID, questions, idx, optionIdx); err != nil {
+		return 0, 0, err
+	} else if resolved {
+		return nextQuestionID, resultSegmentID, nil
+	}
+
 	if idx < len(questions)-1 {
 		return questions[idx+1].ID, 0, nil
 	}
@@ -249,6 +263,99 @@ func (s *Service) AnswerIdentification(ctx context.Context, promotionID, questio
 		return 0, 0, err
 	}
 	return 0, segmentID, nil
+}
+
+func (s *Service) resolveAnswerTreeTransition(
+	ctx context.Context,
+	promotionID int64,
+	questions []PollQuestion,
+	questionIndex int,
+	optionIndex int,
+) (nextQuestionID int64, resultSegmentID int64, resolved bool, err error) {
+	if s.pollRepo == nil {
+		return 0, 0, false, nil
+	}
+
+	treeRows, err := s.pollRepo.AnswerTreeByPromotion(ctx, promotionID)
+	if err != nil {
+		return 0, 0, false, err
+	}
+	if len(treeRows) == 0 {
+		return 0, 0, false, nil
+	}
+
+	edgeLabel := fmt.Sprintf("edge:q%d:o%d", questionIndex, optionIndex)
+	targetValueRaw := ""
+	for _, row := range treeRows {
+		if strings.EqualFold(strings.TrimSpace(row.Label), edgeLabel) {
+			targetValueRaw = strings.TrimSpace(row.Value)
+			break
+		}
+	}
+	if targetValueRaw == "" {
+		return 0, 0, false, nil
+	}
+
+	parts := strings.SplitN(targetValueRaw, ":", 2)
+	if len(parts) != 2 {
+		return 0, 0, false, nil
+	}
+	targetType := strings.ToLower(strings.TrimSpace(parts[0]))
+	targetValue := strings.TrimSpace(parts[1])
+	if targetValue == "" {
+		return 0, 0, false, nil
+	}
+
+	switch targetType {
+	case "question":
+		nextQuestionIndex, err := strconv.Atoi(targetValue)
+		if err != nil || nextQuestionIndex < 0 || nextQuestionIndex >= len(questions) {
+			return 0, 0, false, nil
+		}
+		return questions[nextQuestionIndex].ID, 0, true, nil
+	case "segment":
+		segmentID, found, err := s.resolveSegmentTarget(ctx, promotionID, targetValue)
+		if err != nil {
+			return 0, 0, false, err
+		}
+		if !found {
+			return 0, 0, false, nil
+		}
+		return 0, segmentID, true, nil
+	default:
+		return 0, 0, false, nil
+	}
+}
+
+func (s *Service) resolveSegmentTarget(ctx context.Context, promotionID int64, target string) (segmentID int64, found bool, err error) {
+	segments, err := s.segmentRepo.ByPromotionID(ctx, promotionID)
+	if err != nil {
+		return 0, false, err
+	}
+
+	if parsedID, parseErr := strconv.ParseInt(target, 10, 64); parseErr == nil {
+		for _, segment := range segments {
+			if segment.ID == parsedID {
+				return parsedID, true, nil
+			}
+		}
+
+		if parsedID > 0 && parsedID <= int64(len(segments)) {
+			return segments[parsedID-1].ID, true, nil
+		}
+		if parsedID >= 0 && parsedID < int64(len(segments)) {
+			return segments[parsedID].ID, true, nil
+		}
+	}
+
+	normalizedTarget := strings.TrimSpace(target)
+	for _, segment := range segments {
+		if strings.EqualFold(strings.TrimSpace(segment.Name), normalizedTarget) {
+			return segment.ID, true, nil
+		}
+	}
+
+	return 0, false, nil
 }
 
 func (s *Service) buildPollQuestions(ctx context.Context, promotionID int64) ([]PollQuestion, error) {

@@ -2,10 +2,14 @@ export type PricingModel = "auction" | "fixed";
 export type IdentificationMode = "questions" | "user_profile";
 export type PromotionStatus = "NOT_READY" | "READY_TO_START" | "RUNNING" | "PAUSED" | "COMPLETED";
 
+export type TestAnswerTargetType = "question" | "segment";
+
 export interface TestAnswerNode {
-    label: string;
-    value: string;
-    next?: TestAnswerNode[];
+    id: string;
+    questionIndex: number;
+    optionIndex: number;
+    targetType: TestAnswerTargetType;
+    targetValue: string;
 }
 
 export interface TestQuestion {
@@ -16,6 +20,8 @@ export interface TestQuestion {
 export interface AuctionSettings {
     minPrice: number;
     bidStep: number;
+    durationHours: number;
+    durationMinutes: number;
 }
 
 export interface FixedPriceSettings {
@@ -39,6 +45,7 @@ export interface ActionSettings {
     stopFactors: string[];
     testQuestions: TestQuestion[];
     testAnswerTree: TestAnswerNode[];
+    testStartQuestionIndex: number;
     identificationMode: IdentificationMode;
 }
 

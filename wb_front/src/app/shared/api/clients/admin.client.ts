@@ -42,13 +42,15 @@ class AdminClient extends ApiClient {
         return this.get(`/admin/promotions/${id}`);
     }
 
-    async getAuctionParams(promotionId: number): Promise<{ minPrice?: number; bidStep?: number }> {
+    async getAuctionParams(
+        promotionId: number,
+    ): Promise<{ minPrice?: number; bidStep?: number; durationHours?: number; durationMinutes?: number }> {
         return this.get(`/admin/promotions/${promotionId}/auction-params`);
     }
 
     async setAuctionParams(
         promotionId: number,
-        data: { minPrice?: number; bidStep?: number },
+        data: { minPrice?: number; bidStep?: number; durationHours?: number; durationMinutes?: number },
     ): Promise<Record<string, never>> {
         return this.put(`/admin/promotions/${promotionId}/auction-params`, data);
     }

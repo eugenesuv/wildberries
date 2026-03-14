@@ -34,6 +34,9 @@ export function SellerSlotMarketPage() {
         handleGoBack,
     } = useSellerSlotMarket();
 
+    const showAuctionTab = auctionSlots.length > 0;
+    const showFixedTab = fixedPriceSlots.length > 0;
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
             <SlotMarketHeader segment={segment} onGoBack={handleGoBack} />
@@ -46,20 +49,32 @@ export function SellerSlotMarketPage() {
                         </div>
                     )}
                     {isLoading && <div className="mb-4 text-sm text-muted-foreground">Загрузка слотов...</div>}
+                    {!isLoading && !showAuctionTab && !showFixedTab && (
+                        <div className="mb-4 text-sm text-muted-foreground">В этом сегменте пока нет доступных слотов</div>
+                    )}
                     <Tabs
                         value={activeTab}
                         onValueChange={(v) => setActiveTab(v as "auction" | "fixed")}
                         className="space-y-6"
                     >
-                        <PricingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                        <PricingTabs
+                            activeTab={activeTab}
+                            showAuction={showAuctionTab}
+                            showFixed={showFixedTab}
+                            onTabChange={setActiveTab}
+                        />
 
-                        <TabsContent value="auction" className="mt-6">
-                            <AuctionSlotsGrid slots={auctionSlots} onBid={handleBid} />
-                        </TabsContent>
+                        {showAuctionTab && (
+                            <TabsContent value="auction" className="mt-6">
+                                <AuctionSlotsGrid slots={auctionSlots} onBid={handleBid} />
+                            </TabsContent>
+                        )}
 
-                        <TabsContent value="fixed" className="mt-6">
-                            <FixedPriceSlotsGrid slots={fixedPriceSlots} onBuy={handleBuyFixed} />
-                        </TabsContent>
+                        {showFixedTab && (
+                            <TabsContent value="fixed" className="mt-6">
+                                <FixedPriceSlotsGrid slots={fixedPriceSlots} onBuy={handleBuyFixed} />
+                            </TabsContent>
+                        )}
                     </Tabs>
                 </motion.div>
             </div>

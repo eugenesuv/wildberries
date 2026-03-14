@@ -20,6 +20,7 @@ export function AdminSettingsPage() {
         isStatusChanging,
         hasError,
         promotionStatus,
+        handleGenerateName,
         handleGenerateDescription,
         handleGenerateThemes,
         handleGenerateSegments,
@@ -32,8 +33,12 @@ export function AdminSettingsPage() {
         handleRemoveTestQuestion,
         handleUpdateTestQuestion,
         handleUpdateTestOption,
+        handleAddTestOption,
+        handleRemoveTestOption,
         handleGenerateTestQuestions,
         handleGenerateAnswerTree,
+        handleUpdateAnswerLink,
+        handleUpdateTestStartQuestion,
         handleToggleStopFactor,
         handleSave,
         handleChangeStatus,
@@ -72,6 +77,7 @@ export function AdminSettingsPage() {
                         settings={settings}
                         aiThemes={aiThemes}
                         onSettingsChange={setSettings}
+                        onGenerateName={handleGenerateName}
                         onGenerateDescription={handleGenerateDescription}
                         onGenerateThemes={handleGenerateThemes}
                     />
@@ -98,13 +104,19 @@ export function AdminSettingsPage() {
                     {settings.identificationMode === "questions" && (
                         <TestQuestionsCard
                             questions={settings.testQuestions}
+                            segments={settings.segments}
                             answerTree={settings.testAnswerTree}
+                            startQuestionIndex={settings.testStartQuestionIndex}
                             onAddQuestion={handleAddTestQuestion}
                             onRemoveQuestion={handleRemoveTestQuestion}
                             onUpdateQuestion={handleUpdateTestQuestion}
                             onUpdateOption={handleUpdateTestOption}
+                            onAddOption={handleAddTestOption}
+                            onRemoveOption={handleRemoveTestOption}
                             onGenerateQuestions={handleGenerateTestQuestions}
                             onGenerateAnswerTree={handleGenerateAnswerTree}
+                            onUpdateAnswerLink={handleUpdateAnswerLink}
+                            onUpdateStartQuestion={handleUpdateTestStartQuestion}
                         />
                     )}
                 </motion.div>

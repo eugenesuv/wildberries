@@ -42,6 +42,8 @@ export const STOP_FACTORS = [
 export const DEFAULT_AUCTION_SETTINGS: AuctionSettings = {
     minPrice: 1000,
     bidStep: 500,
+    durationHours: 24,
+    durationMinutes: 0,
 };
 
 export const DEFAULT_FIXED_PRICE_SETTINGS: FixedPriceSettings = {

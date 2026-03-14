@@ -78,9 +78,11 @@ export const useSellerSlotMarket = () => {
 
         let mounted = true;
 
-        const loadMarket = async () => {
-            setIsLoading(true);
-            setHasError(null);
+        const loadMarket = async (silent = false) => {
+            if (!silent) {
+                setIsLoading(true);
+                setHasError(null);
+            }
 
             try {
                 const [slotsResponse, productsResponse, segmentsResponse, actionsResponse] = await Promise.all([
@@ -94,8 +96,25 @@ export const useSellerSlotMarket = () => {
                     return;
                 }
 
-                setAuctionSlots((slotsResponse.auction || []).map(mapAuctionSlot));
-                setFixedPriceSlots((slotsResponse.fixed || []).map(mapFixedSlot));
+                const nextAuctionSlots = (slotsResponse.auction || []).map(mapAuctionSlot);
+                const nextFixedSlots = (slotsResponse.fixed || []).map(mapFixedSlot);
+                setAuctionSlots(nextAuctionSlots);
+                setFixedPriceSlots(nextFixedSlots);
+                setActiveTab((prev) => {
+                    if (nextAuctionSlots.length > 0 && nextFixedSlots.length === 0) {
+                        return "auction";
+                    }
+                    if (nextFixedSlots.length > 0 && nextAuctionSlots.length === 0) {
+                        return "fixed";
+                    }
+                    if (prev === "auction" && nextAuctionSlots.length === 0 && nextFixedSlots.length > 0) {
+                        return "fixed";
+                    }
+                    if (prev === "fixed" && nextFixedSlots.length === 0 && nextAuctionSlots.length > 0) {
+                        return "auction";
+                    }
+                    return prev;
+                });
 
                 const products = (productsResponse.items || []).map(mapCatalogProduct);
                 setSellerProducts(products);
@@ -115,18 +134,24 @@ export const useSellerSlotMarket = () => {
                     return;
                 }
 
-                setHasError("Не удалось загрузить рынок слотов");
+                if (!silent) {
+                    setHasError("Не удалось загрузить рынок слотов");
+                }
             } finally {
-                if (mounted) {
+                if (mounted && !silent) {
                     setIsLoading(false);
                 }
             }
         };
 
-        void loadMarket();
+        void loadMarket(false);
+        const timerId = window.setInterval(() => {
+            void loadMarket(true);
+        }, 30000);
 
         return () => {
             mounted = false;
+            window.clearInterval(timerId);
         };
     }, [actionId, segment]);
 

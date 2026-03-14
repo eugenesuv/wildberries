@@ -204,10 +204,25 @@ type AuctionRepository interface {
 	GetByPromotionID(ctx context.Context, promotionID int64) (id int64, minPrice, bidStep int64, dateFrom, dateTo string, err error)
 	Create(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
 	Update(ctx context.Context, promotionID int64, minPrice, bidStep int64) error
+	UpsertByPromotion(ctx context.Context, promotionID int64, dateFrom, dateTo string, minPrice, bidStep int64) (int64, error)
 }
 
 type BetRepository interface {
 	Create(ctx context.Context, auctionID, slotID, sellerID, productID int64, bet int64) (int64, error)
 	TopBySlot(ctx context.Context, slotID int64) (sellerID, productID int64, bet int64, err error)
+	TopBySegment(ctx context.Context, promotionID, segmentID int64) (sellerID, productID int64, bet int64, err error)
+	ListBySegment(ctx context.Context, promotionID, segmentID int64, limit int) ([]*BetRow, error)
+	ListBestBySeller(ctx context.Context, sellerID, promotionID int64) ([]*BetRow, error)
+	DeleteByPromotion(ctx context.Context, promotionID int64) error
 	DeleteBySlotAndSeller(ctx context.Context, slotID, sellerID int64) error
+}
+
+type BetRow struct {
+	ID        int64
+	AuctionID int64
+	SlotID    int64
+	SellerID  int64
+	ProductID int64
+	Bet       int64
+	CreatedAt string
 }
