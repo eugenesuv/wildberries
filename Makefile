@@ -43,6 +43,9 @@ PROTOC_GEN_GRPC := $(LOCAL_BIN)/protoc-gen-go-grpc$(EXE)
 PROTOC_GEN_GATEWAY := $(LOCAL_BIN)/protoc-gen-grpc-gateway$(EXE)
 PROTOC_GEN_OPENAPI := $(LOCAL_BIN)/protoc-gen-openapiv2$(EXE)
 
+# all
+all: bin-deps-small docker-up migrations-up
+
 # =====================
 # Docker
 # =====================
@@ -109,8 +112,16 @@ else
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@latest
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@latest
 endif
 
+bin-deps-small:
+	@$(call MKDIR,$(LOCAL_BIN))
+ifeq ($(OS),Windows_NT)
+	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; go install github.com/pressly/goose/v3/cmd/goose@latest"
+else
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@latest
+endif
 
 
 # =====================
