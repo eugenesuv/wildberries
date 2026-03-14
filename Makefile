@@ -90,7 +90,7 @@ migrations-up:
 ifeq ($(OS),Windows_NT)
 	powershell -NoProfile -Command "$$env:GOBIN='$(LOCAL_BIN)'; goose -dir ./backend/migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up"
 else
-	cd $(LOCAL_BIN) && goose -dir ../migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
+	cd $(LOCAL_BIN) && ./goose -dir ../migrations postgres "postgres://postgres:postgres@localhost:5442/seller_promotions?sslmode=disable" up
 endif
 
 migrations-down:
