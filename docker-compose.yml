@@ -22,6 +22,8 @@ services:
         build:
             context: ./wb_front
             dockerfile: Dockerfile
+        env_file:
+            - ./wb_front/.env.frontend
         ports:
             - "5173:5173"
         volumes:
@@ -31,9 +33,6 @@ services:
             - backend
         networks:
             - wb-network
-        environment:
-            - VITE_API_BASE_URL=http://localhost:8080
-            - VITE_SELLER_ID=1
 
     db:
         container_name: db
