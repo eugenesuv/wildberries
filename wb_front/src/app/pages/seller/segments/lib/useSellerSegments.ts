@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router";
 import { sellerClient } from "@/app/shared/api/clients/seller.client";
 import { DEFAULT_SELLER_ID } from "@/app/shared/api/config";
 import { Segment } from "../types";
-import { ACTION_NAME, ZODIAC_SEGMENTS } from "../constants";
 import { isSegmentFull } from "./helpers";
 
 const mapSegment = (segment: {
@@ -31,8 +30,8 @@ const mapSegment = (segment: {
 export const useSellerSegments = () => {
     const navigate = useNavigate();
     const { actionId } = useParams<{ actionId: string }>();
-    const [segments, setSegments] = useState<Segment[]>(ZODIAC_SEGMENTS);
-    const [actionName, setActionName] = useState(ACTION_NAME);
+    const [segments, setSegments] = useState<Segment[]>([]);
+    const [actionName, setActionName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
 
@@ -66,8 +65,8 @@ export const useSellerSegments = () => {
             } catch (error) {
                 if (!mounted) return;
                 setHasError("Не удалось загрузить сегменты акции");
-                setSegments(ZODIAC_SEGMENTS);
-                setActionName(ACTION_NAME);
+                setSegments([]);
+                setActionName("");
             } finally {
                 if (mounted) {
                     setIsLoading(false);

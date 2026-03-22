@@ -12,7 +12,7 @@ export function Header({ onNavigate }: HeaderProps) {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Sparkles className="w-6 h-6" style={{ color: "var(--magic-primary)" }} />
-                        <h1 className="text-xl">Гороскопные Скидки</h1>
+                        <h1 className="text-xl">Генератор акций</h1>
                     </div>
                     <nav className="flex gap-4">
                         <Button variant="ghost" onClick={() => onNavigate("/seller/actions")}>

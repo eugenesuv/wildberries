@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from "react-router";
 import { ConfirmationData } from "../types";
-import { MOCK_CONFIRMATION } from "../constants";
 
 export const useConfirmation = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const confirmationData: ConfirmationData =
-        (location.state as { confirmationData?: ConfirmationData } | null)?.confirmationData || MOCK_CONFIRMATION;
+    const confirmationData: ConfirmationData | undefined = (
+        location.state as { confirmationData?: ConfirmationData } | null
+    )?.confirmationData;
 
     const handleDownloadReceipt = () => {
         // Здесь будет логика скачивания чека

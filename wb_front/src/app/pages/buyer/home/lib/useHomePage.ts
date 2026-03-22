@@ -2,14 +2,17 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 import { buyerClient } from "@/app/shared/api/clients/buyer.client";
 import { Promotion, TestAnswers, TestQuestion, UserSegment } from "../types";
-import { PROMOTIONS, STORAGE_KEYS, TEST_QUESTIONS } from "../constants";
+import { STORAGE_KEYS } from "../constants";
 import { getRandomIndex, calculateProgress } from "./helpers";
 import { buildSegmentPath, mapCurrentPromotionToCarousel, mapPollToTestQuestions } from "./mappers";
 
+import { THEMES } from "./../../../admin/settings/constants/index";
+
 export const useHomePage = () => {
     const navigate = useNavigate();
-    const [promotions, setPromotions] = useState<Promotion[]>(PROMOTIONS);
-    const [testQuestions, setTestQuestions] = useState<TestQuestion[]>(TEST_QUESTIONS);
+    const [promotions, setPromotions] = useState<Promotion[]>([]);
+    const [promotionTitle, setPromotionTitle] = useState<string>("");
+    const [testQuestions, setTestQuestions] = useState<TestQuestion[]>([]);
     const [showTestModal, setShowTestModal] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState<TestAnswers>({});
@@ -45,6 +48,9 @@ export const useHomePage = () => {
                     return;
                 }
 
+                const prTitle = THEMES.find((t) => t.value === response.theme)?.label || "";
+                setPromotionTitle(prTitle);
+
                 setCurrentPromotionId(response.id);
                 setPromotions(mapCurrentPromotionToCarousel(response));
                 setSegmentPathById(
@@ -59,7 +65,7 @@ export const useHomePage = () => {
                 }
 
                 setHasError("Не удалось загрузить текущую акцию");
-                setPromotions(PROMOTIONS);
+                setPromotions([]);
                 setCurrentPromotionId(null);
                 setSegmentPathById({});
             }
@@ -83,7 +89,7 @@ export const useHomePage = () => {
 
         try {
             if (!currentPromotionId) {
-                setTestQuestions(TEST_QUESTIONS);
+                setTestQuestions([]);
                 setCurrentQuestion(0);
                 setAnswers({});
                 setShowTestModal(true);
@@ -93,7 +99,9 @@ export const useHomePage = () => {
             const response = await buyerClient.startIdentification({ promotionId: currentPromotionId });
 
             if (response.method === "user_profile" && response.resultSegmentId) {
-                const path = segmentPathById[response.resultSegmentId] || buildSegmentPath(currentPromotionId, response.resultSegmentId);
+                const path =
+                    segmentPathById[response.resultSegmentId] ||
+                    buildSegmentPath(currentPromotionId, response.resultSegmentId);
                 if (rememberSegment) {
                     setUserSegment(response.resultSegmentId);
                     localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, response.resultSegmentId);
@@ -103,7 +111,7 @@ export const useHomePage = () => {
             }
 
             const mappedQuestions = mapPollToTestQuestions(response.poll);
-            setTestQuestions(mappedQuestions.length > 0 ? mappedQuestions : TEST_QUESTIONS);
+            setTestQuestions(mappedQuestions.length > 0 ? mappedQuestions : []);
             setCurrentQuestion(0);
             setAnswers({});
             setShowTestModal(true);
@@ -224,6 +232,7 @@ export const useHomePage = () => {
 
     return {
         // State
+        promotionTitle,
         promotions,
         testQuestions,
         showTestModal,
