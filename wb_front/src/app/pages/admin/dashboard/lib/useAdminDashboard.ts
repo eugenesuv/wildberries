@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { adminClient } from "@/app/shared/api/clients/admin.client";
 import { AdminAction, StatusFilter } from "../types";
-import { MOCK_ADMIN_ACTIONS } from "../constants";
 import { calculateStatistics } from "./helpers";
 
 const mapStatus = (status: string): AdminAction["status"] => {
@@ -41,7 +40,7 @@ const mapPromotionSummary = (promotion: {
 export const useAdminDashboard = () => {
     const navigate = useNavigate();
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-    const [actions, setActions] = useState<AdminAction[]>(MOCK_ADMIN_ACTIONS);
+    const [actions, setActions] = useState<AdminAction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
 
@@ -59,7 +58,7 @@ export const useAdminDashboard = () => {
             } catch (error) {
                 if (!mounted) return;
                 setHasError("Не удалось загрузить список акций");
-                setActions(MOCK_ADMIN_ACTIONS);
+                setActions([]);
             } finally {
                 if (mounted) {
                     setIsLoading(false);

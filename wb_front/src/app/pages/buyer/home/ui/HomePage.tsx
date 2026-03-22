@@ -8,6 +8,7 @@ import { SegmentationTestModal } from "./components/SegmentationTestModal";
 
 export function HomePage() {
     const {
+        promotionTitle,
         promotions,
         testQuestions,
         showTestModal,
@@ -51,6 +52,7 @@ export function HomePage() {
             <ErrorMessage error={hasError} />
 
             <SegmentationTestModal
+                promotionTitle={promotionTitle}
                 open={showTestModal}
                 onOpenChange={handleCloseTestModal}
                 currentQuestion={currentQuestion}

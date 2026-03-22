@@ -6,7 +6,7 @@ export function HeroSection() {
             <h2 className="text-4xl mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                 Твоя неделя в товарах
             </h2>
-            <p className="text-lg text-muted-foreground">Персонализированные предложения на основе твоего гороскопа</p>
+            {/* <p className="text-lg text-muted-foreground">Персонализированные предложения на основе твоего гороскопа</p> */}
         </motion.div>
     );
 }

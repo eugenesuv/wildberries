@@ -15,16 +15,6 @@ export const APPLICATION_STATUS: Record<ApplicationStatus, { label: string; clas
     },
 };
 
-// Mock данные для демонстрации
-export const MOCK_CONFIRMATION: ConfirmationData = {
-    applicationNumber: "АК-2026-00142",
-    status: "pending",
-    promotionName: "Гороскопные Скидки",
-    segment: "Лев",
-    position: 1,
-    price: 5500,
-};
-
 export const NEXT_STEPS = [
     "Ваша заявка будет рассмотрена модератором в течение 24 часов",
     "При одобрении вы получите уведомление на email",

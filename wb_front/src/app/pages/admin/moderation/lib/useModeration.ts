@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { adminClient } from "@/app/shared/api/clients/admin.client";
 import { Application, ModerationTab } from "../types";
-import { MOCK_APPLICATIONS } from "../constants";
 import { calculateModerationStatistics } from "./helpers";
 
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400";
@@ -38,7 +37,7 @@ const mapApplication = (
 export const useModeration = () => {
     const navigate = useNavigate();
     const { actionId } = useParams<{ actionId: string }>();
-    const [applications, setApplications] = useState<Application[]>(MOCK_APPLICATIONS);
+    const [applications, setApplications] = useState<Application[]>([]);
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const [showDetailsDialog, setShowDetailsDialog] = useState(false);
     const [detectedStopFactors, setDetectedStopFactors] = useState<string[]>([]);
@@ -68,7 +67,7 @@ export const useModeration = () => {
             setApplications((appsResponse.applications || []).map((app) => mapApplication(app, segmentNames)));
         } catch (error) {
             setHasError("Не удалось загрузить заявки на модерацию");
-            setApplications(MOCK_APPLICATIONS);
+            setApplications([]);
         } finally {
             setIsLoading(false);
         }
