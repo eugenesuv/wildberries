@@ -31,7 +31,8 @@ export const useSellerSegments = () => {
     const navigate = useNavigate();
     const { actionId } = useParams<{ actionId: string }>();
     const [segments, setSegments] = useState<Segment[]>([]);
-    const [actionName, setActionName] = useState("");
+    const [actionName, setActionName] = useState<string>("");
+    const [theme, setTheme] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
 
@@ -59,6 +60,7 @@ export const useSellerSegments = () => {
                 const currentAction = (actionsResponse.actions || []).find((action) => action.id === actionId);
                 if (currentAction?.name) {
                     setActionName(currentAction.name);
+                    setTheme(currentAction?.theme);
                 } else {
                     setActionName(`Акция #${actionId}`);
                 }
@@ -95,6 +97,7 @@ export const useSellerSegments = () => {
         actionId,
         segments,
         actionName,
+        theme,
         handleSegmentClick,
         handleGoBack,
         isLoading,
