@@ -4,12 +4,9 @@ import { SegmentsHeader } from "./components/SegmentsHeader";
 import { PageTitle } from "./components/PageTitle";
 import { SegmentsGrid } from "./components/SegmentsGrid";
 
-import { THEMES } from "./../../../admin/settings/constants/index";
-
 export function SellerSegmentsPage() {
-    const { actionName, theme, segments, handleSegmentClick, handleGoBack, isLoading, hasError } = useSellerSegments();
-
-    const promotionTitle = THEMES.find((t) => t.value === theme)?.label || "";
+    const { actionName, promotionTitle, segments, handleSegmentClick, handleGoBack, isLoading, hasError } =
+        useSellerSegments();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
