@@ -5,6 +5,8 @@ import { DEFAULT_SELLER_ID } from "@/app/shared/api/config";
 import { Segment } from "../types";
 import { isSegmentFull } from "./helpers";
 
+import { THEMES } from "../../../admin/settings/constants";
+
 const mapSegment = (segment: {
     id: number;
     name: string;
@@ -31,7 +33,8 @@ export const useSellerSegments = () => {
     const navigate = useNavigate();
     const { actionId } = useParams<{ actionId: string }>();
     const [segments, setSegments] = useState<Segment[]>([]);
-    const [actionName, setActionName] = useState("");
+    const [actionName, setActionName] = useState<string>("");
+    const [promotionTitle, setPromotionTitle] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
 
@@ -59,6 +62,9 @@ export const useSellerSegments = () => {
                 const currentAction = (actionsResponse.actions || []).find((action) => action.id === actionId);
                 if (currentAction?.name) {
                     setActionName(currentAction.name);
+
+                    const prTitle = THEMES.find((t) => t.value === currentAction?.theme)?.label || "";
+                    setPromotionTitle(prTitle);
                 } else {
                     setActionName(`Акция #${actionId}`);
                 }
@@ -95,6 +101,7 @@ export const useSellerSegments = () => {
         actionId,
         segments,
         actionName,
+        promotionTitle,
         handleSegmentClick,
         handleGoBack,
         isLoading,
