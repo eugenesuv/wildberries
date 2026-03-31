@@ -20,4 +20,4 @@ export interface Statistics {
     totalViews: number;
 }
 
-export type StatusFilter = ActionStatus | "all";
+export type AdminStatusFilter = ActionStatus | "all";

@@ -1,10 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/entities/ui/Select";
-import { StatusFilter as Status } from "../../types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/entities/ui/select";
+import { AdminStatusFilter } from "../../types";
 import { STATUS_FILTER_OPTIONS } from "../../constants";
 
 interface StatusFilterProps {
-    value: Status;
-    onChange: (value: Status) => void;
+    value: AdminStatusFilter;
+    onChange: (value: AdminStatusFilter) => void;
 }
 
 export function StatusFilter({ value, onChange }: StatusFilterProps) {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { adminClient } from "@/app/shared/api/clients/admin.client";
-import { AdminAction, StatusFilter } from "../types";
+import { AdminAction, AdminStatusFilter } from "../types";
 import { calculateStatistics } from "./helpers";
 
 const mapStatus = (status: string): AdminAction["status"] => {
@@ -39,7 +39,7 @@ const mapPromotionSummary = (promotion: {
 
 export const useAdminDashboard = () => {
     const navigate = useNavigate();
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+    const [statusFilter, setStatusFilter] = useState<AdminStatusFilter>("all");
     const [actions, setActions] = useState<AdminAction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
