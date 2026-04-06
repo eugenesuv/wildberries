@@ -628,7 +628,27 @@ func (s *Service) ShuffleSegmentCategories(ctx context.Context, promotionID int6
 
 // GetModerationApplications returns applications for moderation
 func (s *Service) GetModerationApplications(ctx context.Context, promotionID int64, status string) ([]*repository.ModerationRow, error) {
-	return s.moderationRepo.ListByPromotion(ctx, promotionID, status)
+	apps, err := s.moderationRepo.ListByPromotion(ctx, promotionID, status)
+	if err != nil {
+		return nil, err
+	}
+
+	productIds := []int64{}
+	for _, app := range apps {
+		productIds = append(productIds, app.ProductID)
+	}
+	products, err := s.productRepo.GetByIDs(ctx, productIds, repository.ProductFilters{})
+	if err != nil {
+		return nil, err
+	}
+	productsById := make(map[int64]*repository.ProductRow)
+	for _, p := range products {
+		productsById[p.ID] = p
+	}
+	for _, app := range apps {
+		app.ProductName = productsById[app.ID].Name
+	}
+	return apps, nil
 }
 
 // ApproveModeration approves an application and sets slot to occupied

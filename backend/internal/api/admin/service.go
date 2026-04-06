@@ -433,7 +433,7 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 			SellerId:    r.SellerID,
 			SegmentId:   r.SegmentID,
 			SlotId:      r.SlotID,
-			ProductName: "", // would load from product
+			ProductName: r.ProductName,
 			Price:       applicationPrice,
 			Discount:    int32(r.Discount),
 			StopFactors: stopFactors,

@@ -86,6 +86,7 @@ type ModerationRow struct {
 	SlotID      int64
 	SellerID    int64
 	ProductID   int64
+	ProductName string
 	Discount    int
 	StopFactors []byte
 	Status      string
