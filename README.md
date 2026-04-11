@@ -14,15 +14,15 @@
 - `psql` (PostgreSQL client)
 - Node.js + npm
 
-## AI (Gemini) настройка секрета
+## AI настройка секрета
 
-Ключ Gemini используется только на backend.
+Ключ AI-провайдера используется только на backend.
 
 1. Создать локальный файл `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.backend` (файл игнорируется git).
 2. Скопировать туда значения из `/Users/eugenesuvorov/Study/wildberris/wildberries/backend/.env.backend.example`.
-3. Вставить ваш ключ в `GEMINI_API_KEY`.
+3. Выбрать провайдера через `AI_PROVIDER` и вставить ключ только в backend env.
 
-Пример:
+Пример для Gemini:
 
 ```bash
 AI_PROVIDER=gemini
@@ -31,11 +31,20 @@ GEMINI_MODEL=gemini-2.5-flash
 GEMINI_API_BASE_URL=https://generativelanguage.googleapis.com
 ```
 
+Пример для Groq:
+
+```bash
+AI_PROVIDER=groq
+GROQ_API_KEY=your_secret_key
+GROQ_MODEL=llama-3.1-8b-instant
+GROQ_API_BASE_URL=https://api.groq.com/openai/v1
+```
+
 Рекомендации по безопасности:
 - не хранить ключ во frontend и не публиковать в репозитории;
 - не логировать значение ключа в runtime;
 - хранить prod/CI ключи в Secret Manager (GitHub Secrets / Vault);
-- ограничить API key в Google Cloud по API и при необходимости регулярно ротировать.
+- для Groq и Gemini регулярно ротировать ключи при подозрении на утечку.
 
 ## Быстрый старт (рекомендуется)
 
@@ -156,4 +165,5 @@ docker compose down
 - Vite proxy уже настроен: `/api` -> `http://localhost:8080`
 - Для локального `go run` backend обязательно задавать `DATABASE_DSN`, иначе backend попробует подключиться к `db:5432`
 - Для включения Gemini используйте `AI_PROVIDER=gemini` и задайте `GEMINI_API_KEY` только в backend окружении
+- Для включения Groq используйте `AI_PROVIDER=groq` и задайте `GROQ_API_KEY` только в backend окружении
 - Подробный runbook: `backend/docs/runbook_локальный_запуск_генерация_акций.md`

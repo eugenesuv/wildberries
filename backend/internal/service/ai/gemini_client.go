@@ -13,11 +13,6 @@ import (
 	"time"
 )
 
-// GeminiClient describes JSON generation contract for Gemini provider.
-type GeminiClient interface {
-	GenerateJSON(ctx context.Context, prompt string) (string, error)
-}
-
 type geminiClient struct {
 	baseURL    string
 	apiKey     string
@@ -26,7 +21,7 @@ type geminiClient struct {
 }
 
 // NewGeminiClient creates Gemini HTTP client.
-func NewGeminiClient(cfg Config) GeminiClient {
+func NewGeminiClient(cfg Config) JSONGenerator {
 	baseURL := strings.TrimSpace(cfg.GeminiAPIBaseURL)
 	if baseURL == "" {
 		baseURL = "https://generativelanguage.googleapis.com"

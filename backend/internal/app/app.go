@@ -80,6 +80,9 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		GeminiAPIKey:     cfg.GeminiAPIKey,
 		GeminiModel:      cfg.GeminiModel,
 		GeminiAPIBaseURL: cfg.GeminiAPIBaseURL,
+		GroqAPIKey:       cfg.GroqAPIKey,
+		GroqModel:        cfg.GroqModel,
+		GroqAPIBaseURL:   cfg.GroqAPIBaseURL,
 	})
 
 	// Create API services
