@@ -23,7 +23,7 @@ const createEmptyTestQuestion = (): TestQuestion => ({
     options: [...DEFAULT_TEST_QUESTION.options],
 });
 
-const MAX_AI_SEGMENTS = 9;
+const MAX_AI_SEGMENTS = 12;
 
 const createDefaultSettings = (): ActionSettings => ({
     name: "",
