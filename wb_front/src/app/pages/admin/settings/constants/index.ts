@@ -2,9 +2,17 @@ import { AuctionSettings, FixedPriceSettings, TestQuestion, Theme } from "../typ
 
 export const THEMES: Theme[] = [
     { value: "zodiac", label: "Знаки Зодиака" },
-    { value: "harry-potter", label: "Гарри Поттер" },
-    { value: "seasons", label: "Времена года" },
-    { value: "colors", label: "Цветовая палитра" },
+    { value: "buyer-archetype", label: "Какой ты архетип покупателя?" },
+    { value: "startup-role", label: "Кто ты в мире стартапов?" },
+    { value: "digital-universe", label: "Твоя цифровая вселенная" },
+    { value: "city-of-the-world", label: "Какой ты город мира?" },
+    { value: "energy-of-the-week", label: "Твоя энергия недели" },
+    { value: "myth-hero", label: "Какой ты герой мифа?" },
+    { value: "perfect-day", label: "Твой идеальный день" },
+    { value: "travel-style", label: "Какой ты тип отдыха?" },
+    { value: "hidden-superpower", label: "Твоя скрытая суперсила" },
+    { value: "future-style", label: "Какой ты стиль будущего?" },
+    { value: "shopping-zodiac", label: "Какой ты знак зодиака в шопинге?" },
 ];
 
 export const ZODIAC_SIGNS = [
@@ -23,12 +31,31 @@ export const ZODIAC_SIGNS = [
 ];
 
 export const CATEGORIES = [
-    "Спорт и отдых",
+    "Женщинам",
+    "Обувь",
+    "Детям",
+    "Мужчинам",
+    "Дом",
+    "Красота",
+    "Аксессуары",
     "Электроника",
-    "Дом и интерьер",
-    "Мода и стиль",
-    "Красота и здоровье",
-    "Детские товары",
+    "Игрушки",
+    "Мебель",
+    "Продукты",
+    "Цветы",
+    "Бытовая техника",
+    "Зоотовары",
+    "Спорт",
+    "Автотовары",
+    "Транспортные средства",
+    "Книги",
+    "Ювелирные изделия",
+    "Для ремонта",
+    "Сад и дача",
+    "Здоровье",
+    "Адаптивные товары",
+    "Лекарственные препараты",
+    "Канцтовары",
 ];
 
 export const STOP_FACTORS = [

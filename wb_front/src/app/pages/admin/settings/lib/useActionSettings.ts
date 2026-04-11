@@ -15,20 +15,22 @@ import {
     DEFAULT_AUCTION_SETTINGS,
     DEFAULT_FIXED_PRICE_SETTINGS,
     DEFAULT_TEST_QUESTION,
+    THEMES,
 } from "../constants";
-import { generateAnswerTree } from "./helpers";
 
 const createEmptyTestQuestion = (): TestQuestion => ({
     question: DEFAULT_TEST_QUESTION.question,
     options: [...DEFAULT_TEST_QUESTION.options],
 });
 
+const MAX_AI_SEGMENTS = 9;
+
 const createDefaultSettings = (): ActionSettings => ({
     name: "",
     description: "",
     startDate: "",
     endDate: "",
-    theme: "zodiac",
+    theme: THEMES[0]?.label || "Знаки Зодиака",
     categories: {},
     segments: [],
     pricingModel: "auction",
@@ -54,6 +56,192 @@ const normalizeOptionValue = (value: string, qIndex: number, optIndex: number) =
         .replace(/\s+/g, "_")
         .replace(/[^a-z0-9а-яё_]/gi, "");
     return normalized || `q${qIndex + 1}_opt${optIndex + 1}`;
+};
+
+const compactAiText = (value: string, limit = 180): string => {
+    const normalized = value.trim().replace(/\s+/g, " ");
+    if (!normalized) {
+        return "";
+    }
+    if (normalized.length <= limit) {
+        return normalized;
+    }
+    return `${normalized.slice(0, limit - 1).trimEnd()}…`;
+};
+
+const resolveThemeLabel = (themeValue: string, aiThemes: Theme[]): string => {
+    const normalized = themeValue.trim();
+    if (!normalized) {
+        return "";
+    }
+
+    const match = [...aiThemes, ...THEMES].find(
+        (theme) =>
+            theme.value.toLowerCase() === normalized.toLowerCase() ||
+            theme.label.toLowerCase() === normalized.toLowerCase(),
+    );
+    return match?.label || normalized;
+};
+
+const buildSegmentsContext = (settings: ActionSettings): string => {
+    return settings.segments
+        .map((segment, index) => {
+            const name = compactAiText(segment, 72);
+            if (!name) {
+                return "";
+            }
+            const category = compactAiText(settings.categories[segment] || "", 72);
+            return category
+                ? `segment-${index + 1}="${name}" [категория: ${category}]`
+                : `segment-${index + 1}="${name}"`;
+        })
+        .filter(Boolean)
+        .join("; ");
+};
+
+const buildQuestionsContext = (settings: ActionSettings): string => {
+    return settings.testQuestions
+        .map((question, qIndex) => {
+            const questionText = compactAiText(question.question, 110);
+            if (!questionText) {
+                return "";
+            }
+            const options = (question.options || [])
+                .map((option, optIndex) => {
+                    const optionText = compactAiText(option, 60);
+                    return optionText ? `o${optIndex}="${optionText}"` : "";
+                })
+                .filter(Boolean)
+                .join(", ");
+            return options ? `q${qIndex}="${questionText}" -> ${options}` : `q${qIndex}="${questionText}"`;
+        })
+        .filter(Boolean)
+        .join("; ");
+};
+
+const getAnswerTreeCoverageCapacity = (questions: TestQuestion[]): number => {
+    if (questions.length === 0) {
+        return 0;
+    }
+    const lastQuestionOptions = Math.max(0, questions[questions.length - 1]?.options?.length || 0);
+    const earlyQuestionSlots = questions
+        .slice(0, -1)
+        .reduce((total, question) => total + Math.max(0, (question.options || []).length - 1), 0);
+    return earlyQuestionSlots + lastQuestionOptions;
+};
+
+const buildGeneratedAnswerTree = (questions: TestQuestion[], segments: string[]): TestAnswerNode[] => {
+    if (questions.length === 0) {
+        return [];
+    }
+
+    const coverableSegments = segments.slice(0, getAnswerTreeCoverageCapacity(questions)).filter((segment) => segment.trim());
+    if (coverableSegments.length === 0) {
+        return [];
+    }
+
+    let segmentCursor = 0;
+    const nextSegment = () => {
+        const segment = coverableSegments[segmentCursor % coverableSegments.length] || "";
+        segmentCursor += 1;
+        return segment;
+    };
+
+    const nodes: TestAnswerNode[] = [];
+    questions.forEach((question, questionIndex) => {
+        const options = question.options || [];
+        const isLastQuestion = questionIndex === questions.length - 1;
+        options.forEach((_, optionIndex) => {
+            const useQuestionTransition = !isLastQuestion && optionIndex === 0;
+            nodes.push({
+                id: makeUUID(),
+                questionIndex,
+                optionIndex,
+                targetType: useQuestionTransition ? "question" : "segment",
+                targetValue: useQuestionTransition ? String(questionIndex + 1) : nextSegment(),
+            });
+        });
+    });
+
+    return nodes;
+};
+
+const buildAiGenerationContext = (
+    settings: ActionSettings,
+    aiThemes: Theme[],
+    options?: {
+        includeName?: boolean;
+        includeDescription?: boolean;
+        includeSegments?: boolean;
+        includeQuestions?: boolean;
+    },
+): string => {
+    const themeLabel = resolveThemeLabel(settings.theme, aiThemes);
+    const segmentsContext = options?.includeSegments === false ? "" : buildSegmentsContext(settings);
+    const questionsContext = options?.includeQuestions === false ? "" : buildQuestionsContext(settings);
+
+    const lines = [
+        themeLabel
+            ? `Выбранная тема: ${themeLabel}${themeLabel !== settings.theme ? ` (slug: ${settings.theme})` : ""}`
+            : "",
+        options?.includeName === false ? "" : settings.name.trim() ? `Название акции: ${compactAiText(settings.name, 120)}` : "",
+        options?.includeDescription === false
+            ? ""
+            : settings.description.trim()
+              ? `Описание акции: ${compactAiText(settings.description, 220)}`
+              : "",
+        `Модель ценообразования: ${settings.pricingModel === "auction" ? "auction" : "fixed"}`,
+        `Идентификация: ${settings.identificationMode}`,
+        `Количество слотов: ${settings.slotCount}`,
+        `Диапазон скидок: ${settings.minDiscount}-${settings.maxDiscount}%`,
+        `Доступные категории сегментов: ${CATEGORIES.join(", ")}`,
+        `Максимум AI-сегментов для текущей структуры опроса: ${MAX_AI_SEGMENTS}`,
+        segmentsContext ? `Сегменты акции: ${segmentsContext}` : "",
+        questionsContext ? `Текущие вопросы: ${questionsContext}` : "",
+    ].filter(Boolean);
+
+    return lines.join("\n");
+};
+
+const buildTextGenerationParams = (
+    settings: ActionSettings,
+    aiThemes: Theme[],
+    target: "promotion_name" | "promotion_description",
+): Record<string, string> => {
+    const params: Record<string, string> = {
+        target,
+        pricing_model: settings.pricingModel === "auction" ? "auction" : "fixed",
+        identification_mode: settings.identificationMode,
+        slot_count: String(settings.slotCount),
+        discount_range: `${settings.minDiscount}-${settings.maxDiscount}`,
+    };
+
+    const themeValue = settings.theme.trim();
+    const themeLabel = resolveThemeLabel(settings.theme, aiThemes);
+    const segmentsContext = buildSegmentsContext(settings);
+    const questionsContext = buildQuestionsContext(settings);
+
+    if (themeValue) {
+        params.theme = themeValue;
+    }
+    if (themeLabel) {
+        params.theme_label = themeLabel;
+    }
+    if (target !== "promotion_name" && settings.name.trim()) {
+        params.promotion_name = compactAiText(settings.name, 120);
+    }
+    if (target !== "promotion_description" && settings.description.trim()) {
+        params.promotion_description = compactAiText(settings.description, 220);
+    }
+    if (segmentsContext) {
+        params.segments = segmentsContext;
+    }
+    if (questionsContext) {
+        params.questions = questionsContext;
+    }
+    params.allowed_categories = CATEGORIES.join(", ");
+
+    return params;
 };
 
 const PROMOTION_STATUS_VALUES: PromotionStatus[] = ["NOT_READY", "READY_TO_START", "RUNNING", "PAUSED", "COMPLETED"];
@@ -308,14 +496,14 @@ const fetchPromotionState = async (promotionId: number): Promise<LoadedPromotion
         })) || [];
 
     const parsedTree = parsePersistedTree((promotion.poll?.answerTree || []) as any[]);
-    const fallbackTree = pollQuestions.length > 0 ? generateAnswerTree() : [];
+    const fallbackTree = pollQuestions.length > 0 ? buildGeneratedAnswerTree(pollQuestions, segmentNames) : [];
 
     const nextSettings = withNormalizedTree({
         name: promotion.name || "",
         description: promotion.description || "",
         startDate: toDateInputValue(promotion.dateFrom),
         endDate: toDateInputValue(promotion.dateTo),
-        theme: promotion.theme || "zodiac",
+            theme: resolveThemeLabel(promotion.theme || THEMES[0]?.label || "Знаки Зодиака", []),
         categories,
         segments: segmentNames,
         pricingModel: (promotion.pricingModel as ActionSettings["pricingModel"]) || "auction",
@@ -438,7 +626,7 @@ export const useActionSettings = () => {
         setHasError(null);
         try {
             const resp = await aiClient.getText({
-                params: { theme: settings.theme, target: "promotion_description" },
+                params: buildTextGenerationParams(settings, aiThemes, "promotion_description"),
             });
             const text = resp?.text?.trim();
             if (!text) {
@@ -454,7 +642,7 @@ export const useActionSettings = () => {
         setHasError(null);
         try {
             const resp = await aiClient.getText({
-                params: { theme: settings.theme, target: "promotion_name" },
+                params: buildTextGenerationParams(settings, aiThemes, "promotion_name"),
             });
             const text = resp?.text?.trim();
             if (!text) {
@@ -475,16 +663,38 @@ export const useActionSettings = () => {
                 throw new Error("AI не вернул темы акции");
             }
             setAiThemes(themes);
-            setNormalizedSettings((prev) => ({ ...prev, theme: themes[0].value }));
+            setNormalizedSettings((prev) => ({ ...prev, theme: themes[0].label }));
         } catch (error: any) {
             setHasError(extractErrorMessage(error, "Не удалось сгенерировать темы акции"));
         }
     };
 
+    const handleClearGeneratedContent = () => {
+        setHasError(null);
+        setAiThemes([]);
+        setNormalizedSettings((prev) => ({
+            ...prev,
+            theme: "",
+            name: "",
+            description: "",
+            segments: [],
+            categories: {},
+            testQuestions: [createEmptyTestQuestion()],
+            testAnswerTree: [],
+            testStartQuestionIndex: 0,
+        }));
+    };
+
     const handleGenerateSegments = async () => {
         setHasError(null);
         try {
-            const resp = await aiClient.generateSegments({ theme: settings.theme, limit: 12 });
+            const resp = await aiClient.generateSegments({
+                theme: buildAiGenerationContext(settings, aiThemes, {
+                    includeSegments: false,
+                    includeQuestions: false,
+                }),
+                limit: MAX_AI_SEGMENTS,
+            });
             const suggestions = resp.segments || [];
             if (suggestions.length === 0) {
                 throw new Error("AI не вернул сегменты акции");
@@ -654,7 +864,12 @@ export const useActionSettings = () => {
     const handleGenerateTestQuestions = async () => {
         setHasError(null);
         try {
-            const resp = await aiClient.generateQuestions({ theme: settings.theme });
+            const resp = await aiClient.generateQuestions({
+                theme: buildAiGenerationContext(settings, aiThemes, {
+                    includeSegments: true,
+                    includeQuestions: false,
+                }),
+            });
             const questions =
                 (resp.questions || []).map((q) => ({
                     question: q.text,
@@ -666,7 +881,7 @@ export const useActionSettings = () => {
             setNormalizedSettings((prev) => ({
                 ...prev,
                 testQuestions: questions,
-                testAnswerTree: generateAnswerTree(),
+                testAnswerTree: buildGeneratedAnswerTree(questions, prev.segments),
                 testStartQuestionIndex: 0,
             }));
         } catch (error: any) {
@@ -677,7 +892,12 @@ export const useActionSettings = () => {
     const handleGenerateAnswerTree = async () => {
         setHasError(null);
         try {
-            const resp = await aiClient.generateAnswerTree({ theme: settings.theme });
+            const resp = await aiClient.generateAnswerTree({
+                theme: buildAiGenerationContext(settings, aiThemes, {
+                    includeSegments: true,
+                    includeQuestions: true,
+                }),
+            });
             const parsed = parsePersistedTree((resp.nodes || []) as any[]);
             if (parsed.nodes.length === 0) {
                 throw new Error("AI не вернул дерево ответов");
@@ -870,6 +1090,7 @@ export const useActionSettings = () => {
         handleGenerateName,
         handleGenerateDescription,
         handleGenerateThemes,
+        handleClearGeneratedContent,
         handleGenerateSegments,
         handleShuffleCategories,
         handleAddSegment,

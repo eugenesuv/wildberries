@@ -18,7 +18,6 @@ interface TestQuestionsCardProps {
     onAddOption: (questionIndex: number) => void;
     onRemoveOption: (questionIndex: number, optionIndex: number) => void;
     onGenerateQuestions: () => void;
-    onGenerateAnswerTree: () => void;
     onUpdateAnswerLink: (
         questionIndex: number,
         optionIndex: number,
@@ -68,7 +67,6 @@ export function TestQuestionsCard({
     onAddOption,
     onRemoveOption,
     onGenerateQuestions,
-    onGenerateAnswerTree,
     onUpdateAnswerLink,
     onUpdateStartQuestion,
 }: TestQuestionsCardProps) {
@@ -320,10 +318,6 @@ export function TestQuestionsCard({
                         <Button variant="outline" size="sm" onClick={onGenerateQuestions}>
                             <Sparkles className="mr-2 h-4 w-4" />
                             Сгенерировать вопросы
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={onGenerateAnswerTree}>
-                            <Sparkles className="mr-2 h-4 w-4" />
-                            Черновик дерева
                         </Button>
                         <Button variant="outline" size="sm" onClick={onAddQuestion}>
                             <Plus className="mr-2 h-4 w-4" />
