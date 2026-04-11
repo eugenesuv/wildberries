@@ -425,14 +425,15 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 			_ = json.Unmarshal(r.StopFactors, &stopFactors)
 		}
 		applicationPrice := int64(0)
-		if slot, slotErr := s.promotionService.GetSlotByID(ctx, r.SlotID); slotErr == nil && slot != nil && slot.Price != nil {
+		slot, slotErr := s.promotionService.GetSlotByID(ctx, r.SlotID)
+		if slotErr == nil && slot != nil && slot.Price != nil {
 			applicationPrice = *slot.Price
 		}
 		out[i] = &desc.ModerationApplication{
 			Id:          r.ID,
 			SellerId:    r.SellerID,
 			SegmentId:   r.SegmentID,
-			SlotId:      r.SlotID,
+			SlotId:      int64(slot.Position),
 			ProductName: r.ProductName,
 			Price:       applicationPrice,
 			Discount:    int32(r.Discount),
