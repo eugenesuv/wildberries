@@ -13,6 +13,9 @@ type Config struct {
 	GeminiAPIKey     string
 	GeminiModel      string
 	GeminiAPIBaseURL string
+	GroqAPIKey       string
+	GroqModel        string
+	GroqAPIBaseURL   string
 }
 
 func Load() *Config {
@@ -44,6 +47,14 @@ func Load() *Config {
 	if geminiAPIBaseURL == "" {
 		geminiAPIBaseURL = "https://generativelanguage.googleapis.com"
 	}
+	groqModel := os.Getenv("GROQ_MODEL")
+	if groqModel == "" {
+		groqModel = "llama-3.1-8b-instant"
+	}
+	groqAPIBaseURL := os.Getenv("GROQ_API_BASE_URL")
+	if groqAPIBaseURL == "" {
+		groqAPIBaseURL = "https://api.groq.com/openai/v1"
+	}
 	return &Config{
 		HTTPPort:         httpPort,
 		GRPCPort:         grpcPort,
@@ -52,5 +63,8 @@ func Load() *Config {
 		GeminiAPIKey:     os.Getenv("GEMINI_API_KEY"),
 		GeminiModel:      geminiModel,
 		GeminiAPIBaseURL: geminiAPIBaseURL,
+		GroqAPIKey:       os.Getenv("GROQ_API_KEY"),
+		GroqModel:        groqModel,
+		GroqAPIBaseURL:   groqAPIBaseURL,
 	}
 }

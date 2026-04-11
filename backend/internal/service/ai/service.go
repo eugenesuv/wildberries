@@ -16,6 +16,7 @@ import (
 const (
 	providerStub   = "stub"
 	providerGemini = "gemini"
+	providerGroq   = "groq"
 )
 
 var (
@@ -31,12 +32,19 @@ type Config struct {
 	GeminiAPIKey     string
 	GeminiModel      string
 	GeminiAPIBaseURL string
+	GroqAPIKey       string
+	GroqModel        string
+	GroqAPIBaseURL   string
+}
+
+type JSONGenerator interface {
+	GenerateJSON(ctx context.Context, prompt string) (string, error)
 }
 
 // Service handles AI business logic.
 type Service struct {
-	provider string
-	gemini   GeminiClient
+	provider  string
+	generator JSONGenerator
 }
 
 // New creates a new AI service.
@@ -47,8 +55,11 @@ func New(cfg Config) *Service {
 	}
 
 	s := &Service{provider: provider}
-	if provider == providerGemini {
-		s.gemini = NewGeminiClient(cfg)
+	switch provider {
+	case providerGemini:
+		s.generator = NewGeminiClient(cfg)
+	case providerGroq:
+		s.generator = NewGroqClient(cfg)
 	}
 	return s
 }
@@ -369,13 +380,13 @@ func (s *Service) GetText(ctx context.Context, params map[string]string, segment
 }
 
 func (s *Service) generateJSON(ctx context.Context, prompt string) (string, error) {
-	if s.provider != providerGemini {
+	if s.provider != providerGemini && s.provider != providerGroq {
 		return "", fmt.Errorf("unsupported ai provider: %s", s.provider)
 	}
-	if s.gemini == nil {
-		return "", errors.New("gemini provider is not configured")
+	if s.generator == nil {
+		return "", fmt.Errorf("%s provider is not configured", s.provider)
 	}
-	return s.gemini.GenerateJSON(ctx, prompt)
+	return s.generator.GenerateJSON(ctx, prompt)
 }
 
 func decodeStrictJSON(raw string, dst any) error {
