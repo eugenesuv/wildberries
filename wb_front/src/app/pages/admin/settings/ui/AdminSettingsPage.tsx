@@ -23,6 +23,7 @@ export function AdminSettingsPage() {
         handleGenerateName,
         handleGenerateDescription,
         handleGenerateThemes,
+        handleClearGeneratedContent,
         handleGenerateSegments,
         handleShuffleCategories,
         handleAddSegment,
@@ -36,7 +37,6 @@ export function AdminSettingsPage() {
         handleAddTestOption,
         handleRemoveTestOption,
         handleGenerateTestQuestions,
-        handleGenerateAnswerTree,
         handleUpdateAnswerLink,
         handleUpdateTestStartQuestion,
         handleToggleStopFactor,
@@ -80,6 +80,7 @@ export function AdminSettingsPage() {
                         onGenerateName={handleGenerateName}
                         onGenerateDescription={handleGenerateDescription}
                         onGenerateThemes={handleGenerateThemes}
+                        onClearAll={handleClearGeneratedContent}
                     />
 
                     <SegmentsCard
@@ -114,7 +115,6 @@ export function AdminSettingsPage() {
                             onAddOption={handleAddTestOption}
                             onRemoveOption={handleRemoveTestOption}
                             onGenerateQuestions={handleGenerateTestQuestions}
-                            onGenerateAnswerTree={handleGenerateAnswerTree}
                             onUpdateAnswerLink={handleUpdateAnswerLink}
                             onUpdateStartQuestion={handleUpdateTestStartQuestion}
                         />
