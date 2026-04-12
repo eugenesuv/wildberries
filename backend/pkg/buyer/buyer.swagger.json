@@ -391,6 +391,10 @@
         },
         "badge": {
           "type": "string"
+        },
+        "position": {
+          "type": "string",
+          "format": "int64"
         }
       },
       "title": "ProductItem — товар в ответах (витрина, модерация)"

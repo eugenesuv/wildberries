@@ -134,11 +134,16 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 		}
 	}
 	items := make([]*entity.ProductItem, 0, len(productRows))
+	products := make(map[int64]*repository.ProductRow)
 	for _, r := range productRows {
-		discount := r.Discount
-		if productIDToWBDiscount[r.ID] {
-			discount = promoDiscount
+		products[r.ID] = r
+	}
+	for _, slot := range slots {
+		discount := slot.Discount
+		if productIDToWBDiscount[*slot.ProductID] {
+			discount = int64(promoDiscount)
 		}
+		r := products[*slot.ProductID]
 		img := ""
 		if r.Image != nil {
 			img = *r.Image
@@ -148,7 +153,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 			oldPrice = r.Price * 100 / int64(100-discount)
 		}
 		items = append(items, &entity.ProductItem{
-			ID:           r.ID,
+			ID:           *slot.ProductID,
 			NmID:         r.NmID,
 			Name:         r.Name,
 			Image:        img,
@@ -156,6 +161,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 			OldPrice:     oldPrice,
 			Discount:     int32(discount),
 			CategoryName: r.CategoryName,
+			Position:     int64(slot.Position),
 		})
 	}
 	total := len(items)

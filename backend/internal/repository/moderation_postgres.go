@@ -115,8 +115,8 @@ func (r *ModerationPostgres) ResolveApplication(ctx context.Context, id int64, s
 	switch status {
 	case "approved":
 		if _, err := tx.Exec(ctx, `UPDATE public.slot
-			SET seller_id=$2, product_id=$3, status='occupied', updated_at=now()
-			WHERE id=$1`, app.SlotID, app.SellerID, app.ProductID); err != nil {
+			SET seller_id=$2, product_id=$3, status='occupied', updated_at=now(), discount=$4
+			WHERE id=$1`, app.SlotID, app.SellerID, app.ProductID, app.Discount); err != nil {
 			return err
 		}
 	case "rejected":

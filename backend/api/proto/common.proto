@@ -36,6 +36,7 @@ message ProductItem {
   int64 old_price = 5;
   int32 discount = 6;
   string badge = 7;
+  int64 position = 8;
 }
 
 // StopFactors — список стоп-факторов (JSON array of strings в БД)

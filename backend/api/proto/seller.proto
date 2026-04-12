@@ -110,6 +110,7 @@ message MakeBetRequest {
   int64 slot_id = 2;
   int64 amount = 3;   // для аукциона — сумма ставки
   int64 product_id = 4;  // для фиксированной цены и аукциона — привязка к товару каталога селлера
+  int64 discount = 5; // размер скидки (целое число)
 }
 
 message MakeBetResponse {

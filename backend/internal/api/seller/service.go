@@ -32,12 +32,12 @@ func (s *Service) GetActionSegments(ctx context.Context, req *desc.GetActionSegm
 	}
 	for _, item := range items {
 		resp.ActionSegments = append(resp.ActionSegments, &desc.ActionSegment{
-			Id:         item.ID,
-			Name:       item.Name,
-			Category:   item.Category,
-			Population: item.Population,
+			Id:          item.ID,
+			Name:        item.Name,
+			Category:    item.Category,
+			Population:  item.Population,
 			BookedSlots: item.BookedSlots,
-			TotalSlots: item.TotalSlots,
+			TotalSlots:  item.TotalSlots,
 		})
 	}
 	return resp, nil
@@ -130,7 +130,7 @@ func (s *Service) GetSellerBetsList(ctx context.Context, req *desc.GetSellerBets
 
 // MakeBet makes a bet (auction: amount; fixed: product_id)
 func (s *Service) MakeBet(ctx context.Context, req *desc.MakeBetRequest) (*desc.MakeBetResponse, error) {
-	success, message, err := s.sellerService.MakeBet(ctx, req.SellerId, req.SlotId, req.Amount, req.ProductId)
+	success, message, err := s.sellerService.MakeBet(ctx, req.SellerId, req.SlotId, req.Amount, req.ProductId, req.Discount)
 	if err != nil {
 		return nil, err
 	}

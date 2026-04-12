@@ -11,4 +11,5 @@ type ProductItem struct {
 	Discount     int32  `json:"discount"`
 	Badge        string `json:"badge"`
 	CategoryName string `json:"category_name"`
+	Position     int64  `json:"position"`
 }

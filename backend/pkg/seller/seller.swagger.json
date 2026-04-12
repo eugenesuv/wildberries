@@ -400,6 +400,11 @@
           "type": "string",
           "format": "int64",
           "title": "для фиксированной цены и аукциона — привязка к товару каталога селлера"
+        },
+        "discount": {
+          "type": "string",
+          "format": "int64",
+          "title": "размер скидки (целое число)"
         }
       },
       "title": "--- POST /seller/bets/make ---"

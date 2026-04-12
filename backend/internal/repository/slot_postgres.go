@@ -15,7 +15,7 @@ func NewSlotPostgres(pool *pgxpool.Pool) *SlotPostgres {
 }
 
 func (r *SlotPostgres) BySegmentID(ctx context.Context, segmentID int64, onlyOccupied bool) ([]*SlotRow, error) {
-	q := `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text
+	q := `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text, discount
 		FROM public.slot WHERE segment_id = $1`
 	if onlyOccupied {
 		q += ` AND status = 'occupied'`
@@ -29,7 +29,7 @@ func (r *SlotPostgres) BySegmentID(ctx context.Context, segmentID int64, onlyOcc
 	var out []*SlotRow
 	for rows.Next() {
 		var s SlotRow
-		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt)
+		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt, &s.Discount)
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +39,7 @@ func (r *SlotPostgres) BySegmentID(ctx context.Context, segmentID int64, onlyOcc
 }
 
 func (r *SlotPostgres) ByPromotionID(ctx context.Context, promotionID int64) ([]*SlotRow, error) {
-	rows, err := r.pool.Query(ctx, `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text
+	rows, err := r.pool.Query(ctx, `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text, discount
 		FROM public.slot WHERE promotion_id = $1 ORDER BY segment_id, position`, promotionID)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (r *SlotPostgres) ByPromotionID(ctx context.Context, promotionID int64) ([]
 	var out []*SlotRow
 	for rows.Next() {
 		var s SlotRow
-		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt)
+		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt, &s.Discount)
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +58,7 @@ func (r *SlotPostgres) ByPromotionID(ctx context.Context, promotionID int64) ([]
 }
 
 func (r *SlotPostgres) BySellerID(ctx context.Context, sellerID int64, promotionID *int64) ([]*SlotRow, error) {
-	q := `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text
+	q := `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text, discount
 		FROM public.slot WHERE seller_id = $1`
 	args := []interface{}{sellerID}
 	if promotionID != nil {
@@ -74,7 +74,7 @@ func (r *SlotPostgres) BySellerID(ctx context.Context, sellerID int64, promotion
 	var out []*SlotRow
 	for rows.Next() {
 		var s SlotRow
-		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt)
+		err = rows.Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt, &s.Discount)
 		if err != nil {
 			return nil, err
 		}
@@ -85,8 +85,8 @@ func (r *SlotPostgres) BySellerID(ctx context.Context, sellerID int64, promotion
 
 func (r *SlotPostgres) GetByID(ctx context.Context, id int64) (*SlotRow, error) {
 	var s SlotRow
-	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text
-		FROM public.slot WHERE id = $1`, id).Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt)
+	err := r.pool.QueryRow(ctx, `SELECT id, promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, created_at::text, updated_at::text, discount
+		FROM public.slot WHERE id = $1`, id).Scan(&s.ID, &s.PromotionID, &s.SegmentID, &s.Position, &s.PricingType, &s.Price, &s.AuctionID, &s.Status, &s.SellerID, &s.ProductID, &s.CreatedAt, &s.UpdatedAt, &s.Discount)
 	if err != nil {
 		return nil, err
 	}
@@ -95,15 +95,15 @@ func (r *SlotPostgres) GetByID(ctx context.Context, id int64) (*SlotRow, error) 
 
 func (r *SlotPostgres) Create(ctx context.Context, row *SlotRow) (int64, error) {
 	var id int64
-	err := r.pool.QueryRow(ctx, `INSERT INTO public.slot (promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
-		row.PromotionID, row.SegmentID, row.Position, row.PricingType, row.Price, row.AuctionID, row.Status, row.SellerID, row.ProductID).Scan(&id)
+	err := r.pool.QueryRow(ctx, `INSERT INTO public.slot (promotion_id, segment_id, position, pricing_type, price, auction_id, status, seller_id, product_id, discount)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+		row.PromotionID, row.SegmentID, row.Position, row.PricingType, row.Price, row.AuctionID, row.Status, row.SellerID, row.ProductID, row.Discount).Scan(&id)
 	return id, err
 }
 
 func (r *SlotPostgres) Update(ctx context.Context, row *SlotRow) error {
-	_, err := r.pool.Exec(ctx, `UPDATE public.slot SET pricing_type=$2, price=$3, auction_id=$4, status=$5, seller_id=$6, product_id=$7, updated_at=now() WHERE id=$1`,
-		row.ID, row.PricingType, row.Price, row.AuctionID, row.Status, row.SellerID, row.ProductID)
+	_, err := r.pool.Exec(ctx, `UPDATE public.slot SET pricing_type=$2, price=$3, auction_id=$4, status=$5, seller_id=$6, product_id=$7, updated_at=now(), discount=$8 WHERE id=$1`,
+		row.ID, row.PricingType, row.Price, row.AuctionID, row.Status, row.SellerID, row.ProductID, row.Discount)
 	return err
 }
 

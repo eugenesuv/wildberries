@@ -60,6 +60,7 @@ type SlotRow struct {
 	ProductID   *int64
 	CreatedAt   string
 	UpdatedAt   string
+	Discount    int64
 }
 
 // ProductRow — строка product

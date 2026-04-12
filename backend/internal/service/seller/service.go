@@ -363,7 +363,7 @@ func (s *Service) GetSellerBetsList(ctx context.Context, sellerID int64, promoti
 }
 
 // MakeBet makes a bet (auction) or buys fixed slot (product_id)
-func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, productID int64) (bool, string, error) {
+func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, productID, discount int64) (bool, string, error) {
 	slot, err := s.slotRepo.GetByID(ctx, slotID)
 	if err != nil {
 		return false, "", err
@@ -453,13 +453,17 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 	if prod == nil || prod.SellerID != sellerID {
 		return false, "product not found or not yours", nil
 	}
+	// legacy support
+	if discount == 0 {
+		discount = int64(prod.Discount)
+	}
 	row := &repository.ModerationRow{
 		PromotionID: slot.PromotionID,
 		SegmentID:   slot.SegmentID,
 		SlotID:      slot.ID,
 		SellerID:    sellerID,
 		ProductID:   productID,
-		Discount:    prod.Discount,
+		Discount:    int(discount),
 		Status:      "pending",
 	}
 	_, err = s.moderationRepo.Create(ctx, row)

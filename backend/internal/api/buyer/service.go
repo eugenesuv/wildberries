@@ -91,6 +91,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, req *desc.GetSegmentPr
 			OldPrice: item.OldPrice,
 			Discount: item.Discount,
 			Badge:    item.Badge,
+			Position: item.Position,
 		}
 	}
 
