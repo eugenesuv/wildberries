@@ -36,10 +36,10 @@ export function ActionCard({ action, index, onSelect }: ActionCardProps) {
                         <span>{formatDateRange(action.startDate, action.endDate)}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Package className="w-4 h-4" />
                         <span>{action.category}</span>
-                    </div>
+                    </div> */}
 
                     {isActive && (
                         <div className="grid grid-cols-2 gap-4 pt-2">

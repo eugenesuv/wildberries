@@ -16,9 +16,9 @@ export function ActionsHeader({ categoryFilter, onCategoryChange }: ActionsHeade
             </div>
 
             <Select value={categoryFilter} onValueChange={onCategoryChange}>
-                <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Все категории" />
-                </SelectTrigger>
+                {/* <SelectTrigger className="w-[200px]"> */}
+                    {/* <SelectValue placeholder="Все категории" /> */}
+                {/* </SelectTrigger> */}
                 <SelectContent>
                     {CATEGORY_FILTERS.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>

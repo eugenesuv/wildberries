@@ -15,12 +15,3 @@ export const filterProducts = (products: Product[], filters: FilterState): Produ
 export const formatPrice = (price: number): string => {
     return `${price.toLocaleString("ru-RU")} ₽`;
 };
-
-export const generateStars = (count: number) => {
-    return Array.from({ length: count }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        delay: i * 0.15,
-    }));
-};
