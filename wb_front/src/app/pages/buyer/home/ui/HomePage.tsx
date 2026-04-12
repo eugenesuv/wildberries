@@ -26,8 +26,6 @@ export function HomePage() {
         handleTestSubmit,
         handleRememberChange,
         handleCloseTestModal,
-        triggerCarouselNext,
-        triggerCarouselPrev,
     } = useHomePage();
 
     return (
@@ -43,8 +41,6 @@ export function HomePage() {
                     isHovering={isHoveringCarousel}
                     onHoverChange={setIsHoveringCarousel}
                     onPromotionClick={handlePromotionClick}
-                    onNext={triggerCarouselNext}
-                    onPrev={triggerCarouselPrev}
                 />
             </section>
 

@@ -1,41 +1,51 @@
+import { useMemo } from "react";
+
 import { motion } from "motion/react";
 import { Badge } from "@/app/entities/ui/badge";
-import { Star, Sparkles, TrendingUp } from "lucide-react";
+import { Star, TrendingUp } from "lucide-react";
 import { HoroscopeData } from "../../types";
-import { generateStars } from "../../lib/helpers";
 
 interface HoroscopeHeroProps {
     horoscope: HoroscopeData;
 }
 
 export function HoroscopeHero({ horoscope }: HoroscopeHeroProps) {
-    const stars = generateStars(30);
+    const stars = useMemo(
+        () =>
+            [...Array(30)].map(() => ({
+                left: Math.random() * 100,
+                top: Math.random() * 100,
+            })),
+        [],
+    );
 
     return (
         <section className={`relative overflow-hidden bg-gradient-to-r ${horoscope.gradient} text-white`}>
             {/* Анимированный фон со звёздами */}
             <div className="absolute inset-0 overflow-hidden">
-                {stars.map((star) => (
+                {stars.map((pos, i) => (
                     <motion.div
-                        key={star.id}
+                        key={i}
                         className="absolute"
+                        style={{
+                            left: `${pos.left}%`,
+                            top: `${pos.top}%`,
+                        }}
                         initial={{
-                            x: star.x + "%",
-                            y: star.y + "%",
                             opacity: 0,
+                            scale: 0,
                         }}
                         animate={{
                             opacity: [0, 1, 0],
-                            scale: [0, 1.5, 0],
-                            rotate: [0, 180, 360],
+                            scale: [0, 1, 0],
                         }}
                         transition={{
-                            duration: 4,
+                            duration: 3,
                             repeat: Infinity,
-                            delay: star.delay,
+                            delay: i * 0.2,
                         }}
                     >
-                        <Sparkles className="w-6 h-6 text-white/30" />
+                        <Star className="w-4 h-4 text-white/50" />
                     </motion.div>
                 ))}
             </div>

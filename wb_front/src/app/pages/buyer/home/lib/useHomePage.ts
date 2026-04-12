@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
+import { adminClient } from "@/app/shared/api/clients/admin.client";
 import { buyerClient } from "@/app/shared/api/clients/buyer.client";
 import { Promotion, TestAnswers, TestQuestion, UserSegment } from "../types";
 import { STORAGE_KEYS } from "../constants";
@@ -20,7 +21,7 @@ export const useHomePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
     const [isHoveringCarousel, setIsHoveringCarousel] = useState(false);
-    const [currentPromotionId, setCurrentPromotionId] = useState<string | null>(null);
+    const [selectedPromo, setSelectedPromo] = useState<Promotion | null>(null);
     const [segmentPathById, setSegmentPathById] = useState<Record<string, string>>({});
     const [pendingSegmentPath, setPendingSegmentPath] = useState<string | null>(null);
     const [rememberSegment, setRememberSegment] = useState(true);
@@ -35,30 +36,30 @@ export const useHomePage = () => {
 
         const loadCurrentPromotion = async () => {
             try {
-                const response = await buyerClient.getCurrentPromotion();
+                const response = await adminClient.listPromotions();
+                //  const response = await buyerClient.getCurrentPromotion();
 
                 if (!mounted) {
                     return;
                 }
 
-                if (!response?.id) {
+                if (!response?.promotions) {
                     setPromotions([]);
-                    setCurrentPromotionId(null);
+                    setSelectedPromo(null);
                     setSegmentPathById({});
                     return;
                 }
 
                 const prTitle = THEMES.find((t) => t.value === response.theme)?.label || "";
-                setPromotionTitle(prTitle);
+                setPromotionTitle("");
 
-                setCurrentPromotionId(response.id);
-                setPromotions(mapCurrentPromotionToCarousel(response));
-                setSegmentPathById(
-                    (response.segments || []).reduce<Record<string, string>>((acc, segment) => {
-                        acc[segment.id] = buildSegmentPath(response.id, segment.id);
-                        return acc;
-                    }, {}),
-                );
+                setPromotions(mapCurrentPromotionToCarousel(response.promotions));
+                // setSegmentPathById(
+                //     (response.segments || []).reduce<Record<string, string>>((acc, segment) => {
+                //         acc[segment.id] = buildSegmentPath(response.id, segment.id);
+                //         return acc;
+                //     }, {}),
+                // );
             } catch (error) {
                 if (!mounted) {
                     return;
@@ -66,7 +67,7 @@ export const useHomePage = () => {
 
                 setHasError("Не удалось загрузить текущую акцию");
                 setPromotions([]);
-                setCurrentPromotionId(null);
+                setSelectedPromo(null);
                 setSegmentPathById({});
             }
         };
@@ -82,13 +83,16 @@ export const useHomePage = () => {
         navigate(`/promotion/${segmentPath}`);
     };
 
-    const handlePromotionClick = async (segment: string) => {
+    const handlePromotionClick = async (promo: Promotion) => {
+        const promotionId = promo?.id || null;
+        setSelectedPromo(promo);
+
         setIsLoading(true);
         setHasError(null);
-        setPendingSegmentPath(segment);
+        setPendingSegmentPath(promo.segment);
 
         try {
-            if (!currentPromotionId) {
+            if (!promotionId) {
                 setTestQuestions([]);
                 setCurrentQuestion(0);
                 setAnswers({});
@@ -96,12 +100,12 @@ export const useHomePage = () => {
                 return;
             }
 
-            const response = await buyerClient.startIdentification({ promotionId: currentPromotionId });
+            const response = await buyerClient.startIdentification({ promotionId: promotionId });
 
             if (response.method === "user_profile" && response.resultSegmentId) {
                 const path =
                     segmentPathById[response.resultSegmentId] ||
-                    buildSegmentPath(currentPromotionId, response.resultSegmentId);
+                    buildSegmentPath(promotionId, response.resultSegmentId);
                 if (rememberSegment) {
                     setUserSegment(response.resultSegmentId);
                     localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, response.resultSegmentId);
@@ -131,11 +135,13 @@ export const useHomePage = () => {
     };
 
     const handleTestSubmit = async () => {
+        if (!selectedPromo) return;
+
         setIsLoading(true);
         setHasError(null);
 
         try {
-            if (!currentPromotionId) {
+            if (!selectedPromo.id) {
                 setShowTestModal(false);
                 if (pendingSegmentPath) {
                     navigateToSegment(pendingSegmentPath);
@@ -154,7 +160,7 @@ export const useHomePage = () => {
                 }
 
                 const response = await buyerClient.answer({
-                    promotionId: currentPromotionId,
+                    promotionId: selectedPromo.id,
                     questionId: String(question.id),
                     optionId,
                 });
@@ -177,7 +183,7 @@ export const useHomePage = () => {
             setShowTestModal(false);
 
             if (resultSegmentId) {
-                const path = segmentPathById[resultSegmentId] || buildSegmentPath(currentPromotionId, resultSegmentId);
+                const path = segmentPathById[resultSegmentId] || buildSegmentPath(selectedPromo.id, resultSegmentId);
                 navigateToSegment(path);
                 return;
             }
@@ -207,29 +213,6 @@ export const useHomePage = () => {
         setRememberSegment(true);
     };
 
-    const triggerCarouselNext = () => {
-        const evt = new Event("carousel-next");
-        window.dispatchEvent(evt);
-    };
-
-    const triggerCarouselPrev = () => {
-        const evt = new Event("carousel-prev");
-        window.dispatchEvent(evt);
-    };
-
-    // Автопрокрутка карусели
-    useEffect(() => {
-        if (isHoveringCarousel) return;
-
-        autoplayRef.current = window.setInterval(triggerCarouselNext, 6000);
-
-        return () => {
-            if (autoplayRef.current) {
-                window.clearInterval(autoplayRef.current);
-            }
-        };
-    }, [isHoveringCarousel]);
-
     return {
         // State
         promotionTitle,
@@ -253,7 +236,5 @@ export const useHomePage = () => {
         handleTestSubmit,
         handleRememberChange,
         handleCloseTestModal,
-        triggerCarouselNext,
-        triggerCarouselPrev,
     };
 };

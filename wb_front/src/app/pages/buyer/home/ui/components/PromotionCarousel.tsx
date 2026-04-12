@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { motion } from "motion/react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/app/entities/ui/carousel";
 import { Button } from "@/app/entities/ui/button";
@@ -9,9 +11,7 @@ interface PromotionCarouselProps {
     abIndex: number;
     isHovering: boolean;
     onHoverChange: (hovering: boolean) => void;
-    onPromotionClick: (segment: string) => void;
-    onNext: () => void;
-    onPrev: () => void;
+    onPromotionClick: (promo: Promotion) => void;
 }
 
 export function PromotionCarousel({
@@ -20,9 +20,16 @@ export function PromotionCarousel({
     isHovering,
     onHoverChange,
     onPromotionClick,
-    onNext,
-    onPrev,
 }: PromotionCarouselProps) {
+    const stars = useMemo(
+        () =>
+            [...Array(30)].map(() => ({
+                left: Math.random() * 100,
+                top: Math.random() * 100,
+            })),
+        [],
+    );
+
     return (
         <div className="max-w-4xl mx-auto">
             <Carousel
@@ -40,18 +47,21 @@ export function PromotionCarousel({
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: index * 0.1 }}
                                 className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${promo.gradient} p-8 md:p-12 cursor-pointer group`}
-                                onClick={() => onPromotionClick(promo.segment)}
+                                onClick={() => onPromotionClick(promo)}
                             >
                                 {/* Анимированные звёзды на фоне */}
                                 <div className="absolute inset-0 overflow-hidden">
-                                    {[...Array(20)].map((_, i) => (
+                                    {stars.map((pos, i) => (
                                         <motion.div
                                             key={i}
                                             className="absolute"
+                                            style={{
+                                                left: `${pos.left}%`,
+                                                top: `${pos.top}%`,
+                                            }}
                                             initial={{
-                                                x: Math.random() * 100 + "%",
-                                                y: Math.random() * 100 + "%",
                                                 opacity: 0,
+                                                scale: 0,
                                             }}
                                             animate={{
                                                 opacity: [0, 1, 0],
@@ -93,8 +103,8 @@ export function PromotionCarousel({
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious onClick={onPrev} />
-                <CarouselNext onClick={onNext} />
+                <CarouselPrevious />
+                <CarouselNext />
             </Carousel>
         </div>
     );
