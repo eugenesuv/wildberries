@@ -49,7 +49,7 @@ func (r *ProductPostgres) GetByIDs(ctx context.Context, ids []int64, filters Pro
 	return out, rows.Err()
 }
 
-func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, categoryID string, page, perPage int) ([]*ProductRow, int, error) {
+func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, categoryID string, page, perPage int, segmentId *int64) ([]*ProductRow, int, error) {
 	if perPage <= 0 {
 		perPage = 10
 	}
@@ -57,14 +57,24 @@ func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, cate
 	if offset < 0 {
 		offset = 0
 	}
-	q := `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
-		FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
+	var q string
+	if segmentId == nil {
+		q = `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
+			FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
+	} else {
+		q = `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
+			FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL
+			AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $2)`
+	}
 	countQ := `SELECT count(*) FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
 	args := []interface{}{sellerID}
 	if categoryID != "" {
 		q += ` AND category_id::text = $2`
 		countQ += ` AND category_id::text = $2`
 		args = append(args, categoryID)
+	}
+	if segmentId != nil {
+		args = append(args, *segmentId)
 	}
 	var total int
 	err := r.pool.QueryRow(ctx, countQ, args...).Scan(&total)

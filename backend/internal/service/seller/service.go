@@ -48,8 +48,8 @@ func New(
 }
 
 // ListProductsBy lists products by seller
-func (s *Service) ListProductsBy(ctx context.Context, sellerID int64, categoryID string, page, perPage int) ([]*entity.ProductItem, int, error) {
-	rows, total, err := s.productRepo.ListBySeller(ctx, sellerID, categoryID, page, perPage)
+func (s *Service) ListProductsBy(ctx context.Context, sellerID int64, categoryID string, page, perPage int, segmentId *int64) ([]*entity.ProductItem, int, error) {
+	rows, total, err := s.productRepo.ListBySeller(ctx, sellerID, categoryID, page, perPage, segmentId)
 	if err != nil {
 		return nil, 0, err
 	}

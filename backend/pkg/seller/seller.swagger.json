@@ -74,6 +74,13 @@
             "required": false,
             "type": "integer",
             "format": "int32"
+          },
+          {
+            "name": "segmentId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [

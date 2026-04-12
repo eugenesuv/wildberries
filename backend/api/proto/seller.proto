@@ -27,6 +27,7 @@ message ListProductsByRequest {
   int64 seller_id = 2;
   int32 page = 3;
   int32 per_page = 4;
+  optional int64 segment_id = 5;
 }
 
 message ProductListItem {

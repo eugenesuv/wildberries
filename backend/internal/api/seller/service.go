@@ -46,7 +46,7 @@ func (s *Service) GetActionSegments(ctx context.Context, req *desc.GetActionSegm
 // ListProductsBy lists products by seller
 func (s *Service) ListProductsBy(ctx context.Context, req *desc.ListProductsByRequest) (*desc.ListProductsByResponse, error) {
 	// Call service
-	items, total, err := s.sellerService.ListProductsBy(ctx, req.SellerId, req.CategoryId, int(req.Page), int(req.PerPage))
+	items, total, err := s.sellerService.ListProductsBy(ctx, req.SellerId, req.CategoryId, int(req.Page), int(req.PerPage), req.SegmentId)
 	if err != nil {
 		return nil, err
 	}

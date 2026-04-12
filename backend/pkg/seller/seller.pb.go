@@ -30,6 +30,7 @@ type ListProductsByRequest struct {
 	SellerId      int64                  `protobuf:"varint,2,opt,name=seller_id,json=sellerId,proto3" json:"seller_id,omitempty"`
 	Page          int32                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	PerPage       int32                  `protobuf:"varint,4,opt,name=per_page,json=perPage,proto3" json:"per_page,omitempty"`
+	SegmentId     *int64                 `protobuf:"varint,5,opt,name=segment_id,json=segmentId,proto3,oneof" json:"segment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -88,6 +89,13 @@ func (x *ListProductsByRequest) GetPage() int32 {
 func (x *ListProductsByRequest) GetPerPage() int32 {
 	if x != nil {
 		return x.PerPage
+	}
+	return 0
+}
+
+func (x *ListProductsByRequest) GetSegmentId() int64 {
+	if x != nil && x.SegmentId != nil {
+		return *x.SegmentId
 	}
 	return 0
 }
@@ -1040,13 +1048,16 @@ var File_seller_proto protoreflect.FileDescriptor
 
 const file_seller_proto_rawDesc = "" +
 	"\n" +
-	"\fseller.proto\x12\x12wildberries.seller\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
+	"\fseller.proto\x12\x12wildberries.seller\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb7\x01\n" +
 	"\x15ListProductsByRequest\x12\x1f\n" +
 	"\vcategory_id\x18\x01 \x01(\tR\n" +
 	"categoryId\x12\x1b\n" +
 	"\tseller_id\x18\x02 \x01(\x03R\bsellerId\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x19\n" +
-	"\bper_page\x18\x04 \x01(\x05R\aperPage\"\xb7\x01\n" +
+	"\bper_page\x18\x04 \x01(\x05R\aperPage\x12\"\n" +
+	"\n" +
+	"segment_id\x18\x05 \x01(\x03H\x00R\tsegmentId\x88\x01\x01B\r\n" +
+	"\v_segment_id\"\xb7\x01\n" +
 	"\x0fProductListItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x13\n" +
 	"\x05nm_id\x18\x02 \x01(\x03R\x04nmId\x12#\n" +
@@ -1194,6 +1205,7 @@ func file_seller_proto_init() {
 	if File_seller_proto != nil {
 		return
 	}
+	file_seller_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

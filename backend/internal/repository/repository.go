@@ -137,7 +137,7 @@ type SlotRepository interface {
 type ProductRepository interface {
 	GetByID(ctx context.Context, id int64) (*ProductRow, error)
 	GetByIDs(ctx context.Context, ids []int64, filters ProductFilters) ([]*ProductRow, error)
-	ListBySeller(ctx context.Context, sellerID int64, categoryID string, page, perPage int) ([]*ProductRow, int, error)
+	ListBySeller(ctx context.Context, sellerID int64, categoryID string, page, perPage int, segmentId *int64) ([]*ProductRow, int, error)
 }
 
 type ProductFilters struct {
