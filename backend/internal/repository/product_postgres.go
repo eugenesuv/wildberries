@@ -57,15 +57,8 @@ func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, cate
 	if offset < 0 {
 		offset = 0
 	}
-	var q string
-	if segmentId == nil {
-		q = `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
+	q := `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
 			FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
-	} else {
-		q = `SELECT id, seller_id, nm_id, category_id, category_name, name, image, price, discount, created_at::text, updated_at::text, deleted_at::text
-			FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL
-			AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $2)`
-	}
 	countQ := `SELECT count(*) FROM public.product WHERE seller_id = $1 AND deleted_at IS NULL`
 	args := []interface{}{sellerID}
 	if categoryID != "" {
@@ -73,7 +66,14 @@ func (r *ProductPostgres) ListBySeller(ctx context.Context, sellerID int64, cate
 		countQ += ` AND category_id::text = $2`
 		args = append(args, categoryID)
 	}
-	if segmentId != nil {
+	if segmentId != nil && categoryID != "" {
+		q += ` AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $3)`
+		countQ += ` AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $3)`
+		args = append(args, *segmentId)
+	}
+	if segmentId != nil && categoryID == "" {
+		q += ` AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $2)`
+		countQ += ` AND not exists(select 1 from public.slot where slot.product_id = product.id and slot.segment_id = $2)`
 		args = append(args, *segmentId)
 	}
 	var total int
