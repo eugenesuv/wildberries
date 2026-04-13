@@ -65,7 +65,7 @@ export const usePromotionPage = () => {
 
             try {
                 const allPromotions = await adminClient.listPromotions();
-                const currentPromotion = allPromotions?.promotions?.find((pr: any) => pr?.id === promotionId);
+                const currentPromotion = allPromotions?.promotions?.find((pr: any) => pr?.id == promotionId);
 
                 if (!mounted) {
                     return;
