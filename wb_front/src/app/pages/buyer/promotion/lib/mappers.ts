@@ -26,7 +26,7 @@ export const resolveSegmentByRoute = (
     params: { segmentId?: string; legacySegment?: string },
 ): CommonSegment | undefined => {
     if (params.segmentId) {
-        return (promotion.segments || []).find((segment) => segment.id == params.segmentId);
+        return (promotion.segments || []).find((segment) => String(segment.id) === String(params.segmentId));
     }
 
     const legacy = normalizeSlug(params.legacySegment);
