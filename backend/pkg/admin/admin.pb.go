@@ -2376,6 +2376,7 @@ type ModerationApplication struct {
 	Discount      int32                  `protobuf:"varint,7,opt,name=discount,proto3" json:"discount,omitempty"`
 	StopFactors   []string               `protobuf:"bytes,8,rep,name=stop_factors,json=stopFactors,proto3" json:"stop_factors,omitempty"`
 	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	Image         string                 `protobuf:"bytes,10,opt,name=image,proto3" json:"image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2469,6 +2470,13 @@ func (x *ModerationApplication) GetStopFactors() []string {
 func (x *ModerationApplication) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *ModerationApplication) GetImage() string {
+	if x != nil {
+		return x.Image
 	}
 	return ""
 }
@@ -2868,7 +2876,7 @@ const file_admin_proto_rawDesc = "" +
 	"\x15SetAnswerTreeResponse\"]\n" +
 	" GetModerationApplicationsRequest\x12!\n" +
 	"\fpromotion_id\x18\x01 \x01(\x03R\vpromotionId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\"\x8c\x02\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"\xa2\x02\n" +
 	"\x15ModerationApplication\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
 	"\tseller_id\x18\x02 \x01(\x03R\bsellerId\x12\x1d\n" +
@@ -2879,7 +2887,9 @@ const file_admin_proto_rawDesc = "" +
 	"\x05price\x18\x06 \x01(\x03R\x05price\x12\x1a\n" +
 	"\bdiscount\x18\a \x01(\x05R\bdiscount\x12!\n" +
 	"\fstop_factors\x18\b \x03(\tR\vstopFactors\x12\x16\n" +
-	"\x06status\x18\t \x01(\tR\x06status\"q\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x12\x14\n" +
+	"\x05image\x18\n" +
+	" \x01(\tR\x05image\"q\n" +
 	"!GetModerationApplicationsResponse\x12L\n" +
 	"\fapplications\x18\x01 \x03(\v2(.wildberries.admin.ModerationApplicationR\fapplications\"A\n" +
 	"\x18ApproveModerationRequest\x12%\n" +

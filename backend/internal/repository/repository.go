@@ -95,6 +95,7 @@ type ModerationRow struct {
 	UpdatedAt   string
 	ModeratedAt *string
 	ModeratorID *int64
+	Image       *string
 }
 
 // PromotionRepository — операции с promotion

@@ -439,6 +439,12 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 			Discount:    int32(r.Discount),
 			StopFactors: stopFactors,
 			Status:      r.Status,
+			Image: func(s *string) string {
+				if s != nil {
+					return *s
+				}
+				return ""
+			}(r.Image),
 		}
 	}
 	return &desc.GetModerationApplicationsResponse{Applications: out}, nil
