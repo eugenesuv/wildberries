@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { buyerClient } from "@/app/shared/api/clients/buyer.client";
+import { adminClient } from "@/app/shared/api/clients/admin.client";
+
 import { Product, FilterState, FavoriteSet } from "../types";
 import { HOROSCOPE_DATA } from "../constants";
 import { filterProducts } from "./helpers";
@@ -62,7 +64,8 @@ export const usePromotionPage = () => {
             setHasError(null);
 
             try {
-                const currentPromotion = await buyerClient.getCurrentPromotion();
+                const allPromotions = await adminClient.listPromotions();
+                const currentPromotion = allPromotions?.promotions?.find((pr: any) => pr?.id === promotionId);
 
                 if (!mounted) {
                     return;
@@ -93,7 +96,10 @@ export const usePromotionPage = () => {
                     navigate(`/promotion/${currentPromotion.id}/${targetSegment.id}`, { replace: true });
                 }
 
-                const productsResponse = await buyerClient.getSegmentProducts(Number(targetPromotionId), Number(targetSegment.id));
+                const productsResponse = await buyerClient.getSegmentProducts(
+                    Number(targetPromotionId),
+                    Number(targetSegment.id),
+                );
 
                 if (!mounted) {
                     return;

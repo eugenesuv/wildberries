@@ -37,7 +37,6 @@ export const useHomePage = () => {
         const loadCurrentPromotion = async () => {
             try {
                 const response = await adminClient.listPromotions();
-                //  const response = await buyerClient.getCurrentPromotion();
 
                 if (!mounted) {
                     return;
