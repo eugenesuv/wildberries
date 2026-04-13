@@ -16,10 +16,10 @@ import (
 func (a *App) serveCustomHTTP(w http.ResponseWriter, r *http.Request) bool {
 	path := r.URL.Path
 
-	if r.Method == http.MethodGet && path == "/admin/promotions" {
-		a.handleAdminListPromotions(w, r)
-		return true
-	}
+	//if r.Method == http.MethodGet && path == "/admin/promotions" {
+	//	a.handleAdminListPromotions(w, r)
+	//	return true
+	//}
 
 	if strings.HasPrefix(path, "/admin/promotions/") {
 		parts := splitPath(path)
