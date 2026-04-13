@@ -647,6 +647,7 @@ func (s *Service) GetModerationApplications(ctx context.Context, promotionID int
 	}
 	for _, app := range apps {
 		app.ProductName = productsById[app.ProductID].Name
+		app.Image = productsById[app.ProductID].Image
 	}
 	return apps, nil
 }
