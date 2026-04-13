@@ -52,13 +52,27 @@ export const useHomePage = () => {
                 const prTitle = THEMES.find((t) => t.value === response.theme)?.label || "";
                 setPromotionTitle("");
 
-                setPromotions(mapCurrentPromotionToCarousel(response.promotions));
-                // setSegmentPathById(
-                //     (response.segments || []).reduce<Record<string, string>>((acc, segment) => {
-                //         acc[segment.id] = buildSegmentPath(response.id, segment.id);
-                //         return acc;
-                //     }, {}),
-                // );
+                const detailedPromotions = (
+                    await Promise.all(
+                        response.promotions.map((promotion) =>
+                            adminClient.getPromotion(Number(promotion.id)).catch(() => null),
+                        ),
+                    )
+                ).filter(Boolean);
+
+                if (!mounted) {
+                    return;
+                }
+
+                setPromotions(mapCurrentPromotionToCarousel(detailedPromotions as any));
+                setSegmentPathById(
+                    detailedPromotions.reduce<Record<string, string>>((acc, promotion: any) => {
+                        (promotion.segments || []).forEach((segment: any) => {
+                            acc[segment.id] = buildSegmentPath(promotion.id, segment.id);
+                        });
+                        return acc;
+                    }, {}),
+                );
             } catch (error) {
                 if (!mounted) {
                     return;
