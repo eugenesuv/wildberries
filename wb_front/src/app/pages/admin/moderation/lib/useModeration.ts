@@ -15,6 +15,7 @@ const mapApplication = (
         productName: string;
         price: string;
         discount: number;
+        image: string,
         stopFactors: string[];
         status: string;
     },
@@ -28,7 +29,7 @@ const mapApplication = (
     productName: app.productName || `Товар продавца #${app.sellerId}`,
     price: Number(app.price || 0),
     discount: Number(app.discount || 0),
-    image: PLACEHOLDER_IMAGE,
+    image: app.image || PLACEHOLDER_IMAGE,
     status: (["pending", "approved", "rejected"].includes(app.status) ? app.status : "pending") as Application["status"],
     stopFactors: app.stopFactors || [],
     submittedAt: new Date().toISOString(),
