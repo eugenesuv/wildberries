@@ -9,6 +9,12 @@ import { buildSegmentPath, mapCurrentPromotionToCarousel, mapPollToTestQuestions
 
 import { THEMES } from "./../../../admin/settings/constants/index";
 
+const extractStartQuestionIndex = (answerTree?: Array<{ label?: string; value?: string }>) => {
+    const startNode = (answerTree || []).find((node) => String(node?.label || "").trim() === "meta:start");
+    const startIndex = Number(startNode?.value || 0);
+    return Number.isInteger(startIndex) && startIndex >= 0 ? startIndex : 0;
+};
+
 export const useHomePage = () => {
     const navigate = useNavigate();
     const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -16,6 +22,7 @@ export const useHomePage = () => {
     const [testQuestions, setTestQuestions] = useState<TestQuestion[]>([]);
     const [showTestModal, setShowTestModal] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState<TestAnswers>({});
     const [userSegment, setUserSegment] = useState<UserSegment>(localStorage.getItem(STORAGE_KEYS.USER_SEGMENT));
     const [isLoading, setIsLoading] = useState(false);
@@ -23,13 +30,14 @@ export const useHomePage = () => {
     const [isHoveringCarousel, setIsHoveringCarousel] = useState(false);
     const [selectedPromo, setSelectedPromo] = useState<Promotion | null>(null);
     const [segmentPathById, setSegmentPathById] = useState<Record<string, string>>({});
+    const [startQuestionIndexByPromotionId, setStartQuestionIndexByPromotionId] = useState<Record<number, number>>({});
     const [pendingSegmentPath, setPendingSegmentPath] = useState<string | null>(null);
     const [rememberSegment, setRememberSegment] = useState(true);
 
     const abIndex = useMemo(() => getRandomIndex(3), []);
     const autoplayRef = useRef<number | null>(null);
 
-    const progress = calculateProgress(currentQuestion, Math.max(testQuestions.length, 1));
+    const progress = calculateProgress(currentStep, Math.max(testQuestions.length, 1));
 
     useEffect(() => {
         let mounted = true;
@@ -46,6 +54,7 @@ export const useHomePage = () => {
                     setPromotions([]);
                     setSelectedPromo(null);
                     setSegmentPathById({});
+                    setStartQuestionIndexByPromotionId({});
                     return;
                 }
 
@@ -73,6 +82,12 @@ export const useHomePage = () => {
                         return acc;
                     }, {}),
                 );
+                setStartQuestionIndexByPromotionId(
+                    detailedPromotions.reduce<Record<number, number>>((acc, promotion: any) => {
+                        acc[Number(promotion.id)] = extractStartQuestionIndex(promotion.poll?.answerTree);
+                        return acc;
+                    }, {}),
+                );
             } catch (error) {
                 if (!mounted) {
                     return;
@@ -82,6 +97,7 @@ export const useHomePage = () => {
                 setPromotions([]);
                 setSelectedPromo(null);
                 setSegmentPathById({});
+                setStartQuestionIndexByPromotionId({});
             }
         };
 
@@ -99,6 +115,7 @@ export const useHomePage = () => {
     const handlePromotionClick = async (promo: Promotion) => {
         const promotionId = promo?.id || null;
         setSelectedPromo(promo);
+        setPromotionTitle(promo?.title || "");
 
         setIsLoading(true);
         setHasError(null);
@@ -128,8 +145,14 @@ export const useHomePage = () => {
             }
 
             const mappedQuestions = mapPollToTestQuestions(response.poll);
+            const rawStartIndex = promotionId ? startQuestionIndexByPromotionId[promotionId] ?? 0 : 0;
+            const startIndex =
+                mappedQuestions.length > 0
+                    ? Math.max(0, Math.min(rawStartIndex, mappedQuestions.length - 1))
+                    : 0;
             setTestQuestions(mappedQuestions.length > 0 ? mappedQuestions : []);
-            setCurrentQuestion(0);
+            setCurrentQuestion(startIndex);
+            setCurrentStep(0);
             setAnswers({});
             setShowTestModal(true);
         } catch (e) {
@@ -141,10 +164,6 @@ export const useHomePage = () => {
 
     const handleTestAnswer = (value: string) => {
         setAnswers({ ...answers, [currentQuestion]: value });
-
-        if (currentQuestion < testQuestions.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
-        }
     };
 
     const handleTestSubmit = async () => {
@@ -162,41 +181,49 @@ export const useHomePage = () => {
                 return;
             }
 
-            let resultSegmentId = "";
+            const question = testQuestions[currentQuestion];
+            const optionId = answers[currentQuestion];
 
-            for (let index = 0; index < testQuestions.length; index += 1) {
-                const question = testQuestions[index];
-                const optionId = answers[index];
+            if (!question || !optionId) {
+                return;
+            }
 
-                if (!question || !optionId) {
-                    continue;
+            const response = await buyerClient.answer({
+                promotionId: selectedPromo.id,
+                questionId: String(question.id),
+                optionId,
+            });
+
+            if (response.resultSegmentId && response.resultSegmentId !== "0") {
+                const resultSegmentId = response.resultSegmentId;
+
+                if (rememberSegment && resultSegmentId) {
+                    setUserSegment(resultSegmentId);
+                    localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, resultSegmentId);
                 }
 
-                const response = await buyerClient.answer({
-                    promotionId: selectedPromo.id,
-                    questionId: String(question.id),
-                    optionId,
-                });
+                setShowTestModal(false);
 
-                if (response.resultSegmentId && response.resultSegmentId !== "0") {
-                    resultSegmentId = response.resultSegmentId;
-                }
+                const path = segmentPathById[resultSegmentId] || buildSegmentPath(selectedPromo.id, resultSegmentId);
+                navigateToSegment(path);
+                return;
             }
 
-            if (!resultSegmentId) {
-                const firstKnown = Object.keys(segmentPathById)[0];
-                resultSegmentId = firstKnown || "";
+            const nextQuestionId = Number(response.nextQuestionId || 0);
+            const nextQuestionIndex = testQuestions.findIndex((item) => item.id === nextQuestionId);
+
+            if (nextQuestionId > 0 && nextQuestionIndex >= 0) {
+                setCurrentQuestion(nextQuestionIndex);
+                setCurrentStep((prev) => prev + 1);
+                return;
             }
 
-            if (rememberSegment && resultSegmentId) {
-                setUserSegment(resultSegmentId);
-                localStorage.setItem(STORAGE_KEYS.USER_SEGMENT, resultSegmentId);
-            }
+            const firstKnown = Object.keys(segmentPathById)[0];
+            const fallbackSegmentId = firstKnown || "";
 
             setShowTestModal(false);
-
-            if (resultSegmentId) {
-                const path = segmentPathById[resultSegmentId] || buildSegmentPath(selectedPromo.id, resultSegmentId);
+            if (fallbackSegmentId) {
+                const path = segmentPathById[fallbackSegmentId] || buildSegmentPath(selectedPromo.id, fallbackSegmentId);
                 navigateToSegment(path);
                 return;
             }
@@ -222,6 +249,7 @@ export const useHomePage = () => {
     const handleCloseTestModal = () => {
         setShowTestModal(false);
         setCurrentQuestion(0);
+        setCurrentStep(0);
         setAnswers({});
         setRememberSegment(true);
     };
@@ -233,6 +261,7 @@ export const useHomePage = () => {
         testQuestions,
         showTestModal,
         currentQuestion,
+        currentStep,
         answers,
         userSegment,
         isLoading,

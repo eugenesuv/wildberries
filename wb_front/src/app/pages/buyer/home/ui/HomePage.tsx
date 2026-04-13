@@ -13,6 +13,7 @@ export function HomePage() {
         testQuestions,
         showTestModal,
         currentQuestion,
+        currentStep,
         answers,
         isLoading,
         hasError,
@@ -52,6 +53,7 @@ export function HomePage() {
                 open={showTestModal}
                 onOpenChange={handleCloseTestModal}
                 currentQuestion={currentQuestion}
+                currentStep={currentStep}
                 answers={answers}
                 questions={testQuestions}
                 progress={progress}
