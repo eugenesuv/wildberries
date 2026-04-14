@@ -10,6 +10,7 @@ interface SegmentationTestModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     currentQuestion: number;
+    currentStep: number;
     answers: TestAnswers;
     questions: TestQuestion[];
     progress: number;
@@ -23,6 +24,7 @@ export function SegmentationTestModal({
     open,
     onOpenChange,
     currentQuestion,
+    currentStep,
     answers,
     questions,
     progress,
@@ -31,7 +33,6 @@ export function SegmentationTestModal({
     onRememberChange,
 }: SegmentationTestModalProps) {
     const currentQ = questions[currentQuestion];
-    const isLastQuestion = currentQuestion === questions?.length - 1;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -45,7 +46,8 @@ export function SegmentationTestModal({
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm text-muted-foreground">
                             <span>
-                                Вопрос {currentQuestion + 1} из {questions?.length}
+                                Вопрос {Math.min(currentStep + 1, Math.max(questions?.length || 1, 1))} из{" "}
+                                {questions?.length}
                             </span>
                             <span>{Math.round(progress)}%</span>
                         </div>
@@ -85,9 +87,9 @@ export function SegmentationTestModal({
                     <Button
                         onClick={onSubmit}
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600"
-                        disabled={!answers[currentQuestion] || !isLastQuestion}
+                        disabled={!answers[currentQuestion]}
                     >
-                        Получить результат
+                        Продолжить
                     </Button>
                 </div>
             </DialogContent>
