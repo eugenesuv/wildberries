@@ -32,6 +32,8 @@ export function SellerSlotMarketPage() {
         handleCloseDialog,
         handleImageUpload,
         handleGoBack,
+        minDiscount,
+        maxDiscount,
     } = useSellerSlotMarket();
 
     const showAuctionTab = auctionSlots.length > 0;
@@ -50,7 +52,9 @@ export function SellerSlotMarketPage() {
                     )}
                     {isLoading && <div className="mb-4 text-sm text-muted-foreground">Загрузка слотов...</div>}
                     {!isLoading && !showAuctionTab && !showFixedTab && (
-                        <div className="mb-4 text-sm text-muted-foreground">В этом сегменте пока нет доступных слотов</div>
+                        <div className="mb-4 text-sm text-muted-foreground">
+                            В этом сегменте пока нет доступных слотов
+                        </div>
                     )}
                     <Tabs
                         value={activeTab}
@@ -93,6 +97,8 @@ export function SellerSlotMarketPage() {
                 onImageUpload={handleImageUpload}
                 onConfirm={handleConfirmPurchase}
                 isSubmitting={isSubmitting}
+                minDiscount={minDiscount}
+                maxDiscount={maxDiscount}
             />
         </div>
     );

@@ -90,6 +90,7 @@ export interface SellerMakeBetRequest {
     slotId: string; // int64
     amount?: string; // int64, для аукциона — сумма ставки
     productId: string; // int64, товар каталога продавца
+    discount?: number; // int32, для фиксированного — размер скидки в процентах
 }
 
 export interface SellerMakeBetResponse {

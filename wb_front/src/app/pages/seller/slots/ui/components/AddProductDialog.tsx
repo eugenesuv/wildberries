@@ -20,6 +20,8 @@ interface AddProductDialogProps {
     onImageUpload: (file: File | null) => void;
     onConfirm: () => void;
     isSubmitting?: boolean;
+    minDiscount: number;
+    maxDiscount: number;
 }
 
 export function AddProductDialog({
@@ -36,6 +38,8 @@ export function AddProductDialog({
     onImageUpload,
     onConfirm,
     isSubmitting,
+    minDiscount,
+    maxDiscount
 }: AddProductDialogProps) {
     if (!selectedSlot) return null;
 
@@ -111,8 +115,14 @@ export function AddProductDialog({
                                     id="product-discount"
                                     type="number"
                                     value={productData.discount}
+                                    onChange={(e) => {
+                                        let val = Number(e.target.value);
+                                        val = Math.min(maxDiscount, Math.max(minDiscount, val));
+                                        onProductDataChange({ ...productData, discount: val });
+                                    }}
+                                    min={minDiscount}
+                                    max={maxDiscount}
                                     className="mt-1"
-                                    readOnly
                                 />
                             </div>
                         </div>
