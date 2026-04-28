@@ -1,4 +1,8 @@
-import type { BuyerGetCurrentPromotionResponse, CommonProductItem, CommonSegment } from "@/app/shared/api/types/buyer.types";
+import type {
+    BuyerGetCurrentPromotionResponse,
+    CommonProductItem,
+    CommonSegment,
+} from "@/app/shared/api/types/buyer.types";
 import { HOROSCOPE_DATA } from "../constants";
 import type { HoroscopeData, Product } from "../types";
 
@@ -36,16 +40,22 @@ export const resolveSegmentByRoute = (
     });
 };
 
-export const mapProductItem = (item: CommonProductItem): Product => ({
-    id: toNumber(item.id),
-    name: item.name,
-    price: toNumber(item.price),
-    oldPrice: toNumber(item.oldPrice) || undefined,
-    discount: item.discount || undefined,
-    image: item.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-    badge: item.badge || undefined,
-    category: item.badge || "Товары акции",
-});
+export const mapProductItem = (item: CommonProductItem): Product => {
+    const originalPrice = toNumber(item.price);
+    const discount = item.discount || 0;
+    const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
+
+    return {
+        id: toNumber(item.id),
+        name: item.name,
+        price: discountedPrice,
+        oldPrice: discount > 0 ? originalPrice : undefined,
+        discount: discount || undefined,
+        image: item.image,
+        badge: item.badge,
+        category: item.badge || "Товары акции",
+    };
+};
 
 export const buildHoroscopeData = (
     promotion: BuyerGetCurrentPromotionResponse,

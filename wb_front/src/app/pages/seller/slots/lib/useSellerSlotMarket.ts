@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { adminClient } from "@/app/shared/api/clients/admin.client";
 import { sellerClient } from "@/app/shared/api/clients/seller.client";
 import { DEFAULT_SELLER_ID } from "@/app/shared/api/config";
-import { AuctionSlot, FixedPriceSlot, ProductData, SelectedSlotInfo, PricingType, SellerCatalogProduct } from "../types";
+import {
+    AuctionSlot,
+    FixedPriceSlot,
+    ProductData,
+    SelectedSlotInfo,
+    PricingType,
+    SellerCatalogProduct,
+} from "../types";
 
 const EMPTY_PRODUCT_DATA: ProductData = {
     name: "",
@@ -29,7 +37,12 @@ const mapAuctionSlot = (slot: {
     topBidder: slot.topBidderName || null,
 });
 
-const mapFixedSlot = (slot: { slotId: number; position: number; price: number; status: "available" | "occupied" }): FixedPriceSlot => ({
+const mapFixedSlot = (slot: {
+    slotId: number;
+    position: number;
+    price: number;
+    status: "available" | "occupied";
+}): FixedPriceSlot => ({
     id: Number(slot.slotId),
     position: Number(slot.position),
     price: Number(slot.price || 0),
@@ -70,6 +83,8 @@ export const useSellerSlotMarket = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
+    const [minDiscount, setMinDiscount] = useState(0);
+    const [maxDiscount, setMaxDiscount] = useState(10);
 
     useEffect(() => {
         if (!actionId || !segment) {
@@ -85,19 +100,30 @@ export const useSellerSlotMarket = () => {
             }
 
             try {
-                const [slotsResponse, productsResponse, segmentsResponse, actionsResponse] = await Promise.all([
-                    sellerClient.getSegmentSlots(Number(actionId), Number(segment)),
-                    sellerClient.listProductsBy({ sellerId: DEFAULT_SELLER_ID, perPage: 100, page: 1 }),
-                    sellerClient.getActionSegments(Number(actionId)),
-                    sellerClient.getSellerActions(DEFAULT_SELLER_ID),
-                ]);
+                const [slotsResponse, productsResponse, segmentsResponse, actionsResponse, promotionResponse] =
+                    await Promise.all([
+                        sellerClient.getSegmentSlots(Number(actionId), Number(segment)),
+                        sellerClient.listProductsBy({ sellerId: DEFAULT_SELLER_ID, perPage: 100, page: 1 }),
+                        sellerClient.getActionSegments(Number(actionId)),
+                        sellerClient.getSellerActions(DEFAULT_SELLER_ID),
+                        adminClient.getPromotion(Number(actionId)),
+                    ]);
 
                 if (!mounted) {
                     return;
                 }
 
-                const nextAuctionSlots = (slotsResponse.auction || []).map(mapAuctionSlot);
-                const nextFixedSlots = (slotsResponse.fixed || []).map(mapFixedSlot);
+                setMinDiscount(promotionResponse.minDiscount || 0);
+                setMaxDiscount(promotionResponse.maxDiscount || 10);
+
+                const nextAuctionSlots: AuctionSlot[] = (slotsResponse.auction || [])
+                    .map(mapAuctionSlot)
+                    .sort((a: AuctionSlot, b: AuctionSlot) => a.position - b.position);
+
+                const nextFixedSlots: FixedPriceSlot[] = (slotsResponse.fixed || [])
+                    .map(mapFixedSlot)
+                    .sort((a: FixedPriceSlot, b: FixedPriceSlot) => a.position - b.position);
+
                 setAuctionSlots(nextAuctionSlots);
                 setFixedPriceSlots(nextFixedSlots);
                 setActiveTab((prev) => {
@@ -120,7 +146,9 @@ export const useSellerSlotMarket = () => {
                 setSellerProducts(products);
                 setSelectedProductId((prev) => prev || products[0]?.id || "");
 
-                const currentSegment = (segmentsResponse.actionSegments || []).find((item) => String(item.id) === segment);
+                const currentSegment = (segmentsResponse.actionSegments || []).find(
+                    (item) => String(item.id) === segment,
+                );
                 if (currentSegment?.name) {
                     setSegmentLabel(currentSegment.name);
                 }
@@ -237,6 +265,7 @@ export const useSellerSlotMarket = () => {
                 slotId: String(selectedSlot.slotId),
                 amount: selectedSlot.pricingType === "auction" ? String(bidAmount) : undefined,
                 productId: selectedProductId,
+                discount: selectedSlot.pricingType === "fixed" ? productData.discount : undefined,
             });
 
             if (!response.success) {
@@ -305,5 +334,7 @@ export const useSellerSlotMarket = () => {
         handleCloseDialog,
         handleImageUpload,
         handleGoBack,
+        minDiscount,
+        maxDiscount,
     };
 };
