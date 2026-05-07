@@ -56,7 +56,8 @@ func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotion
 		IdentificationMode: identificationMode,
 		PricingModel:       pricingModel,
 		SlotCount:          int(req.SlotCount),
-		Discount:           int(req.Discount),
+		MinDiscount:        int(req.MinDiscount),
+		MaxDiscount:        int(req.MaxDiscount),
 		StopFactors:        entity.StopFactors{Factors: req.StopFactors},
 	}
 	id, err := s.promotionService.CreatePromotion(ctx, promo)
@@ -88,7 +89,8 @@ func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionReque
 			IdentificationMode: promo.IdentificationMode.APIString(),
 			PricingModel:       promo.PricingModel.APIString(),
 			SlotCount:          int32(promo.SlotCount),
-			Discount:           int32(promo.Discount),
+			MinDiscount:        int32(promo.MinDiscount),
+			MaxDiscount:        int32(promo.MaxDiscount),
 			StopFactors:        promo.StopFactors.Factors,
 		}
 		// Segments, FixedPrices, Poll filled by service if needed
@@ -173,8 +175,11 @@ func (s *Service) UpdatePromotion(ctx context.Context, req *desc.UpdatePromotion
 	if req.SlotCount != nil {
 		promo.SlotCount = int(*req.SlotCount)
 	}
-	if req.Discount != nil {
-		promo.Discount = int(*req.Discount)
+	if req.MinDiscount != nil {
+		promo.MinDiscount = int(*req.MinDiscount)
+	}
+	if req.MaxDiscount != nil {
+		promo.MaxDiscount = int(*req.MaxDiscount)
 	}
 	if len(req.StopFactors) > 0 {
 		promo.StopFactors = entity.StopFactors{Factors: req.StopFactors}

@@ -12,7 +12,8 @@ type Promotion struct {
 	IdentificationMode IdentificationMode
 	PricingModel       PricingModel
 	SlotCount          int
-	Discount           int // WB discount (admin setting) for WB-curated slots
+	MinDiscount        int // WB min discount (admin setting) for WB-curated slots
+	MaxDiscount        int // WB max discount (admin setting) for WB-curated slots
 	MinPrice           *int64
 	BidStep            *int64
 	StopFactors        StopFactors

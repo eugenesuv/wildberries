@@ -219,7 +219,8 @@ func (a *App) handleAdminGetPromotion(w http.ResponseWriter, r *http.Request, id
 		IdentificationMode string            `json:"identificationMode"`
 		PricingModel       string            `json:"pricingModel"`
 		SlotCount          int               `json:"slotCount"`
-		Discount           int               `json:"discount"`
+		MinDiscount        int               `json:"minDiscount"`
+		MaxDiscount        int               `json:"maxDiscount"`
 		StopFactors        []string          `json:"stopFactors"`
 		Segments           []segmentItem     `json:"segments"`
 		FixedPrices        map[string]string `json:"fixedPrices"`
@@ -237,7 +238,8 @@ func (a *App) handleAdminGetPromotion(w http.ResponseWriter, r *http.Request, id
 		IdentificationMode: promo.IdentificationMode.APIString(),
 		PricingModel:       promo.PricingModel.APIString(),
 		SlotCount:          promo.SlotCount,
-		Discount:           promo.Discount,
+		MinDiscount:        promo.MinDiscount,
+		MaxDiscount:        promo.MaxDiscount,
 		StopFactors:        promo.StopFactors.Factors,
 		Segments:           make([]segmentItem, 0, len(segments)),
 		FixedPrices:        map[string]string{},
@@ -337,7 +339,8 @@ func (a *App) handleAdminUpdatePromotion(w http.ResponseWriter, r *http.Request,
 		IdentificationMode *string   `json:"identificationMode"`
 		PricingModel       *string   `json:"pricingModel"`
 		SlotCount          *int      `json:"slotCount"`
-		Discount           *int      `json:"discount"`
+		MinDiscount        *int      `json:"minDiscount"`
+		MaxDiscount        *int      `json:"maxDiscount"`
 		StopFactors        *[]string `json:"stopFactors"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -393,8 +396,11 @@ func (a *App) handleAdminUpdatePromotion(w http.ResponseWriter, r *http.Request,
 	if req.SlotCount != nil {
 		promo.SlotCount = *req.SlotCount
 	}
-	if req.Discount != nil {
-		promo.Discount = *req.Discount
+	if req.MinDiscount != nil {
+		promo.MinDiscount = *req.MinDiscount
+	}
+	if req.MaxDiscount != nil {
+		promo.MaxDiscount = *req.MaxDiscount
 	}
 	if req.StopFactors != nil {
 		promo.StopFactors = entity.StopFactors{Factors: *req.StopFactors}

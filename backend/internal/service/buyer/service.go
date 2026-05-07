@@ -79,7 +79,8 @@ func (s *Service) GetCurrentPromotion(ctx context.Context) (*entity.Promotion, e
 		IdentificationMode: entity.ParseIdentificationMode(row.IdentificationMode),
 		PricingModel:       entity.ParsePricingModel(row.PricingModel),
 		SlotCount:          row.SlotCount,
-		Discount:           row.Discount,
+		MinDiscount:        row.MinDiscount,
+		MaxDiscount:        row.MaxDiscount,
 		MinPrice:           row.MinPrice,
 		BidStep:            row.BidStep,
 	}
@@ -103,7 +104,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 	completed := false
 	promoDiscount := 0
 	if promoRow != nil {
-		promoDiscount = promoRow.Discount
+		promoDiscount = promoRow.MaxDiscount
 		completed = entity.ParsePromotionStatus(promoRow.Status) == entity.PromotionStatusCompleted
 	}
 	if len(slots) == 0 {
