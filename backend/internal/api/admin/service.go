@@ -423,6 +423,8 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 	if err != nil {
 		return nil, err
 	}
+	// Load promotion once to get FixedPrices for fixed-price slots
+	promo, _ := s.promotionService.GetPromotion(ctx, req.PromotionId)
 	out := make([]*desc.ModerationApplication, len(rows))
 	for i, r := range rows {
 		var stopFactors []string
@@ -431,8 +433,14 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 		}
 		applicationPrice := int64(0)
 		slot, slotErr := s.promotionService.GetSlotByID(ctx, r.SlotID)
-		if slotErr == nil && slot != nil && slot.Price != nil {
-			applicationPrice = *slot.Price
+		if slotErr == nil && slot != nil {
+			if slot.Price != nil {
+				applicationPrice = *slot.Price
+			} else if slot.Position > 0 && promo != nil && promo.FixedPrices != nil {
+				if price, ok := promo.FixedPrices[int32(slot.Position)]; ok {
+					applicationPrice = price
+				}
+			}
 		}
 		out[i] = &desc.ModerationApplication{
 			Id:          r.ID,
