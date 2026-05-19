@@ -457,6 +457,12 @@ func (s *Service) MakeBet(ctx context.Context, sellerID, slotID, amount, product
 	if discount == 0 {
 		discount = int64(prod.Discount)
 	}
+	// Validate discount is within promotion bounds for fixed price slots
+	if promoRow != nil && discount > 0 {
+		if discount < int64(promoRow.MinDiscount) || discount > int64(promoRow.MaxDiscount) {
+			return false, fmt.Sprintf("discount must be between %d and %d", promoRow.MinDiscount, promoRow.MaxDiscount), nil
+		}
+	}
 	row := &repository.ModerationRow{
 		PromotionID: slot.PromotionID,
 		SegmentID:   slot.SegmentID,

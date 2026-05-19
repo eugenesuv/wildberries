@@ -15,7 +15,7 @@ const mapApplication = (
         productName: string;
         price: string;
         discount: number;
-        image: string,
+        image: string;
         stopFactors: string[];
         status: string;
     },
@@ -30,7 +30,9 @@ const mapApplication = (
     price: Number(app.price || 0),
     discount: Number(app.discount || 0),
     image: app.image || PLACEHOLDER_IMAGE,
-    status: (["pending", "approved", "rejected"].includes(app.status) ? app.status : "pending") as Application["status"],
+    status: (["pending", "approved", "rejected"].includes(app.status)
+        ? app.status
+        : "pending") as Application["status"],
     stopFactors: app.stopFactors || [],
     submittedAt: new Date().toISOString(),
 });
@@ -78,61 +80,77 @@ export const useModeration = () => {
         void loadApplications();
     }, [loadApplications]);
 
-    const statistics = calculateModerationStatistics(applications);
+    const updateApplicationStatus = useCallback((appId: number, status: Application["status"]) => {
+        setApplications((prev) => prev.map((app) => (app.id === appId ? { ...app, status } : app)));
+        setSelectedApp((prev) => (prev?.id === appId ? { ...prev, status } : prev));
+    }, []);
 
-    const handleApprove = async (appId: number) => {
-        try {
-            await adminClient.approveApplication(appId);
-            await loadApplications();
-            if (selectedApp?.id === appId) {
-                setSelectedApp((prev) => (prev ? { ...prev, status: "approved" } : prev));
+    const statistics = useMemo(() => calculateModerationStatistics(applications), [applications]);
+
+    const handleApprove = useCallback(
+        async (appId: number) => {
+            try {
+                await adminClient.approveApplication(appId);
+                updateApplicationStatus(appId, "approved");
+            } catch (error) {
+                setHasError("Не удалось одобрить заявку");
             }
-        } catch (error) {
-            setHasError("Не удалось одобрить заявку");
-        }
-    };
+        },
+        [updateApplicationStatus],
+    );
 
-    const handleReject = async (appId: number) => {
-        try {
-            await adminClient.rejectApplication(appId, "rejected_by_admin");
-            await loadApplications();
-            if (selectedApp?.id === appId) {
-                setSelectedApp((prev) => (prev ? { ...prev, status: "rejected" } : prev));
+    const handleReject = useCallback(
+        async (appId: number) => {
+            try {
+                await adminClient.rejectApplication(appId, "rejected_by_admin");
+                updateApplicationStatus(appId, "rejected");
+            } catch (error) {
+                setHasError("Не удалось отклонить заявку");
             }
-        } catch (error) {
-            setHasError("Не удалось отклонить заявку");
-        }
-    };
+        },
+        [updateApplicationStatus],
+    );
 
-    const handleBulkApprove = async () => {
+    const handleBulkApprove = useCallback(async () => {
         const targets = applications.filter((app) => app.status === "pending" && app.stopFactors.length === 0);
+
+        if (targets.length === 0) {
+            return;
+        }
+
+        const targetIds = new Set(targets.map((app) => app.id));
+
         try {
             await Promise.all(targets.map((app) => adminClient.approveApplication(app.id)));
-            await loadApplications();
+            setApplications((prev) =>
+                prev.map((app) => (targetIds.has(app.id) ? { ...app, status: "approved" } : app)),
+            );
+
+            setSelectedApp((prev) => (prev && targetIds.has(prev.id) ? { ...prev, status: "approved" } : prev));
         } catch (error) {
             setHasError("Не удалось выполнить массовое одобрение");
         }
-    };
+    }, [applications]);
 
-    const handleViewDetails = (app: Application) => {
+    const handleViewDetails = useCallback((app: Application) => {
         setSelectedApp(app);
         setDetectedStopFactors(app.stopFactors);
         setShowDetailsDialog(true);
-    };
+    }, []);
 
-    const handleUpdateStopFactors = (factor: string, checked: boolean) => {
+    const handleUpdateStopFactors = useCallback((factor: string, checked: boolean) => {
         setDetectedStopFactors((prev) => (checked ? [...prev, factor] : prev.filter((f) => f !== factor)));
-    };
+    }, []);
 
-    const handleCloseDialog = () => {
+    const handleCloseDialog = useCallback(() => {
         setShowDetailsDialog(false);
         setSelectedApp(null);
         setDetectedStopFactors([]);
-    };
+    }, []);
 
-    const handleGoBack = () => {
+    const handleGoBack = useCallback(() => {
         navigate("/admin/dashboard");
-    };
+    }, [navigate]);
 
     const filteredApplications = useMemo(
         () => applications.filter((app) => activeTab === "all" || app.status === activeTab),
