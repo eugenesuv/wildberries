@@ -67,6 +67,8 @@ message SinglePromotion {
   map<int32, int64> fixed_prices = 14;  // position -> price
   PromotionPoll poll = 15;
   int32 max_discount = 16;
+  optional int64 booked_slots_price = 17;
+  optional int64 auction_slots_price = 18;
 }
 
 message SegmentWithOrder {

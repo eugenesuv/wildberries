@@ -86,9 +86,9 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	})
 
 	// Create API services
-	adminAPIService := admin_api.New(promotionService)
 	buyerAPIService := buyer_api.New(buyerService)
 	sellerAPIService := seller_api.New(sellerService)
+	adminAPIService := admin_api.New(promotionService, sellerService)
 	aiAPIService := ai_api.New(aiService)
 
 	// Create gRPC gateway mux
