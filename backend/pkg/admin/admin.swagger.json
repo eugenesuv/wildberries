@@ -1362,6 +1362,14 @@
         },
         "poll": {
           "$ref": "#/definitions/adminPromotionPoll"
+        },
+        "bookedSlotsPrice": {
+          "type": "string",
+          "format": "int64"
+        },
+        "auctionSlotsPrice": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

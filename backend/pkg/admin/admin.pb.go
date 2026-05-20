@@ -292,6 +292,8 @@ type SinglePromotion struct {
 	Segments           []*SegmentWithOrder    `protobuf:"bytes,13,rep,name=segments,proto3" json:"segments,omitempty"`
 	FixedPrices        map[int32]int64        `protobuf:"bytes,14,rep,name=fixed_prices,json=fixedPrices,proto3" json:"fixed_prices,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // position -> price
 	Poll               *PromotionPoll         `protobuf:"bytes,15,opt,name=poll,proto3" json:"poll,omitempty"`
+	BookedSlotsPrice   *int64                 `protobuf:"varint,16,opt,name=booked_slots_price,json=bookedSlotsPrice,proto3,oneof" json:"booked_slots_price,omitempty"`
+	AuctionSlotsPrice  *int64                 `protobuf:"varint,17,opt,name=auction_slots_price,json=auctionSlotsPrice,proto3,oneof" json:"auction_slots_price,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -429,6 +431,20 @@ func (x *SinglePromotion) GetPoll() *PromotionPoll {
 		return x.Poll
 	}
 	return nil
+}
+
+func (x *SinglePromotion) GetBookedSlotsPrice() int64 {
+	if x != nil && x.BookedSlotsPrice != nil {
+		return *x.BookedSlotsPrice
+	}
+	return 0
+}
+
+func (x *SinglePromotion) GetAuctionSlotsPrice() int64 {
+	if x != nil && x.AuctionSlotsPrice != nil {
+		return *x.AuctionSlotsPrice
+	}
+	return 0
 }
 
 type SegmentWithOrder struct {
@@ -2720,7 +2736,7 @@ const file_admin_proto_rawDesc = "" +
 	"\x14GetPromotionResponse\x12B\n" +
 	"\n" +
 	"promotions\x18\x01 \x03(\v2\".wildberries.admin.SinglePromotionR\n" +
-	"promotions\"\xfe\x04\n" +
+	"promotions\"\x95\x06\n" +
 	"\x0fSinglePromotion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -2738,10 +2754,14 @@ const file_admin_proto_rawDesc = "" +
 	"\fstop_factors\x18\f \x03(\tR\vstopFactors\x12?\n" +
 	"\bsegments\x18\r \x03(\v2#.wildberries.admin.SegmentWithOrderR\bsegments\x12V\n" +
 	"\ffixed_prices\x18\x0e \x03(\v23.wildberries.admin.SinglePromotion.FixedPricesEntryR\vfixedPrices\x124\n" +
-	"\x04poll\x18\x0f \x01(\v2 .wildberries.admin.PromotionPollR\x04poll\x1a>\n" +
+	"\x04poll\x18\x0f \x01(\v2 .wildberries.admin.PromotionPollR\x04poll\x121\n" +
+	"\x12booked_slots_price\x18\x10 \x01(\x03H\x00R\x10bookedSlotsPrice\x88\x01\x01\x123\n" +
+	"\x13auction_slots_price\x18\x11 \x01(\x03H\x01R\x11auctionSlotsPrice\x88\x01\x01\x1a>\n" +
 	"\x10FixedPricesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"|\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01B\x15\n" +
+	"\x13_booked_slots_priceB\x16\n" +
+	"\x14_auction_slots_price\"|\n" +
 	"\x10SegmentWithOrder\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -3085,6 +3105,7 @@ func file_admin_proto_init() {
 	if File_admin_proto != nil {
 		return
 	}
+	file_admin_proto_msgTypes[4].OneofWrappers = []any{}
 	file_admin_proto_msgTypes[10].OneofWrappers = []any{}
 	file_admin_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}

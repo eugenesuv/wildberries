@@ -65,6 +65,8 @@ message SinglePromotion {
   repeated SegmentWithOrder segments = 13;
   map<int32, int64> fixed_prices = 14;  // position -> price
   PromotionPoll poll = 15;
+  optional int64 booked_slots_price = 16;
+  optional int64 auction_slots_price = 17;
 }
 
 message SegmentWithOrder {

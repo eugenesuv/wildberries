@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"sort"
+	"wildberries/internal/service/seller"
 
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
@@ -17,9 +18,14 @@ import (
 	desc "wildberries/pkg/admin"
 )
 
+type sellerService interface {
+	GetSegmentSlotsMarket(ctx context.Context, actionID, segmentID int64) (*seller.SegmentSlotsMarket, error)
+}
+
 // Service handles admin API requests
 type Service struct {
 	promotionService *promotion.Service
+	sellerService    sellerService
 	desc.UnimplementedModerationServiceServer
 	desc.UnimplementedPollAdminServiceServer
 	desc.UnimplementedPromotionAdminServiceServer
@@ -27,9 +33,10 @@ type Service struct {
 }
 
 // New creates a new admin service
-func New(promotionService *promotion.Service) *Service {
+func New(promotionService *promotion.Service, sellerService sellerService) *Service {
 	return &Service{
 		promotionService: promotionService,
+		sellerService:    sellerService,
 	}
 }
 
@@ -77,6 +84,7 @@ func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionReque
 	}
 	resp := &desc.GetPromotionResponse{}
 	for _, promo := range promos {
+		var bookedSlotsPrice, auctionSlotsPrice *int64
 		res := &desc.SinglePromotion{
 			Id:                 promo.ID,
 			Name:               promo.Name,
@@ -96,6 +104,30 @@ func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionReque
 		if err == nil && len(segments) > 0 {
 			res.Segments = make([]*desc.SegmentWithOrder, len(segments))
 			for i, seg := range segments {
+				segmentSlotsMarket, err := s.sellerService.GetSegmentSlotsMarket(ctx, promo.ID, seg.ID)
+				if err != nil {
+					return nil, err
+				}
+				if segmentSlotsMarket.Fixed != nil {
+					var dummy int64
+					if bookedSlotsPrice == nil {
+						bookedSlotsPrice = &dummy
+					}
+					for _, sg := range segmentSlotsMarket.Fixed {
+						if sg.Status == "occupied" {
+							*bookedSlotsPrice += sg.Price
+						}
+					}
+				}
+				if segmentSlotsMarket.Auction != nil {
+					var dummy int64
+					if auctionSlotsPrice == nil {
+						auctionSlotsPrice = &dummy
+					}
+					for _, sg := range segmentSlotsMarket.Auction {
+						*auctionSlotsPrice += sg.CurrentBid
+					}
+				}
 				res.Segments[i] = &desc.SegmentWithOrder{
 					Id:           seg.ID,
 					Name:         seg.Name,
@@ -104,6 +136,8 @@ func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionReque
 				}
 			}
 		}
+		res.BookedSlotsPrice = bookedSlotsPrice
+		res.AuctionSlotsPrice = auctionSlotsPrice
 		if promo.FixedPrices != nil {
 			res.FixedPrices = promo.FixedPrices
 		}
