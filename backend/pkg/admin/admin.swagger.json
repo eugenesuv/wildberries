@@ -885,7 +885,7 @@
           "type": "integer",
           "format": "int32"
         },
-        "discount": {
+        "minDiscount": {
           "type": "integer",
           "format": "int32"
         },
@@ -894,6 +894,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "maxDiscount": {
+          "type": "integer",
+          "format": "int32"
         }
       },
       "title": "PATCH /admin/promotions/{id}"
@@ -1002,16 +1006,19 @@
           "type": "integer",
           "format": "int32"
         },
-        "discount": {
+        "minDiscount": {
           "type": "integer",
-          "format": "int32",
-          "title": "WB discount (admin setting) for WB-curated slots"
+          "format": "int32"
         },
         "stopFactors": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "maxDiscount": {
+          "type": "integer",
+          "format": "int32"
         }
       },
       "title": "--- Promotion Admin ---\nPOST /admin/promotions"
@@ -1335,7 +1342,7 @@
           "type": "integer",
           "format": "int32"
         },
-        "discount": {
+        "minDiscount": {
           "type": "integer",
           "format": "int32"
         },
@@ -1362,6 +1369,10 @@
         },
         "poll": {
           "$ref": "#/definitions/adminPromotionPoll"
+        },
+        "maxDiscount": {
+          "type": "integer",
+          "format": "int32"
         },
         "bookedSlotsPrice": {
           "type": "string",
