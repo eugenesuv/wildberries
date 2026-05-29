@@ -25,6 +25,12 @@ const mapPromotionSummary = (promotion: {
     status: string;
     dateFrom: string;
     dateTo: string;
+    bookedSlotsPrice?: string | number;
+    auctionSlotsPrice?: string | number;
+    slotCount?: number;
+    segments?: Array<{ id: number; name: string; categoryName: string; orderIndex: number }>;
+    minDiscount?: number;
+    maxDiscount?: number;
 }): AdminAction => ({
     id: Number(promotion.id),
     name: promotion.name,
@@ -32,9 +38,12 @@ const mapPromotionSummary = (promotion: {
     status: mapStatus(promotion.status),
     startDate: promotion.dateFrom,
     endDate: promotion.dateTo,
-    participants: 0,
-    revenue: 0,
-    views: 0,
+    bookedSlotsPrice: Number(promotion.bookedSlotsPrice) || 0,
+    auctionSlotsPrice: Number(promotion.auctionSlotsPrice) || 0,
+    slotCount: promotion.slotCount || 0,
+    segments: promotion.segments || [],
+    minDiscount: promotion.minDiscount || 0,
+    maxDiscount: promotion.maxDiscount || 0,
 });
 
 export const useAdminDashboard = () => {
