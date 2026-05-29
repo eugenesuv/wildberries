@@ -1,12 +1,19 @@
 import { AdminAction, Statistics } from "../types";
 
 export const calculateStatistics = (actions: AdminAction[]): Statistics => {
+    const activeCount = actions.filter((a) => a.status === "active").length;
+    const totalSlots = actions.reduce((sum, a) => sum + (a.slotCount || 0), 0);
+    const totalSegments = actions.reduce((sum, a) => sum + (a.segments?.length || 0), 0);
+    const totalBooked = actions.reduce((sum, a) => sum + (a.bookedSlotsPrice || 0), 0);
+    const totalAuction = actions.reduce((sum, a) => sum + (a.auctionSlotsPrice || 0), 0);
+
     return {
-        activeActions: actions.filter((a) => a.status === "active").length,
+        activeActions: activeCount,
         totalActions: actions.length,
-        totalParticipants: actions.reduce((sum, action) => sum + action.participants, 0),
-        totalRevenue: actions.reduce((sum, action) => sum + action.revenue, 0),
-        totalViews: actions.reduce((sum, action) => sum + action.views, 0),
+        totalBookedSlotsPrice: totalBooked,
+        totalAuctionSlotsPrice: totalAuction,
+        totalSlots,
+        totalSegments,
     };
 };
 
