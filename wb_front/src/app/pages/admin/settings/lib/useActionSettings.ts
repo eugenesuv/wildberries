@@ -519,8 +519,8 @@ const fetchPromotionState = async (promotionId: number): Promise<LoadedPromotion
         },
         fixedPriceSettings: { priceByPosition: fixedPriceMap },
         slotCount: Number(promotion.slotCount || 10),
-        minDiscount: Number((promotion as any).discount || 0),
-        maxDiscount: Number((promotion as any).discount || 0),
+        minDiscount: Number(promotion.minDiscount ?? (promotion as any).discount ?? 0),
+        maxDiscount: Number(promotion.maxDiscount ?? (promotion as any).discount ?? 0),
         stopFactors: promotion.stopFactors || [],
         testQuestions: pollQuestions.length > 0 ? pollQuestions : [createEmptyTestQuestion()],
         testAnswerTree: parsedTree.nodes.length > 0 ? parsedTree.nodes : fallbackTree,
@@ -966,7 +966,8 @@ export const useActionSettings = () => {
                 identificationMode: settings.identificationMode,
                 pricingModel: settings.pricingModel,
                 slotCount: settings.slotCount,
-                discount: settings.minDiscount,
+                minDiscount: settings.minDiscount,
+                maxDiscount: settings.maxDiscount,
                 stopFactors: settings.stopFactors,
             };
 

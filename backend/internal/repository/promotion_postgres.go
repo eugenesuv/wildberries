@@ -18,10 +18,10 @@ func NewPromotionPostgres(pool *pgxpool.Pool) *PromotionPostgres {
 func (r *PromotionPostgres) GetByID(ctx context.Context, id int64) (*PromotionRow, error) {
 	var row PromotionRow
 	err := r.pool.QueryRow(ctx, `SELECT id, name, description, theme, date_from::text, date_to::text, status,
-		identification_mode, pricing_model, slot_count, discount, min_price, bid_step, stop_factors, fixed_prices,
+		identification_mode, pricing_model, slot_count, max_discount, min_discount, min_price, bid_step, stop_factors, fixed_prices,
 		created_at::text, updated_at::text, deleted_at::text FROM public.promotion WHERE id = $1 AND deleted_at IS NULL`,
 		id).Scan(&row.ID, &row.Name, &row.Description, &row.Theme, &row.DateFrom, &row.DateTo, &row.Status,
-		&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.Discount, &row.MinPrice, &row.BidStep,
+		&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.MaxDiscount, &row.MinDiscount, &row.MinPrice, &row.BidStep,
 		&row.StopFactors, &row.FixedPrices, &row.CreatedAt, &row.UpdatedAt, &row.DeletedAt)
 	if err != nil {
 		return nil, err
@@ -32,11 +32,11 @@ func (r *PromotionPostgres) GetByID(ctx context.Context, id int64) (*PromotionRo
 func (r *PromotionPostgres) GetActive(ctx context.Context) (*PromotionRow, error) {
 	var row PromotionRow
 	err := r.pool.QueryRow(ctx, `SELECT id, name, description, theme, date_from::text, date_to::text, status,
-		identification_mode, pricing_model, slot_count, discount, min_price, bid_step, stop_factors, fixed_prices,
+		identification_mode, pricing_model, slot_count, max_discount, min_discount, min_price, bid_step, stop_factors, fixed_prices,
 		created_at::text, updated_at::text, deleted_at::text FROM public.promotion
 		WHERE status = 'RUNNING' AND date_from <= now() AND date_to >= now() AND deleted_at IS NULL LIMIT 1`).
 		Scan(&row.ID, &row.Name, &row.Description, &row.Theme, &row.DateFrom, &row.DateTo, &row.Status,
-			&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.Discount, &row.MinPrice, &row.BidStep,
+			&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.MaxDiscount, &row.MinDiscount, &row.MinPrice, &row.BidStep,
 			&row.StopFactors, &row.FixedPrices, &row.CreatedAt, &row.UpdatedAt, &row.DeletedAt)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *PromotionPostgres) GetActive(ctx context.Context) (*PromotionRow, error
 
 func (r *PromotionPostgres) ListAll(ctx context.Context) ([]*PromotionRow, error) {
 	rows, err := r.pool.Query(ctx, `SELECT id, name, description, theme, date_from::text, date_to::text, status,
-		identification_mode, pricing_model, slot_count, discount, min_price, bid_step, stop_factors, fixed_prices,
+		identification_mode, pricing_model, slot_count, max_discount, min_discount, min_price, bid_step, stop_factors, fixed_prices,
 		created_at::text, updated_at::text, deleted_at::text FROM public.promotion
 		WHERE deleted_at IS NULL
 		ORDER BY created_at DESC, id DESC`)
@@ -59,7 +59,7 @@ func (r *PromotionPostgres) ListAll(ctx context.Context) ([]*PromotionRow, error
 	for rows.Next() {
 		var row PromotionRow
 		err = rows.Scan(&row.ID, &row.Name, &row.Description, &row.Theme, &row.DateFrom, &row.DateTo, &row.Status,
-			&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.Discount, &row.MinPrice, &row.BidStep,
+			&row.IdentificationMode, &row.PricingModel, &row.SlotCount, &row.MaxDiscount, &row.MinDiscount, &row.MinPrice, &row.BidStep,
 			&row.StopFactors, &row.FixedPrices, &row.CreatedAt, &row.UpdatedAt, &row.DeletedAt)
 		if err != nil {
 			return nil, err
@@ -72,20 +72,20 @@ func (r *PromotionPostgres) ListAll(ctx context.Context) ([]*PromotionRow, error
 func (r *PromotionPostgres) Create(ctx context.Context, row *PromotionRow) (int64, error) {
 	var id int64
 	err := r.pool.QueryRow(ctx, `INSERT INTO public.promotion (name, description, theme, date_from, date_to, status,
-		identification_mode, pricing_model, slot_count, discount, min_price, bid_step, stop_factors, fixed_prices)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+		identification_mode, pricing_model, slot_count, min_discount, max_discount, min_price, bid_step, stop_factors, fixed_prices)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
 		row.Name, row.Description, row.Theme, row.DateFrom, row.DateTo, row.Status,
-		row.IdentificationMode, row.PricingModel, row.SlotCount, row.Discount, row.MinPrice, row.BidStep,
+		row.IdentificationMode, row.PricingModel, row.SlotCount, row.MinDiscount, row.MaxDiscount, row.MinPrice, row.BidStep,
 		row.StopFactors, row.FixedPrices).Scan(&id)
 	return id, err
 }
 
 func (r *PromotionPostgres) Update(ctx context.Context, row *PromotionRow) error {
 	_, err := r.pool.Exec(ctx, `UPDATE public.promotion SET name=$2, description=$3, theme=$4, date_from=$5, date_to=$6,
-		status=$7, identification_mode=$8, pricing_model=$9, slot_count=$10, discount=$11, min_price=$12, bid_step=$13,
-		stop_factors=$14, fixed_prices=$15, updated_at=now() WHERE id=$1`,
+		status=$7, identification_mode=$8, pricing_model=$9, slot_count=$10, min_discount=$11, max_discount=$12, min_price=$13, bid_step=$14,
+		stop_factors=$15, fixed_prices=$16, updated_at=now() WHERE id=$1`,
 		row.ID, row.Name, row.Description, row.Theme, row.DateFrom, row.DateTo, row.Status,
-		row.IdentificationMode, row.PricingModel, row.SlotCount, row.Discount, row.MinPrice, row.BidStep,
+		row.IdentificationMode, row.PricingModel, row.SlotCount, row.MinDiscount, row.MaxDiscount, row.MinPrice, row.BidStep,
 		row.StopFactors, row.FixedPrices)
 	return err
 }

@@ -63,7 +63,8 @@ func (s *Service) CreatePromotion(ctx context.Context, req *desc.CreatePromotion
 		IdentificationMode: identificationMode,
 		PricingModel:       pricingModel,
 		SlotCount:          int(req.SlotCount),
-		Discount:           int(req.Discount),
+		MinDiscount:        int(req.MinDiscount),
+		MaxDiscount:        int(req.MaxDiscount),
 		StopFactors:        entity.StopFactors{Factors: req.StopFactors},
 	}
 	id, err := s.promotionService.CreatePromotion(ctx, promo)
@@ -96,7 +97,8 @@ func (s *Service) GetPromotions(ctx context.Context, req *desc.GetPromotionReque
 			IdentificationMode: promo.IdentificationMode.APIString(),
 			PricingModel:       promo.PricingModel.APIString(),
 			SlotCount:          int32(promo.SlotCount),
-			Discount:           int32(promo.Discount),
+			MinDiscount:        int32(promo.MinDiscount),
+			MaxDiscount:        int32(promo.MaxDiscount),
 			StopFactors:        promo.StopFactors.Factors,
 		}
 		// Segments, FixedPrices, Poll filled by service if needed
@@ -207,8 +209,11 @@ func (s *Service) UpdatePromotion(ctx context.Context, req *desc.UpdatePromotion
 	if req.SlotCount != nil {
 		promo.SlotCount = int(*req.SlotCount)
 	}
-	if req.Discount != nil {
-		promo.Discount = int(*req.Discount)
+	if req.MinDiscount != nil {
+		promo.MinDiscount = int(*req.MinDiscount)
+	}
+	if req.MaxDiscount != nil {
+		promo.MaxDiscount = int(*req.MaxDiscount)
 	}
 	if len(req.StopFactors) > 0 {
 		promo.StopFactors = entity.StopFactors{Factors: req.StopFactors}
@@ -452,6 +457,8 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 	if err != nil {
 		return nil, err
 	}
+	// Load promotion once to get FixedPrices for fixed-price slots
+	promo, _ := s.promotionService.GetPromotion(ctx, req.PromotionId)
 	out := make([]*desc.ModerationApplication, len(rows))
 	for i, r := range rows {
 		var stopFactors []string
@@ -460,8 +467,14 @@ func (s *Service) GetApplications(ctx context.Context, req *desc.GetModerationAp
 		}
 		applicationPrice := int64(0)
 		slot, slotErr := s.promotionService.GetSlotByID(ctx, r.SlotID)
-		if slotErr == nil && slot != nil && slot.Price != nil {
-			applicationPrice = *slot.Price
+		if slotErr == nil && slot != nil {
+			if slot.Price != nil {
+				applicationPrice = *slot.Price
+			} else if slot.Position > 0 && promo != nil && promo.FixedPrices != nil {
+				if price, ok := promo.FixedPrices[int32(slot.Position)]; ok {
+					applicationPrice = price
+				}
+			}
 		}
 		out[i] = &desc.ModerationApplication{
 			Id:          r.ID,

@@ -22,7 +22,8 @@ type PromotionRow struct {
 	IdentificationMode string
 	PricingModel       string
 	SlotCount          int
-	Discount           int
+	MinDiscount        int
+	MaxDiscount        int
 	MinPrice           *int64
 	BidStep            *int64
 	StopFactors        []byte // jsonb

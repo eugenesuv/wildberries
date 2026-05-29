@@ -79,7 +79,8 @@ func (s *Service) GetCurrentPromotion(ctx context.Context) (*entity.Promotion, e
 		IdentificationMode: entity.ParseIdentificationMode(row.IdentificationMode),
 		PricingModel:       entity.ParsePricingModel(row.PricingModel),
 		SlotCount:          row.SlotCount,
-		Discount:           row.Discount,
+		MinDiscount:        row.MinDiscount,
+		MaxDiscount:        row.MaxDiscount,
 		MinPrice:           row.MinPrice,
 		BidStep:            row.BidStep,
 	}
@@ -103,7 +104,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 	completed := false
 	promoDiscount := 0
 	if promoRow != nil {
-		promoDiscount = promoRow.Discount
+		promoDiscount = promoRow.MaxDiscount
 		completed = entity.ParsePromotionStatus(promoRow.Status) == entity.PromotionStatusCompleted
 	}
 	if len(slots) == 0 {
@@ -140,7 +141,7 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 	}
 	for _, slot := range slots {
 		discount := slot.Discount
-		if productIDToWBDiscount[*slot.ProductID] {
+		if productIDToWBDiscount[*slot.ProductID] && discount == 0 {
 			discount = int64(promoDiscount)
 		}
 		r := products[*slot.ProductID]
@@ -148,16 +149,18 @@ func (s *Service) GetSegmentProducts(ctx context.Context, promotionID, segmentID
 		if r.Image != nil {
 			img = *r.Image
 		}
-		oldPrice := r.Price
+		currentPrice := r.Price
+		oldPrice := int64(0)
 		if discount > 0 {
-			oldPrice = r.Price * 100 / int64(100-discount)
+			oldPrice = r.Price
+			currentPrice = r.Price * int64(100-discount) / 100
 		}
 		items = append(items, &entity.ProductItem{
 			ID:           *slot.ProductID,
 			NmID:         r.NmID,
 			Name:         r.Name,
 			Image:        img,
-			Price:        r.Price,
+			Price:        currentPrice,
 			OldPrice:     oldPrice,
 			Discount:     int32(discount),
 			CategoryName: r.CategoryName,

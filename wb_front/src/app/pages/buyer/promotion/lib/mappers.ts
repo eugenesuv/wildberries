@@ -41,16 +41,12 @@ export const resolveSegmentByRoute = (
 };
 
 export const mapProductItem = (item: CommonProductItem): Product => {
-    const originalPrice = toNumber(item.price);
-    const discount = item.discount || 0;
-    const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
-
     return {
         id: toNumber(item.id),
         name: item.name,
-        price: discountedPrice,
-        oldPrice: discount > 0 ? originalPrice : undefined,
-        discount: discount || undefined,
+        price: toNumber(item.price),
+        oldPrice: item.oldPrice || undefined,
+        discount: item.discount || undefined,
         image: item.image,
         badge: item.badge,
         category: item.badge || "Товары акции",
