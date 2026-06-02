@@ -25,8 +25,9 @@ export function ActionsTable({ actions, onEdit, onView }: ActionsTableProps) {
                     <TableHead>Тема</TableHead>
                     <TableHead>Статус</TableHead>
                     <TableHead>Период</TableHead>
-                    <TableHead className="text-right">Участники</TableHead>
-                    <TableHead className="text-right">Выручка</TableHead>
+                    <TableHead className="text-right">Слотов</TableHead>
+                    <TableHead className="text-right">Сегментов</TableHead>
+                    <TableHead className="text-right">Стоиомсть всех слотов</TableHead>
                     <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
             </TableHeader>
@@ -41,8 +42,9 @@ export function ActionsTable({ actions, onEdit, onView }: ActionsTableProps) {
                         <TableCell className="text-sm text-muted-foreground">
                             {formatDate(action.startDate)} - {formatDate(action.endDate)}
                         </TableCell>
-                        <TableCell className="text-right">{action.participants}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(action.revenue)}</TableCell>
+                        <TableCell className="text-right">{action.slotCount}</TableCell>
+                        <TableCell className="text-right">{action.segments?.length || 0}</TableCell>
+                        <TableCell className="text-right">{formatCurrency((action.bookedSlotsPrice || 0) + (action.auctionSlotsPrice || 0))}</TableCell>
                         <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
                                 <Button variant="ghost" size="icon" onClick={() => onEdit(action.id)}>
