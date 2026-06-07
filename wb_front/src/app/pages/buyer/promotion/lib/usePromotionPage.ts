@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { buyerClient } from "@/app/shared/api/clients/buyer.client";
 import { adminClient } from "@/app/shared/api/clients/admin.client";
+import { sellerClient } from "@/app/shared/api/clients/seller.client";
 
 import { Product, FilterState, FavoriteSet } from "../types";
 import { HOROSCOPE_DATA } from "../constants";
@@ -93,6 +94,11 @@ export const usePromotionPage = () => {
 
                 if ((!promotionId || !segmentId) && currentPromotion.id && targetSegment.id) {
                     navigate(`/promotion/${currentPromotion.id}/${targetSegment.id}`, { replace: true });
+                }
+
+                // Increment promotion view counter
+                if (targetPromotionId) {
+                    await sellerClient.incrementPromotionView(Number(targetPromotionId));
                 }
 
                 const productsResponse = await buyerClient.getSegmentProducts(
