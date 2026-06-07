@@ -269,9 +269,87 @@
           "Bets"
         ]
       }
+    },
+    "/seller/promotions/{promotionId}/increment-view": {
+      "post": {
+        "summary": "Увеличить счётчик просмотров акции",
+        "description": "Увеличивает счётчик просмотров при переходе в акцию",
+        "operationId": "IncrementPromotionView",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerIncrementPromotionViewResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SellerActionsServiceIncrementPromotionViewBody"
+            }
+          }
+        ],
+        "tags": [
+          "Actions"
+        ]
+      }
+    },
+    "/seller/statistics": {
+      "get": {
+        "summary": "Получить статистику для селлера",
+        "description": "Получает статистику по акциям, слотам и просмотрам",
+        "operationId": "GetSellerStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/sellerGetSellerStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Actions"
+        ]
+      }
     }
   },
   "definitions": {
+    "SellerActionsServiceIncrementPromotionViewBody": {
+      "type": "object",
+      "title": "--- POST /seller/promotions/{id}/increment-view ---"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -360,6 +438,35 @@
             "type": "object",
             "$ref": "#/definitions/sellerSellerBetItem"
           }
+        }
+      }
+    },
+    "sellerGetSellerStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "activePromotions": {
+          "type": "string",
+          "format": "int64"
+        },
+        "freeSlots": {
+          "type": "string",
+          "format": "int64"
+        },
+        "occupiedSlots": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalViews": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "sellerIncrementPromotionViewResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
         }
       }
     },

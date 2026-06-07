@@ -83,6 +83,27 @@ message GetSellerActionsResponse {
   repeated SellerActionSummary actions = 1;
 }
 
+// --- GET /seller/statistics — статистика для селлера ---
+message GetSellerStatisticsRequest {
+  int64 seller_id = 1;
+}
+
+message GetSellerStatisticsResponse {
+  int64 active_promotions = 1;
+  int64 free_slots = 2;
+  int64 occupied_slots = 3;
+  int64 total_views = 4;
+}
+
+// --- POST /seller/promotions/{id}/increment-view ---
+message IncrementPromotionViewRequest {
+  int64 promotion_id = 1;
+}
+
+message IncrementPromotionViewResponse {
+  bool success = 1;
+}
+
 // --- GET /seller/bets/list — ставки/заявки селлера ---
 message GetSellerBetsListRequest {
   int64 promotion_id = 1;  // optional filter
@@ -165,6 +186,29 @@ service SellerActionsService {
       description: "-";
       tags: "Actions";
       operation_id: "GetActionSegments";
+    };
+  }
+  rpc GetSellerStatistics(GetSellerStatisticsRequest) returns (GetSellerStatisticsResponse) {
+    option (google.api.http) = {
+      get: "/seller/statistics"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Получить статистику для селлера";
+      description: "Получает статистику по акциям, слотам и просмотрам";
+      tags: "Actions";
+      operation_id: "GetSellerStatistics";
+    };
+  }
+  rpc IncrementPromotionView(IncrementPromotionViewRequest) returns (IncrementPromotionViewResponse) {
+    option (google.api.http) = {
+      post: "/seller/promotions/{promotion_id}/increment-view"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Увеличить счётчик просмотров акции";
+      description: "Увеличивает счётчик просмотров при переходе в акцию";
+      tags: "Actions";
+      operation_id: "IncrementPromotionView";
     };
   }
 }
