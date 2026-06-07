@@ -152,3 +152,30 @@ func (s *Service) RemoveBet(ctx context.Context, req *desc.RemoveBetRequest) (*d
 		Success: success,
 	}, nil
 }
+
+// GetSellerStatistics returns seller statistics
+func (s *Service) GetSellerStatistics(ctx context.Context, req *desc.GetSellerStatisticsRequest) (*desc.GetSellerStatisticsResponse, error) {
+	stats, err := s.sellerService.GetSellerStatistics(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &desc.GetSellerStatisticsResponse{
+		ActivePromotions: stats.ActivePromotions,
+		FreeSlots:       stats.FreeSlots,
+		OccupiedSlots:   stats.OccupiedSlots,
+		TotalViews:      stats.TotalViews,
+	}, nil
+}
+
+// IncrementPromotionView increments the view count for a promotion
+func (s *Service) IncrementPromotionView(ctx context.Context, req *desc.IncrementPromotionViewRequest) (*desc.IncrementPromotionViewResponse, error) {
+	err := s.sellerService.IncrementPromotionView(ctx, req.PromotionId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &desc.IncrementPromotionViewResponse{
+		Success: true,
+	}, nil
+}

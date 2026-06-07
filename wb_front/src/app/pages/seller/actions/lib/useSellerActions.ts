@@ -4,6 +4,7 @@ import { sellerClient } from "@/app/shared/api/clients/seller.client";
 import { DEFAULT_SELLER_ID } from "@/app/shared/api/config";
 import { SellerAction, CategoryFilter } from "../types";
 import { filterActionsByCategory } from "./helpers";
+import type { SellerStatistics } from "@/app/shared/api/types/seller.types";
 
 const mapStatus = (status: string): SellerAction["status"] => {
     switch (status) {
@@ -41,6 +42,7 @@ export const useSellerActions = () => {
     const navigate = useNavigate();
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
     const [actions, setActions] = useState<SellerAction[]>([]);
+    const [statistics, setStatistics] = useState<SellerStatistics | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState<string | null>(null);
 
@@ -52,9 +54,13 @@ export const useSellerActions = () => {
             setHasError(null);
 
             try {
-                const response = await sellerClient.getSellerActions(DEFAULT_SELLER_ID);
+                const [actionsResponse, statsResponse] = await Promise.all([
+                    sellerClient.getSellerActions(DEFAULT_SELLER_ID),
+                    sellerClient.getSellerStatistics(),
+                ]);
                 if (!mounted) return;
-                setActions((response.actions || []).map(mapAction));
+                setActions((actionsResponse.actions || []).map(mapAction));
+                setStatistics(statsResponse);
             } catch (error) {
                 if (!mounted) return;
                 setHasError("Не удалось загрузить список акций");
@@ -91,5 +97,6 @@ export const useSellerActions = () => {
         handleNavigateHome,
         isLoading,
         hasError,
+        statistics,
     };
 };

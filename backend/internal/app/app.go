@@ -60,6 +60,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	betRepo := repository.NewBetPostgres(pool)
 	auctionRepo := repository.NewAuctionPostgres(pool)
 	pollRepo := repository.NewPollPostgres(pool)
+	viewCountRepo := repository.NewPromotionViewCountPostgres(pool)
 
 	// Create services
 	promotionService := promotion.New(
@@ -74,7 +75,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	)
 
 	buyerService := buyer.New(productRepo, promotionRepo, slotRepo, segmentRepo, pollRepo)
-	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo)
+	sellerService := seller.New(productRepo, betRepo, auctionRepo, slotRepo, segmentRepo, promotionRepo, moderationRepo, viewCountRepo)
 	aiService := ai.New(ai.Config{
 		Provider:         cfg.AIProvider,
 		GeminiAPIKey:     cfg.GeminiAPIKey,

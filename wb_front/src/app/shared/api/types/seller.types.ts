@@ -127,3 +127,11 @@ export interface SellerGetSellerBetsListParams {
 export interface SellerGetSellerBetsListResponse {
     items: SellerSellerBetItem[];
 }
+
+// ==================== Statistics ====================
+export interface SellerStatistics {
+    activePromotions: number;
+    freeSlots: number;
+    occupiedSlots: number;
+    totalViews: number;
+}

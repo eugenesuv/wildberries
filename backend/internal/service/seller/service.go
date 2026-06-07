@@ -24,6 +24,7 @@ type Service struct {
 	segmentRepo    repository.SegmentRepository
 	promotionRepo  repository.PromotionRepository
 	moderationRepo repository.ModerationRepository
+	viewCountRepo  repository.PromotionViewCountRepository
 }
 
 // New creates a new seller service
@@ -35,6 +36,7 @@ func New(
 	segmentRepo repository.SegmentRepository,
 	promotionRepo repository.PromotionRepository,
 	moderationRepo repository.ModerationRepository,
+	viewCountRepo repository.PromotionViewCountRepository,
 ) *Service {
 	return &Service{
 		productRepo:    productRepo,
@@ -44,6 +46,7 @@ func New(
 		segmentRepo:    segmentRepo,
 		promotionRepo:  promotionRepo,
 		moderationRepo: moderationRepo,
+		viewCountRepo:  viewCountRepo,
 	}
 }
 
@@ -753,4 +756,58 @@ func nextAuctionBidMin(minPrice, bidStep, currentBid int64) int64 {
 		return currentBid + bidStep
 	}
 	return currentBid
+}
+
+// GetSellerStatistics returns statistics for seller dashboard
+func (s *Service) GetSellerStatistics(ctx context.Context) (*entity.SellerStatistics, error) {
+	promotions, err := s.promotionRepo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Count active promotions (RUNNING or READY_TO_START)
+	var activePromotions int64
+	for _, p := range promotions {
+		if p.Status == "RUNNING" || p.Status == "READY_TO_START" {
+			activePromotions++
+		}
+	}
+
+	// Count all slots across all promotions
+	var totalSlots, freeSlots, occupiedSlots int64
+	occupiedSellers := make(map[int64]struct{})
+
+	for _, p := range promotions {
+		slots, err := s.slotRepo.ByPromotionID(ctx, p.ID)
+		if err != nil {
+			continue
+		}
+		for _, slot := range slots {
+			totalSlots++
+			if slot.Status == "available" {
+				freeSlots++
+			} else if slot.Status == "occupied" && slot.SellerID != nil {
+				occupiedSlots++
+				occupiedSellers[*slot.SellerID] = struct{}{}
+			}
+		}
+	}
+
+	// Total views
+	totalViews, err := s.viewCountRepo.GetTotalViews(ctx)
+	if err != nil {
+		totalViews = 0
+	}
+
+	return &entity.SellerStatistics{
+		ActivePromotions: activePromotions,
+		FreeSlots:       freeSlots,
+		OccupiedSlots:   int64(len(occupiedSellers)), // Count unique sellers
+		TotalViews:      totalViews,
+	}, nil
+}
+
+// IncrementPromotionView increments the view count for a promotion
+func (s *Service) IncrementPromotionView(ctx context.Context, promotionID int64) error {
+	return s.viewCountRepo.Increment(ctx, promotionID)
 }

@@ -10,6 +10,7 @@ import type {
     SellerRemoveBetRequest,
     SellerRemoveBetResponse,
     SellerGetSellerBetsListResponse,
+    SellerStatistics,
 } from "../types/seller.types";
 
 class SellerClient extends ApiClient {
@@ -61,6 +62,14 @@ class SellerClient extends ApiClient {
         sellerId?: number;
     }): Promise<SellerGetSellerBetsListResponse> {
         return this.get("/seller/bets/list", { params });
+    }
+
+    async getSellerStatistics(): Promise<SellerStatistics> {
+        return this.get("/seller/statistics");
+    }
+
+    async incrementPromotionView(promotionId: number): Promise<void> {
+        await this.post(`/seller/promotions/${promotionId}/increment-view`, {});
     }
 }
 

@@ -3,6 +3,7 @@ import { useSellerActions } from "../lib/useSellerActions";
 import { SellerHeader } from "./components/SellerHeader";
 import { ActionsHeader } from "./components/ActionsHeader";
 import { ActionsGrid } from "./components/ActionsGrid";
+import { StatisticsCards } from "./components/StatisticsCards";
 
 export function SellerActionsPage() {
     const {
@@ -13,6 +14,7 @@ export function SellerActionsPage() {
         handleNavigateHome,
         isLoading,
         hasError,
+        statistics,
     } =
         useSellerActions();
 
@@ -22,6 +24,7 @@ export function SellerActionsPage() {
 
             <div className="container mx-auto px-4 py-8">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                    {statistics && <StatisticsCards statistics={statistics} />}
                     <ActionsHeader categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter} />
                     {hasError && (
                         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

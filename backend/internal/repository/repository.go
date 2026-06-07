@@ -230,3 +230,18 @@ type BetRow struct {
 	Bet       int64
 	CreatedAt string
 }
+
+// PromotionViewCountRow — строка promotion_view_count
+type PromotionViewCountRow struct {
+	ID          int64
+	PromotionID int64
+	ViewCount   int64
+	UpdatedAt   string
+}
+
+// PromotionViewCountRepository — операции с promotion_view_count
+type PromotionViewCountRepository interface {
+	GetOrCreate(ctx context.Context, promotionID int64) (*PromotionViewCountRow, error)
+	Increment(ctx context.Context, promotionID int64) error
+	GetTotalViews(ctx context.Context) (int64, error)
+}
