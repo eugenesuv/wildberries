@@ -774,8 +774,7 @@ func (s *Service) GetSellerStatistics(ctx context.Context) (*entity.SellerStatis
 	}
 
 	// Count all slots across all promotions
-	var totalSlots, freeSlots, occupiedSlots int64
-	occupiedSellers := make(map[int64]struct{})
+	var freeSlots, occupiedSlots int64
 
 	for _, p := range promotions {
 		slots, err := s.slotRepo.ByPromotionID(ctx, p.ID)
@@ -783,12 +782,10 @@ func (s *Service) GetSellerStatistics(ctx context.Context) (*entity.SellerStatis
 			continue
 		}
 		for _, slot := range slots {
-			totalSlots++
 			if slot.Status == "available" {
 				freeSlots++
-			} else if slot.Status == "occupied" && slot.SellerID != nil {
+			} else if slot.Status == "occupied" {
 				occupiedSlots++
-				occupiedSellers[*slot.SellerID] = struct{}{}
 			}
 		}
 	}
@@ -802,7 +799,7 @@ func (s *Service) GetSellerStatistics(ctx context.Context) (*entity.SellerStatis
 	return &entity.SellerStatistics{
 		ActivePromotions: activePromotions,
 		FreeSlots:       freeSlots,
-		OccupiedSlots:   int64(len(occupiedSellers)), // Count unique sellers
+		OccupiedSlots:   occupiedSlots,
 		TotalViews:      totalViews,
 	}, nil
 }
