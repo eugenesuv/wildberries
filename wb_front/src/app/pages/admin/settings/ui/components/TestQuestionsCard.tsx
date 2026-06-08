@@ -373,7 +373,7 @@ export function TestQuestionsCard({
                                             />
 
                                             <select
-                                                className="rounded-md border bg-white px-3 py-2 text-sm"
+                                                className="w-full rounded-md border bg-white px-3 py-2 text-sm"
                                                 value={link.targetType}
                                                 onChange={(e) => {
                                                     const nextType = e.target.value as TestAnswerTargetType;
@@ -390,7 +390,7 @@ export function TestQuestionsCard({
 
                                             {link.targetType === "question" ? (
                                                 <select
-                                                    className="rounded-md border bg-white px-3 py-2 text-sm"
+                                                    className="w-full rounded-md border bg-white px-3 py-2 text-sm"
                                                     value={link.targetValue}
                                                     onChange={(e) =>
                                                         onUpdateAnswerLink(qIndex, oIndex, "question", e.target.value)
@@ -404,7 +404,7 @@ export function TestQuestionsCard({
                                                 </select>
                                             ) : (
                                                 <select
-                                                    className="rounded-md border bg-white px-3 py-2 text-sm"
+                                                    className="w-full rounded-md border bg-white px-3 py-2 text-sm"
                                                     value={link.targetValue}
                                                     onChange={(e) =>
                                                         onUpdateAnswerLink(qIndex, oIndex, "segment", e.target.value)
