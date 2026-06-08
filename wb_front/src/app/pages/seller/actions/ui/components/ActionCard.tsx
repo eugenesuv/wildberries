@@ -41,7 +41,7 @@ export function ActionCard({ action, index, onSelect }: ActionCardProps) {
                         <span>{action.category}</span>
                     </div> */}
 
-                    {isActive && (
+                    {/* {isActive && (
                         <div className="grid grid-cols-2 gap-4 pt-2">
                             <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-muted-foreground" />
@@ -58,7 +58,7 @@ export function ActionCard({ action, index, onSelect }: ActionCardProps) {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
 
                     <Button className="w-full" disabled={isCompleted} onClick={() => onSelect(action.id)}>
                         {isCompleted ? "Акция завершена" : "Выбрать сегменты"}
